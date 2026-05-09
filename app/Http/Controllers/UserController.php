@@ -31,9 +31,11 @@ class UserController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => 'patient',
+
                 'active' => true,
             ]);
+            // add role to user
+            $user->assignRole('patient');
 
             // 2. Create the associated Profile
             $profile = Profile::create([
