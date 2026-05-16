@@ -26,7 +26,7 @@ class UserController extends Controller
         ]);
 
         return DB::transaction(function () use ($request) {
-           
+
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -41,6 +41,11 @@ class UserController extends Controller
             $profile = Profile::create([
                 'user_id' => $user->id,
                 'full_name' => $request->name,
+                "phone" => $request->phone ?? 'N/A',
+                "gender" => $request->gender ?? 'N/A',
+                "address" => $request->address ?? 'N/A',
+                "national_number" => $request->national_number ?? 'N/A',
+                "date_of_birth" => $request->date_of_birth ?? 'N/A'
             ]);
 
             // 3. Initialize Patient record

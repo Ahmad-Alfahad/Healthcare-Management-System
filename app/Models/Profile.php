@@ -8,9 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Profile extends Model
 {
     protected $fillable = [
-        'user_id', 'full_name', 'national_number', 'phone', 
-        'gender', 'address', 'date_of_birth'    
-];
+        'user_id',
+        'full_name',
+        'national_number',
+        'phone',
+        'gender',
+        'address',
+        'date_of_birth'
+    ];
 
     /**
      * Get the user that owns the profile.
@@ -19,5 +24,4 @@ class Profile extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
 }
