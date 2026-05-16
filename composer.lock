@@ -1169,7 +1169,7 @@
                 "fakerphp/faker": "^1.24",
                 "guzzlehttp/promises": "^2.0.3",
                 "guzzlehttp/psr7": "^2.4",
-                "laravel/pint": "^1.18",
+                "laravel/pint": "^1.29.1",
                 "league/flysystem-aws-s3-v3": "^3.25.1",
                 "league/flysystem-ftp": "^3.25.1",
                 "league/flysystem-path-prefixing": "^3.25.1",
@@ -2528,7 +2528,7 @@
             },
             "require-dev": {
                 "illuminate/console": "^11.47.0",
-                "laravel/pint": "^1.27.1",
+                "laravel/pint": "^1.29.1",
                 "mockery/mockery": "^1.6.12",
                 "pestphp/pest": "^2.36.0 || ^3.8.4 || ^4.3.2",
                 "phpstan/phpstan": "^1.12.32",

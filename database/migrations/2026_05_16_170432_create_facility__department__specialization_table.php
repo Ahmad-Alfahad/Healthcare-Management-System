@@ -11,18 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patients', function (Blueprint $table) {
+        Schema::create('facility_department_specialization', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('profile_id')->constrained()->onDelete('cascade');
-            $table->string('blood_type')->nullable();
+            $table->unsignedBigInteger("facility_department_id");
+            $table->foreignId("specialization_id")->constrained();
             $table->timestamps();
+
+            $table->foreign("facility_department_id" , "fa_dept_spec_fa_dept")->references("id")->on("facility_department");
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('patients');
+        Schema::dropIfExists('facility__department__specializations');
     }
 };

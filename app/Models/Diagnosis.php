@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Diagnosis extends Model
+{
+    protected $fillable = [
+        "visit_id",
+        "diagnosis_code",
+        "description",
+        "diagnosis_type",
+        "notes"
+    ];
+}

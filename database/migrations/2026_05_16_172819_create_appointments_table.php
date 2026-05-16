@@ -11,18 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patients', function (Blueprint $table) {
+        Schema::create('appointments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('profile_id')->constrained()->onDelete('cascade');
-            $table->string('blood_type')->nullable();
+            $table->foreignId("patient_id")->constrained();
+            $table->foreignId("doctor_id")->constrained();
+            $table->string("status");
+            $table->dateTime("scheduled_date");
+            $table->dateTime("start_time");
             $table->timestamps();
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('patients');
+        Schema::dropIfExists('appointments');
     }
 };

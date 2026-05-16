@@ -11,18 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patients', function (Blueprint $table) {
+        Schema::create('prescription_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('profile_id')->constrained()->onDelete('cascade');
-            $table->string('blood_type')->nullable();
+            $table->foreignId("prescription_id")->constrained();
+            $table->string("medication_name");
+            $table->string("dosage");
+            $table->string("quantity_prescribed");
+            $table->string("frequency");
+            $table->string("duration");
             $table->timestamps();
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('patients');
+        Schema::dropIfExists('prescription_items');
     }
 };
