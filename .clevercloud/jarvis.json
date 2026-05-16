@@ -1,0 +1,8 @@
+{
+  "build": {
+    "type": "custom"
+  },
+  "deploy": {
+    "webroot": "/public"
+  }
+}
