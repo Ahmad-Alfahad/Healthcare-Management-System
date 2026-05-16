@@ -21,3 +21,22 @@ Route::get('/run-migration', function () {
         ], 500);
     }
 });
+use Spatie\Permission\Models\Role;
+
+Route::get('/seed-system-roles', function () {
+    try {
+        Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'doctor', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'patient', 'guard_name' => 'web']);
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'System roles (admin, doctor, patient) have been created successfully!'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
