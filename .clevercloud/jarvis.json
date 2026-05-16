@@ -4,5 +4,8 @@
   },
   "deploy": {
     "webroot": "/public"
+  },
+  "hooks": {
+    "postDeploy": "php artisan migrate --force"
   }
 }
