@@ -24,7 +24,8 @@ class DatabaseSeeder extends Seeder
             FacilitySeeder::class,
             RoleSeeder::class,
             SpecializationSeeder::class,
-        ]);
+            DepartmentSeeder::class,
 
+        ]);
     }
 }

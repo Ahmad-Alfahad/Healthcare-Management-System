@@ -2,65 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Department;
 use App\Http\Requests\StoreDepartmentRequest;
 use App\Http\Requests\UpdateDepartmentRequest;
+use App\Services\DepartmentService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class DepartmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $departmentService;
+
+    public function __construct(DepartmentService $departmentService)
     {
-        //
+        $this->departmentService = $departmentService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $departments = $this->departmentService->getAllDepartments();
+        return response()->json(['success' => true, 'data' => $departments], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreDepartmentRequest $request)
+    public function store(StoreDepartmentRequest $request): JsonResponse
     {
-        //
+        $department = $this->departmentService->createDepartment($request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Department created successfully.',
+            'data'    => $department
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Department $department)
+    public function show(int $id): JsonResponse
     {
-        //
+        $department = $this->departmentService->getDepartmentById($id);
+        return response()->json(['success' => true, 'data' => $department], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Department $department)
+    public function update(UpdateDepartmentRequest $request, int $id): JsonResponse
     {
-        //
+        $this->departmentService->updateDepartment($id, $request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Department updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateDepartmentRequest $request, Department $department)
+    public function destroy(int $id): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Department $department)
-    {
-        //
+        $this->departmentService->deleteDepartment($id);
+        return response()->json([
+            'success' => true,
+            'message' => 'Department deleted successfully.'
+        ], Response::HTTP_OK);
     }
 }
