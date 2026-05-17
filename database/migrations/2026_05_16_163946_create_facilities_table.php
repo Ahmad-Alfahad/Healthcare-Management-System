@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('facilities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("parent_id")->references("id")->on("facilities");
+            $table->foreignId("parent_id")->nullable()->constrained("facilities")->nullOnDelete();
             $table->string("name");
             $table->string("facility_type");
             $table->string("phone_number");
