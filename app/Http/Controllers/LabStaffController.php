@@ -2,65 +2,68 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LabStaff;
 use App\Http\Requests\StoreLabStaffRequest;
 use App\Http\Requests\UpdateLabStaffRequest;
+use App\Services\LabStaffService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class LabStaffController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $labStaffService;
+
+    public function __construct(LabStaffService $labStaffService)
     {
-        //
+        $this->labStaffService = $labStaffService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+  
+    public function index(): JsonResponse
     {
-        //
+        $staff = $this->labStaffService->getAllStaff();
+        return response()->json([
+            'success' => true,
+            'data'    => $staff
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreLabStaffRequest $request)
+  
+    public function store(StoreLabStaffRequest $request): JsonResponse
     {
-        //
+        $staff = $this->labStaffService->createStaff($request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab staff member created successfully.',
+            'data'    => $staff
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(LabStaff $labStaff)
+   
+    public function show(int $id): JsonResponse
     {
-        //
+        $staff = $this->labStaffService->getStaffById($id);
+        return response()->json([
+            'success' => true,
+            'data'    => $staff
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(LabStaff $labStaff)
+    public function update(UpdateLabStaffRequest $request, int $id): JsonResponse
     {
-        //
+        $this->labStaffService->updateStaff($id, $request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab staff records updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateLabStaffRequest $request, LabStaff $labStaff)
+   
+    public function destroy(int $id): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(LabStaff $labStaff)
-    {
-        //
+        $this->labStaffService->deleteStaff($id);
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab staff record deleted successfully.'
+        ], Response::HTTP_OK);
     }
 }
