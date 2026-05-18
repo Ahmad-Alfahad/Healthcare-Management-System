@@ -2,65 +2,73 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pharmacist;
 use App\Http\Requests\StorePharmacistRequest;
 use App\Http\Requests\UpdatePharmacistRequest;
+use App\Services\PharmacistService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class PharmacistController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $pharmacistService;
+
+    public function __construct(PharmacistService $pharmacistService)
     {
-        //
+        $this->pharmacistService = $pharmacistService;
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display a listing of the resource.
      */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $pharmacists = $this->pharmacistService->getAllPharmacists();
+        return response()->json(['success' => true, 'data' => $pharmacists], Response::HTTP_OK);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePharmacistRequest $request)
+    public function store(StorePharmacistRequest $request): JsonResponse
     {
-        //
+        $pharmacist = $this->pharmacistService->createPharmacist($request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Pharmacist created successfully.',
+            'data'    => $pharmacist
+        ], Response::HTTP_CREATED);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Pharmacist $pharmacist)
+    public function show(int $id): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Pharmacist $pharmacist)
-    {
-        //
+        $pharmacist = $this->pharmacistService->getPharmacistById($id);
+        return response()->json(['success' => true, 'data' => $pharmacist], Response::HTTP_OK);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePharmacistRequest $request, Pharmacist $pharmacist)
+    public function update(UpdatePharmacistRequest $request, int $id): JsonResponse
     {
-        //
+        $this->pharmacistService->updatePharmacist($id, $request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Pharmacist records updated successfully.'
+        ], Response::HTTP_OK);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Pharmacist $pharmacist)
+    public function destroy(int $id): JsonResponse
     {
-        //
+        $this->pharmacistService->deletePharmacist($id);
+        return response()->json([
+            'success' => true,
+            'message' => 'Pharmacist record deleted successfully.'
+        ], Response::HTTP_OK);
     }
 }
