@@ -1,66 +1,58 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\Doctor;
 use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
+use App\Services\DoctorService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class DoctorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $doctorService;
+
+    public function __construct(DoctorService $doctorService)
     {
-        //
+        $this->doctorService = $doctorService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $doctors = $this->doctorService->getAllDoctors();
+        return response()->json(['success' => true, 'data' => $doctors], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreDoctorRequest $request)
+    public function store(StoreDoctorRequest $request): JsonResponse
     {
-        //
+        $doctor = $this->doctorService->createDoctor($request->validated());
+        return response()->json([
+            'success' => true, 
+            'message' => 'Doctor assigned and created successfully.', 
+            'data'    => $doctor
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Doctor $doctor)
+    public function show(int $id): JsonResponse
     {
-        //
+        $doctor = $this->doctorService->getDoctorById($id);
+        return response()->json(['success' => true, 'data' => $doctor], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Doctor $doctor)
+    public function update(UpdateDoctorRequest $request, int $id): JsonResponse
     {
-        //
+        $this->doctorService->updateDoctor($id, $request->validated());
+        return response()->json([
+            'success' => true, 
+            'message' => 'Doctor records updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateDoctorRequest $request, Doctor $doctor)
+    public function destroy(int $id): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Doctor $doctor)
-    {
-        //
+        $this->doctorService->deleteDoctor($id);
+        return response()->json([
+            'success' => true, 
+            'message' => 'Doctor record deleted successfully.'
+        ], Response::HTTP_OK);
     }
 }

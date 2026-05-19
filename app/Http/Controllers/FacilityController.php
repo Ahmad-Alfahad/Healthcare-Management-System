@@ -1,66 +1,47 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\Facility;
 use App\Http\Requests\StoreFacilityRequest;
 use App\Http\Requests\UpdateFacilityRequest;
+use App\Services\FacilityService;
+use Illuminate\Http\JsonResponse;
 
 class FacilityController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $facilityService;
+
+    public function __construct(FacilityService $facilityService)
     {
-        //
+        $this->facilityService = $facilityService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $facilities = $this->facilityService->getAllFacilities();
+        return response()->json(['success' => true, 'data' => $facilities], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreFacilityRequest $request)
+    public function store(StoreFacilityRequest $request): JsonResponse
     {
-        //
+        $facility = $this->facilityService->createFacility($request->validated());
+        return response()->json(['success' => true, 'message' => 'Facility created successfully', 'data' => $facility],201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Facility $facility)
+    public function show(int $id): JsonResponse
     {
-        //
+        $facility = $this->facilityService->getFacilityById($id);
+        return response()->json(['success' => true, 'data' => $facility], 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Facility $facility)
+    public function update(UpdateFacilityRequest $request, int $id): JsonResponse
     {
-        //
+        $this->facilityService->updateFacility($id, $request->validated());
+        return response()->json(['success' => true, 'message' => 'Facility updated successfully'], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateFacilityRequest $request, Facility $facility)
+    public function destroy(int $id): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Facility $facility)
-    {
-        //
+        $this->facilityService->deleteFacility($id);
+        return response()->json(['success' => true, 'message' => 'Facility deleted successfully'], 200);
     }
 }
