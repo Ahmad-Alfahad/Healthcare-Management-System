@@ -2,65 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Patient;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use App\Models\Patient;
+use App\Services\PatientService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class PatientController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $patientService;
+
+    public function __construct(PatientService $patientService)
     {
-        //
+        $this->patientService = $patientService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $patients = $this->patientService->jsonIndex();
+        return response()->json(['data' => $patients], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePatientRequest $request)
+    public function store(StorePatientRequest $request): JsonResponse
     {
-        //
+       
+        $patient = $this->patientService->jsonStore($request->validated());
+        return response()->json(['message' => 'Patient created successfully', 'data' => $patient], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Patient $patient)
+    public function show(Patient $patient): JsonResponse
     {
-        //
+        $patientData = $this->patientService->jsonShow($patient);
+        return response()->json(['data' => $patientData], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Patient $patient)
+    public function update(UpdatePatientRequest $request, Patient $patient): JsonResponse
     {
-        //
+        $updatedPatient = $this->patientService->jsonUpdate($patient, $request->validated());
+        return response()->json(['message' => 'Patient updated successfully', 'data' => $updatedPatient], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePatientRequest $request, Patient $patient)
+    public function destroy(Patient $patient): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Patient $patient)
-    {
-        //
+   
+        $this->patientService->jsonDestroy($patient);
+        return response()->json(['message' => 'Patient deleted successfully'], Response::HTTP_OK);
     }
 }

@@ -7,13 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Patient extends Model
 {
-    protected $fillable = ['profile_id', 'blood_type'];
+protected $fillable = [
+    'profile_id', 'blood_type', 'height', 'weight', 
+    'allergies', 'chronic_diseases', 'medical_history', 
+    'emergency_contact_name', 'emergency_contact_phone', 
+    'emergency_contact_relation', 'insurance_provider', 'insurance_number'
+];
 
-    /**
-     * Get the profile that owns the patient record.
-     */
-    public function profile(): BelongsTo
-    {
-        return $this->belongsTo(Profile::class);
-    }
+public function profile()
+{
+    return $this->belongsTo(Profile::class);
+}
 }

@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateMedicalConditionRequest;
 use App\Services\MedicalConditionService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-
 class MedicalConditionController extends Controller
 {
 
@@ -24,10 +23,7 @@ class MedicalConditionController extends Controller
         return response()->json(['success' => true, 'data' => $medical_conditions], Response::HTTP_OK);
     }
 
-    public function create()
-    {
-        //
-    }
+
 
  
     public function store(StoreMedicalConditionRequest $request): JsonResponse
@@ -48,10 +44,7 @@ class MedicalConditionController extends Controller
     }
 
 
-    public function edit(MedicalCondition $medicalCondition)
-    {
-        //
-    }
+
 
     public function update(UpdateMedicalConditionRequest $request, int $id): JsonResponse
     {

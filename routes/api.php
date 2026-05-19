@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FacilityController;
@@ -28,6 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('doctors', DoctorController::class);
     Route::apiResource('labstaff', LabStaffController::class);
     Route::apiResource('pharmacists',PharmacistController::class);
+    Route::apiResource('patients', PatientController::class);
+
     Route::apiResource('medical_condition' , MedicalConditionController::class);
     // User Management
     Route::post('/logout', [UserController::class, 'logout']);
