@@ -17,10 +17,10 @@ return new class extends Migration
             $table->foreignId("lab_request_item_id")->constrained();
             $table->foreignId("lab_staff_id")->constraiend();
             $table->string("notes");
-            $table->string("status");
-            $table->string("value");
+            $table->enum("status" , ["pending" , "done"]);
+            $table->integer("value");
             $table->string("unit");
-            $table->string("reference_range");
+            $table->integer("reference_range");
             $table->string("access_token");
             $table->dateTime("completed_at");
             $table->timestamps();

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId("user_id")->constrained();
             $table->string("table_name");
-            $table->string("action");
+            $table->enum("action" , ["create" , "update" , "delete"]);
             $table->integer("record_id");
             $table->string("old_value");
             $table->string("new_value");

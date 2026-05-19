@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId("parent_id")->references("id")->on("facilities");
             $table->string("name");
-            $table->string("facility_type");
+            $table->enum("facility_type" , ["pharmacy" , "laboratory" , "clinic" , "hospital"]);
             $table->string("phone_number");
             $table->string("address");
             $table->timestamps();

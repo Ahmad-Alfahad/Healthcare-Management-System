@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('prescriptions', function (Blueprint $table) {
+        Schema::create('diseases', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("visit_id")->constrained();
-            $table->enum("status" , ["full" , "empty" , "partial"]);
+            $table->string("name");
+            $table->enum("type", ["alergy" , "chronic"]);
             $table->string("notes");
             $table->timestamps();
         });
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('prescriptions');
+        Schema::dropIfExists('diseases');
     }
 };
