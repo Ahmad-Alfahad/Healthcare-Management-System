@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             LabStaffSeeder::class,
             PharmacistSeeder::class,
             PatientSeeder::class,
-
+            MedicalConditionSeeder::class,
         ]);
     }
 }

@@ -30,9 +30,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('labstaff', LabStaffController::class);
     Route::apiResource('pharmacists',PharmacistController::class);
     Route::apiResource('patients', PatientController::class);
-    Route::apiResource('medicalconditions', MedicalConditionController::class);
+    // Route::apiResource('medicalconditions', MedicalConditionController::class);
 
-    Route::apiResource('medical_condition' , MedicalConditionController::class);
+    Route::apiResource('medical_conditions' , MedicalConditionController::class);
     // User Management
     Route::post('/logout', [UserController::class, 'logout']);
 });

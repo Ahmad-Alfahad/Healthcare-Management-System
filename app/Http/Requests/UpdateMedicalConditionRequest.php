@@ -28,7 +28,7 @@ class UpdateMedicalConditionRequest extends FormRequest
         );
         return [
             'name' => [
-                'required',
+               
                 'string',
                 'max:255',
                 Rule::unique('medical_conditions')
@@ -36,7 +36,7 @@ class UpdateMedicalConditionRequest extends FormRequest
             ],
 
             'type' => [
-                'required',
+                
                 'in:allergy,chronic',
             ],
 

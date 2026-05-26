@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MedicalCondition;
 use App\Http\Requests\StoreMedicalConditionRequest;
 use App\Http\Requests\UpdateMedicalConditionRequest;
 use App\Services\MedicalConditionService;
