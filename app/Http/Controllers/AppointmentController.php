@@ -2,65 +2,79 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Appointment;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
+use App\Services\AppointmentService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+
 
 class AppointmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $appointmentService;
+
+    public function __construct(AppointmentService $appointmentService)
     {
-        //
+        $this->appointmentService = $appointmentService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        return response()->json([
+            'success' => true,
+            'data' => $this->appointmentService->getAllAppointments()
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreAppointmentRequest $request)
+    public function store(StoreAppointmentRequest $request): JsonResponse
     {
-        //
+        $appointment =
+            $this->appointmentService
+                ->createAppointment(
+                    $request->validated()
+                );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Appointment created successfully.',
+            'data' => $appointment
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Appointment $appointment)
+    public function show(int $id): JsonResponse
     {
-        //
+        return response()->json([
+            'success' => true,
+            'data' => $this->appointmentService->getAppointment($id)
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Appointment $appointment)
+
+    public function update(UpdateAppointmentRequest $request, int $id): JsonResponse
     {
-        //
+
+        $this->appointmentService
+        ->updateAppointment(
+            $id,
+            $request->validated()
+            );
+            
+        return response()->json([
+            'success' => true,
+            'message' => 'Appointment updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateAppointmentRequest $request, Appointment $appointment)
+    public function destroy(int $id): JsonResponse
     {
-        //
+
+        $this->appointmentService
+            ->deleteAppointment($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Appointment deleted successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Appointment $appointment)
-    {
-        //
-    }
 }

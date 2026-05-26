@@ -12,7 +12,7 @@ class UpdateAppointmentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,8 +22,56 @@ class UpdateAppointmentRequest extends FormRequest
      */
     public function rules(): array
     {
+      
         return [
-            //
+            'patient_id' =>
+                [
+                   'nullable',
+                    'integer',
+                    'exists:patients,id'
+                ],
+
+            'doctor_id' => [
+               'nullable',
+                'integer',
+                'exists:doctors,id'
+            ],
+
+            'status' => [
+                'nullable',
+                'in:pending,confirmed,cancelled,completed',
+            ],
+
+            'reason' => [
+                'nullable',
+                'string',
+                'max:500',
+            ],
+
+            'scheduled_date' => [
+               'nullable',
+                'date'
+            ],
+
+            'start_time' => [
+                'nullable',
+                'date'
+            ],
+            
+        ];
+    }
+
+    public function message()
+    {
+        return [
+            'patient_id.exists' => 'Selected patient does not exist.',
+
+            'doctor_id.exists' => 'Selected doctor does not exist.',
+
+            'reason.string' => ' reason must be a valid text string',
+            'reason.max' => 'The reason  may not be greater than 500 characters.',
+
+            'status.in' => 'Invalid appointment status.',
         ];
     }
 }

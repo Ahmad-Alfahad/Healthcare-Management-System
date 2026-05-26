@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DoctorController;
@@ -30,9 +31,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('labstaff', LabStaffController::class);
     Route::apiResource('pharmacists',PharmacistController::class);
     Route::apiResource('patients', PatientController::class);
-    // Route::apiResource('medicalconditions', MedicalConditionController::class);
-
     Route::apiResource('medical_conditions' , MedicalConditionController::class);
+    Route::apiResource('appointments' , AppointmentController::class);
     // User Management
     Route::post('/logout', [UserController::class, 'logout']);
 });

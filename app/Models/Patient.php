@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Patient extends Model
 {
@@ -14,8 +13,15 @@ protected $fillable = [
     'emergency_contact_relation', 'insurance_provider', 'insurance_number'
 ];
 
-public function profile()
-{
-    return $this->belongsTo(Profile::class);
+    public function profile()
+    {
+        return $this->belongsTo(Profile::class);
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class) ;
+    }
+
 }
-}
+

@@ -23,7 +23,7 @@ class FacilitySeeder extends Seeder
         $mainLabCenter = Facility::create([
             'parent_id'     => null, 
             'name'          => 'Al-Shifa Medical Diagnostic Center',
-            'facility_type' => 'Diagnostic Center',
+            'facility_type' => 'Hospital',
             'phone_number'  => '+96321556677',
             'address'       => 'Aleppo, Al-Jamiliyah',
         ]);
