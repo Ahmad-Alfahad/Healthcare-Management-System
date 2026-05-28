@@ -2,65 +2,62 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DoctorSchedule;
 use App\Http\Requests\StoreDoctorScheduleRequest;
 use App\Http\Requests\UpdateDoctorScheduleRequest;
+use App\Services\DoctorScheduleService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class DoctorScheduleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected $doctorScheduleService;
+    public function __construct(DoctorScheduleService $doctorScheduleService)
+    {
+        $this->doctorScheduleService = $doctorScheduleService;
+    }
+
     public function index()
     {
-        //
+        $doctorSchedules = $this->doctorScheduleService->getAllDoctorSchedules();
+        return response()->json(['success' => true, 'data' => $doctorSchedules], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+
+    public function store(StoreDoctorScheduleRequest $request): JsonResponse
     {
-        //
+        $doctorSchedule = $this->doctorScheduleService->createDoctorSchedule($request->validated());
+        return response()->json([
+            'success' => true, 
+            'message' => 'Doctor schedule created successfully.', 
+            'data'    => $doctorSchedule
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreDoctorScheduleRequest $request)
+
+    public function show(int $id): JsonResponse
     {
-        //
+        $doctorSchedule = $this->doctorScheduleService->getDoctorScheduleById($id);
+        return response()->json(['success' => true, 'data' => $doctorSchedule], Response::HTTP_OK);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(DoctorSchedule $doctorSchedule)
+
+
+
+    public function update(UpdateDoctorScheduleRequest $request,  int $id):JsonResponse
     {
-        //
+        $this->doctorScheduleService->updateDoctorSchedule($id, $request->validated());
+        return response()->json([
+            'success' => true, 
+            'message' => 'Doctor schedule updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(DoctorSchedule $doctorSchedule)
+    public function destroy(int $id): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateDoctorScheduleRequest $request, DoctorSchedule $doctorSchedule)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(DoctorSchedule $doctorSchedule)
-    {
-        //
+        $this->doctorScheduleService->deleteDoctorSchedule($id);
+        return response()->json([
+            'success' => true,
+            'message' => 'Doctor schedule deleted successfully.'
+        ], Response::HTTP_OK);
     }
 }

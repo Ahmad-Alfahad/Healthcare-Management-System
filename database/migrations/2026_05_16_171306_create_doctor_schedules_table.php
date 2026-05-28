@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean("is_off");
             $table->time("start_time");
             $table->time("end_time");
-            $table->time("avg_consultation_time");
+            $table->integer("avg_consultation_time");
             $table->timestamps();
         });
     }

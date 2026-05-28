@@ -14,4 +14,10 @@ class DoctorSchedule extends Model
         "end_time",
         "avg_consultation_time"
     ];
+
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class) ;
+    }
+
 }
