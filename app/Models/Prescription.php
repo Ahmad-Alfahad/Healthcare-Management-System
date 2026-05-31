@@ -11,4 +11,9 @@ class Prescription extends Model
         "status",
         "notes",
     ];
+
+    public function visit()
+    {
+        return $this->belongsTo(Visit::class);
+    }
 }

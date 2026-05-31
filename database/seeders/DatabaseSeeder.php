@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             DoctorScheduleSeeder::class,
             VisitSeeder::class,
             DiagnosisSeeder::class,
+            PrescriptionSeeder::class,
         ]);
 
     }

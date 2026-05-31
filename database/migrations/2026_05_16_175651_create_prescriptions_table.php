@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('prescriptions', function (Blueprint $table) {
             $table->id();
             $table->foreignId("visit_id")->constrained();
-            $table->enum("status" , ["full" , "empty" , "partial"]);
-            $table->string("notes");
+            $table->enum("status" , ["cancelled" , "pending" , "partial" , "dispensed"])->default("pending");
+            $table->string("notes")->nullable();
             $table->timestamps();
         });
     }

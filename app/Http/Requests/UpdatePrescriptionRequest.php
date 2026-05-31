@@ -12,7 +12,7 @@ class UpdatePrescriptionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,20 @@ class UpdatePrescriptionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "visit_id" => [ 'sometimes', 'exists:visits,id'] ,
+            "status" => ['sometimes', 'in:cancelled,pending,partial,dispensed'] ,
+            "notes" => ['nullable', 'string'] ,
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'visit_id.exists' => 'The specified visit does not exist.',
+
+            'status.in' => 'Status must be one of the following: cancelled, pending, partial, dispensed.',
+            
+            'notes.string' => 'Notes must be a string.',
         ];
     }
 }

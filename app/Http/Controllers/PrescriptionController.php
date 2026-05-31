@@ -5,62 +5,55 @@ namespace App\Http\Controllers;
 use App\Models\Prescription;
 use App\Http\Requests\StorePrescriptionRequest;
 use App\Http\Requests\UpdatePrescriptionRequest;
-
+use App\Services\PrescriptionService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 class PrescriptionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $prescriptionService;
+
+    public function __construct(PrescriptionService $prescriptionService)
     {
-        //
+        $this->prescriptionService = $prescriptionService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $prescriptions = $this->prescriptionService->getAllPrescriptions();
+        return response()->json(['success' => true, 'data' => $prescriptions], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePrescriptionRequest $request)
+    public function store(StorePrescriptionRequest $request): JsonResponse
     {
-        //
+        $prescription = $this->prescriptionService->createPrescription($request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Prescription created successfully.',
+            'data'    => $prescription
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Prescription $prescription)
+    public function show(int $id): JsonResponse
     {
-        //
+        $prescription = $this->prescriptionService->getPrescriptionById($id);
+        return response()->json(['success' => true, 'data' => $prescription], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Prescription $prescription)
+    public function update(UpdatePrescriptionRequest $request, int $id): JsonResponse
     {
-        //
+        $this->prescriptionService->updatePrescription($id, $request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Prescription records updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePrescriptionRequest $request, Prescription $prescription)
+    public function destroy(int $id): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Prescription $prescription)
-    {
-        //
-    }
+        $this->prescriptionService->deletePrescription($id);
+        return response()->json([
+            'success' => true,
+            'message' => 'Prescription deleted successfully.'
+        ], Response::HTTP_OK);
+    }   
 }

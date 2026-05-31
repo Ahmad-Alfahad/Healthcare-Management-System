@@ -34,4 +34,9 @@ class Visit extends Model
         return $this->hasMany(Diagnosis::class);
     }
 
+    public function prescription()
+    {
+        return $this->hasOne(Prescription::class);
+    }
+
 }
