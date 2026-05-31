@@ -33,6 +33,8 @@ class DatabaseSeeder extends Seeder
             AppointmentSeeder::class,
             DoctorScheduleSeeder::class,
             VisitSeeder::class,
+            DiagnosisSeeder::class,
         ]);
+
     }
 }

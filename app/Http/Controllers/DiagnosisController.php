@@ -5,62 +5,64 @@ namespace App\Http\Controllers;
 use App\Models\Diagnosis;
 use App\Http\Requests\StoreDiagnosisRequest;
 use App\Http\Requests\UpdateDiagnosisRequest;
+use App\Services\DiagnosisService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+
 
 class DiagnosisController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $diagnosisService;
+
+    public function __construct(DiagnosisService $diagnosisService)
     {
-        //
+        $this->diagnosisService = $diagnosisService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $diagnoses = $this->diagnosisService->getAllDiagnoses();
+
+        return response()->json(['success' => true, 'data' => $diagnoses], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreDiagnosisRequest $request)
+    public function store(StoreDiagnosisRequest $request): JsonResponse
     {
-        //
+        $diagnosis = $this->diagnosisService->createDiagnosis($request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Diagnosis created successfully.',
+            'data'    => $diagnosis
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Diagnosis $diagnosis)
+    public function show(int $id): JsonResponse
     {
-        //
+        $diagnosis = $this->diagnosisService->getDiagnosisById($id);
+
+        return response()->json(['success' => true, 'data' => $diagnosis], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Diagnosis $diagnosis)
+    public function update(UpdateDiagnosisRequest $request, int $id): JsonResponse
     {
-        //
+        $this->diagnosisService->updateDiagnosis($id, $request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Diagnosis updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateDiagnosisRequest $request, Diagnosis $diagnosis)
+    public function destroy(int $id): JsonResponse
     {
-        //
+        $this->diagnosisService->deleteDiagnosis($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Diagnosis deleted successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Diagnosis $diagnosis)
-    {
-        //
-    }
+
 }

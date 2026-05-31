@@ -29,4 +29,9 @@ class Visit extends Model
         return $this->belongsTo(Patient::class);
     }
 
+    public function diagnoses()
+    {
+        return $this->hasMany(Diagnosis::class);
+    }
+
 }

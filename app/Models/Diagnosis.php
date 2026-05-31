@@ -13,4 +13,9 @@ class Diagnosis extends Model
         "diagnosis_type",
         "notes"
     ];
+
+    public function visit()
+    {
+        return $this->belongsTo(Visit::class);
+    }
 }
