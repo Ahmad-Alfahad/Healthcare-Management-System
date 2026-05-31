@@ -15,7 +15,9 @@ return new class extends Migration
         Schema::create('visits', function (Blueprint $table) {
             $table->id();
             $table->foreignId("appointment_id")->constrained();
-            $table->string("notes");
+            $table->foreignId("doctor_id")->constrained()->nullable();
+            $table->foreignId("patient_id")->constrained()->nullable();
+            $table->string("notes")->nullable();
             $table->dateTime("visited_at");
             $table->timestamps();
         });

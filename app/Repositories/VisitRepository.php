@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Models\Visit;
+use Illuminate\Database\Eloquent\Collection;
+
+class VisitRepository
+{
+    public function all(): Collection
+    {
+        return Visit::with(['appointment', 'doctor', 'patient'])->get();
+    }
+
+    public function find(int $id): Visit
+    {
+        return Visit::with(['appointment', 'doctor', 'patient'])->findOrFail($id);
+    }
+
+    public function create(array $data): Visit
+    {
+        return Visit::create($data);
+    }
+
+    public function update(int $id, array $data): bool
+    {
+        $visit = Visit::findOrFail($id);
+        return $visit->update($data);
+    }
+
+    public function delete(int $id): bool
+    {
+        $visit = Visit::findOrFail($id);
+        return $visit->delete();
+    }
+}

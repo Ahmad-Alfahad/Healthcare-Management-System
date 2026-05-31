@@ -23,5 +23,10 @@ protected $fillable = [
         return $this->hasMany(Appointment::class) ;
     }
 
+    public function visits()
+    {
+        return $this->hasMany(Visit::class) ;
+    }
+
 }
 

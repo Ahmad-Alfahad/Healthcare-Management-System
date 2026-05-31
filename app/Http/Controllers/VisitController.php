@@ -2,65 +2,60 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Visit;
 use App\Http\Requests\StoreVisitRequest;
 use App\Http\Requests\UpdateVisitRequest;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use App\Services\VisitService;
 
 class VisitController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+   
+    protected $visitService;
+    
+    public function __construct(VisitService $visitService)
     {
-        //
+        $this->visitService = $visitService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $visits = $this->visitService->getAllVisits();
+        return response()->json(['success' => true, 'data' => $visits], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreVisitRequest $request)
+    public function store(StoreVisitRequest $request): JsonResponse
     {
-        //
+        $visit = $this->visitService->createVisit($request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Visit created successfully.',
+            'data'    => $visit
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Visit $visit)
+    public function show(int $id): JsonResponse
     {
-        //
+        $visit = $this->visitService->getVisitById($id);
+        return response()->json(['success' => true, 'data' => $visit], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Visit $visit)
+    public function update(UpdateVisitRequest $request, int $id): JsonResponse
     {
-        //
+        $this->visitService->updateVisit($id, $request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Visit updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateVisitRequest $request, Visit $visit)
+    public function destroy(int $id): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Visit $visit)
-    {
-        //
+        $this->visitService->deleteVisit($id);
+        return response()->json([
+            'success' => true,
+            'message' => 'Visit deleted successfully.'
+        ], Response::HTTP_OK);
     }
 }
+

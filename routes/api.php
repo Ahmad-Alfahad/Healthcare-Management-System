@@ -10,6 +10,7 @@ use App\Http\Controllers\PharmacistController;
 use App\Http\Controllers\SpecializationController;
 use App\Http\Controllers\MedicalConditionController;
 use App\Http\Controllers\DoctorScheduleController;
+use App\Http\Controllers\VisitController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('medical_conditions' , MedicalConditionController::class);
     Route::apiResource('appointments' , AppointmentController::class);
     Route::apiResource('doctor-schedule' , DoctorScheduleController::class);
+    Route::apiResource('visits' , VisitController::class);
     // User Management
     Route::post('/logout', [UserController::class, 'logout']);
 });
