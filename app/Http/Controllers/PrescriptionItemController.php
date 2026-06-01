@@ -5,62 +5,56 @@ namespace App\Http\Controllers;
 use App\Models\PrescriptionItem;
 use App\Http\Requests\StorePrescriptionItemRequest;
 use App\Http\Requests\UpdatePrescriptionItemRequest;
+use App\Services\PrescriptionItemService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class PrescriptionItemController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $prescriptionItemService;
+
+    public function __construct(PrescriptionItemService $prescriptionItemService)
     {
-        //
+        $this->prescriptionItemService = $prescriptionItemService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $items = $this->prescriptionItemService->getAllPrescriptionItems();
+        return response()->json(['success' => true, 'data' => $items], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePrescriptionItemRequest $request)
+    public function store(StorePrescriptionItemRequest $request): JsonResponse
     {
-        //
+        $item = $this->prescriptionItemService->createPrescriptionItem($request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Prescription item created successfully.',
+            'data'    => $item
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(PrescriptionItem $prescriptionItem)
+    public function show(int $id): JsonResponse
     {
-        //
+        $item = $this->prescriptionItemService->getPrescriptionItemById($id);
+        return response()->json(['success' => true, 'data' => $item], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(PrescriptionItem $prescriptionItem)
+    public function update(UpdatePrescriptionItemRequest $request, int $id): JsonResponse
     {
-        //
+        $this->prescriptionItemService->updatePrescriptionItem($id, $request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Prescription item updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePrescriptionItemRequest $request, PrescriptionItem $prescriptionItem)
+    public function destroy(int $id): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(PrescriptionItem $prescriptionItem)
-    {
-        //
+        $this->prescriptionItemService->deletePrescriptionItem($id);
+        return response()->json([
+            'success' => true,
+            'message' => 'Prescription item deleted successfully.'
+        ], Response::HTTP_OK);
     }
 }

@@ -16,4 +16,10 @@ class Prescription extends Model
     {
         return $this->belongsTo(Visit::class);
     }
+
+    public function items()
+    {
+        return $this->hasMany(PrescriptionItem::class);
+    }
+    
 }
