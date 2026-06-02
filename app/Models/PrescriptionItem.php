@@ -20,4 +20,9 @@ class PrescriptionItem extends Model
         return $this->belongsTo(Prescription::class);
     }
 
+    public function dispensings()
+    {
+        return $this->hasMany(Dispensing::class);
+    }
+
 }

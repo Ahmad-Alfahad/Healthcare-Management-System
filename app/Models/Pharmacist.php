@@ -33,4 +33,9 @@ class Pharmacist extends Model
     {
         return $this->belongsTo(Profile::class);
     }
+
+    public function dispensings()
+    {
+        return $this->hasMany(Dispensing::class);
+    }
 }
