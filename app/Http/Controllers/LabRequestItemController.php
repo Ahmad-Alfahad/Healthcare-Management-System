@@ -2,65 +2,67 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LabRequestItem;
 use App\Http\Requests\StoreLabRequestItemRequest;
 use App\Http\Requests\UpdateLabRequestItemRequest;
+use App\Services\LabRequestItemService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class LabRequestItemController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $labRequestItemService;
+
+    public function __construct(LabRequestItemService $labRequestItemService)
     {
-        //
+        $this->labRequestItemService = $labRequestItemService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $items = $this->labRequestItemService->all();
+        return response()->json([
+            'success' => true,
+            'data'    => $items
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreLabRequestItemRequest $request)
+    public function store(StoreLabRequestItemRequest $request): JsonResponse
     {
-        //
+        $item = $this->labRequestItemService->create($request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab request item created successfully.',
+            'data'    => $item
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(LabRequestItem $labRequestItem)
+    public function show(int $id): JsonResponse
     {
-        //
+        $item = $this->labRequestItemService->find($id);
+        return response()->json([
+            'success' => true,
+            'data'    => $item
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(LabRequestItem $labRequestItem)
+    public function update(UpdateLabRequestItemRequest $request, int $id): JsonResponse
     {
-        //
+        $item = $this->labRequestItemService->find($id);
+        $this->labRequestItemService->update($item, $request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab request item updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateLabRequestItemRequest $request, LabRequestItem $labRequestItem)
+    public function destroy(int $id): JsonResponse
     {
-        //
+        $item = $this->labRequestItemService->find($id);
+        $this->labRequestItemService->delete($item);
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab request item deleted successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(LabRequestItem $labRequestItem)
-    {
-        //
-    }
 }

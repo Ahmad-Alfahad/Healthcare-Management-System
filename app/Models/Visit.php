@@ -39,4 +39,8 @@ class Visit extends Model
         return $this->hasOne(Prescription::class);
     }
 
+    public function labRequestItems()
+    {
+        return $this->hasMany(LabRequestItem::class);
+    }
 }

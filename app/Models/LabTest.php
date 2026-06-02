@@ -12,4 +12,9 @@ class LabTest extends Model
         "range_low",
         "unit"
     ];
+
+    public function labRequestItems()
+    {
+        return $this->hasMany(LabRequestItem::class);
+    }
 }
