@@ -23,4 +23,8 @@ class LabRequestItem extends Model
         return $this->belongsTo(LabTest::class);
     }
 
+    public function labResult()
+    {
+        return $this->hasOne(LabResult::class);
+    }
 }

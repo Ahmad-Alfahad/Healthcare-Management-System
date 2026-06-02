@@ -36,4 +36,9 @@ class LabStaff extends Model
     {
         return $this->belongsTo(Profile::class);
     }
+
+    public function labResults()
+    {
+        return $this->hasMany(LabResult::class);
+    }
 }

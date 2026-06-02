@@ -13,7 +13,18 @@ class LabResult extends Model
         "status",
         "value",
         "unit",
-        "reference_rage",
-        "access_token"
+        "reference_range",
+        "access_token",
+        "completed_at"
     ];
+
+    public function labRequestItem()
+    {
+        return $this->belongsTo(LabRequestItem::class);
+    }
+
+    public function labStaff()
+    {
+        return $this->belongsTo(LabStaff::class);
+    }
 }

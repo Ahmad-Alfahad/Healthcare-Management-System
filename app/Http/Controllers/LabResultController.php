@@ -2,65 +2,69 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LabResult;
 use App\Http\Requests\StoreLabResultRequest;
 use App\Http\Requests\UpdateLabResultRequest;
+use App\Services\LabResultService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+
 
 class LabResultController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $labResultService;
+
+    public function __construct(LabResultService $labResultService)
     {
-        //
+        $this->labResultService = $labResultService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $results = $this->labResultService->getAllLabResults();
+        return response()->json([
+            'success' => true,
+            'data'    => $results
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreLabResultRequest $request)
+    public function store(StoreLabResultRequest $request): JsonResponse
     {
-        //
+        $result = $this->labResultService->createLabResult($request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab result created successfully.',
+            'data'    => $result
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(LabResult $labResult)
+    public function show(int $id): JsonResponse
     {
-        //
+        $result = $this->labResultService->getLabResultById($id);
+        return response()->json([
+            'success' => true,
+            'data'    => $result
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(LabResult $labResult)
+    public function update(UpdateLabResultRequest $request, int $id): JsonResponse
     {
-        //
+        $result = $this->labResultService->getLabResultById($id);
+        $this->labResultService->updateLabResult($result, $request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab result updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateLabResultRequest $request, LabResult $labResult)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(LabResult $labResult)
+    public function destroy(int $id): JsonResponse
     {
-        //
+        $result = $this->labResultService->getLabResultById($id);
+        $this->labResultService->deleteLabResult($result);
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab result deleted successfully.'
+        ], Response::HTTP_OK);
     }
+    
 }
