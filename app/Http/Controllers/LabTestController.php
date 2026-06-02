@@ -5,62 +5,62 @@ namespace App\Http\Controllers;
 use App\Models\Lab_test;
 use App\Http\Requests\StoreLab_testRequest;
 use App\Http\Requests\UpdateLab_testRequest;
+use App\Services\LabTestService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class LabTestController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+   protected $labTestService;
+   public function __construct(LabTestService $labTestService)
     {
-        //
+        $this->labTestService = $labTestService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): JsonResponse
     {
-        //
+        $tests = $this->labTestService->getAllTests();
+        return response()->json([
+            'success' => true,
+            'data'    => $tests
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreLab_testRequest $request)
+    public function store(StoreLab_testRequest $request): JsonResponse
     {
-        //
+        $test = $this->labTestService->createTest($request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab test created successfully.',
+            'data'    => $test
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Lab_test $lab_test)
+    public function show(int $id): JsonResponse
     {
-        //
+        $test = $this->labTestService->getTestById($id);
+        return response()->json([
+            'success' => true,
+            'data'    => $test
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Lab_test $lab_test)
+    public function update(UpdateLab_testRequest $request, int $id): JsonResponse
     {
-        //
+        $this->labTestService->updateTest($id, $request->validated());
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab test records updated successfully.'
+        ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateLab_testRequest $request, Lab_test $lab_test)
+    public function destroy(int $id): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Lab_test $lab_test)
-    {
-        //
+        $this->labTestService->deleteTest($id);
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab test deleted successfully.'
+        ], Response::HTTP_OK);
     }
 }
