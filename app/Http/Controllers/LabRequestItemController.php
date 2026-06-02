@@ -19,7 +19,7 @@ class LabRequestItemController extends Controller
 
     public function index(): JsonResponse
     {
-        $items = $this->labRequestItemService->all();
+        $items = $this->labRequestItemService->getAllLabRequestItems();
         return response()->json([
             'success' => true,
             'data'    => $items
@@ -28,7 +28,7 @@ class LabRequestItemController extends Controller
 
     public function store(StoreLabRequestItemRequest $request): JsonResponse
     {
-        $item = $this->labRequestItemService->create($request->validated());
+        $item = $this->labRequestItemService->createLabRequestItem($request->validated());
         return response()->json([
             'success' => true,
             'message' => 'Lab request item created successfully.',
@@ -38,7 +38,7 @@ class LabRequestItemController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $item = $this->labRequestItemService->find($id);
+        $item = $this->labRequestItemService->getLabRequestItemById($id);
         return response()->json([
             'success' => true,
             'data'    => $item
@@ -47,8 +47,8 @@ class LabRequestItemController extends Controller
 
     public function update(UpdateLabRequestItemRequest $request, int $id): JsonResponse
     {
-        $item = $this->labRequestItemService->find($id);
-        $this->labRequestItemService->update($item, $request->validated());
+        $item = $this->labRequestItemService->getLabRequestItemById($id);
+        $this->labRequestItemService->updateLabRequestItem($item, $request->validated());
         return response()->json([
             'success' => true,
             'message' => 'Lab request item updated successfully.'
@@ -57,8 +57,8 @@ class LabRequestItemController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
-        $item = $this->labRequestItemService->find($id);
-        $this->labRequestItemService->delete($item);
+        $item = $this->labRequestItemService->getLabRequestItemById($id);
+        $this->labRequestItemService->deleteLabRequestItem($item);
         return response()->json([
             'success' => true,
             'message' => 'Lab request item deleted successfully.'

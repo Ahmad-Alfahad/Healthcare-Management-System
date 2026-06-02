@@ -18,13 +18,13 @@ class DispensingController extends Controller
 
     public function index(): JsonResponse
     {
-        $dispensings = $this->dispensingService->all();
+        $dispensings = $this->dispensingService->getAllDispensings();
         return response()->json(['success' => true, 'data' => $dispensings], Response::HTTP_OK);
     }
 
     public function store(StoreDispensingRequest $request): JsonResponse
     {
-        $dispensing = $this->dispensingService->create($request->validated());
+        $dispensing = $this->dispensingService->createDispensing($request->validated());
         return response()->json([
             'success' => true, 
             'message' => 'Dispensing record created successfully.', 
@@ -34,13 +34,13 @@ class DispensingController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $dispensing = $this->dispensingService->find($id);
+        $dispensing = $this->dispensingService->getDispensingById($id);
         return response()->json(['success' => true, 'data' => $dispensing], Response::HTTP_OK);
     }
 
     public function update(UpdateDispensingRequest $request, int $id): JsonResponse
     {
-        $this->dispensingService->update($id, $request->validated());
+        $this->dispensingService->updateDispensing($id, $request->validated());
         return response()->json([
             'success' => true, 
             'message' => 'Dispensing record updated successfully.'
@@ -49,7 +49,7 @@ class DispensingController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
-        $this->dispensingService->delete($id);
+        $this->dispensingService->deleteDispensing($id);
         return response()->json([
             'success' => true, 
             'message' => 'Dispensing record deleted successfully.'

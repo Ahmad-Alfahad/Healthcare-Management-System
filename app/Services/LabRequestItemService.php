@@ -14,27 +14,27 @@ class LabRequestItemService
         $this->labRequestItemRepository = $labRequestItemRepository;
     }
 
-    public function all(): Collection
+    public function getAllLabRequestItems(): Collection
     {
         return $this->labRequestItemRepository->all();
     }
 
-    public function find(int $id): LabRequestItem
+    public function getLabRequestItemById(int $id): LabRequestItem
     {
         return $this->labRequestItemRepository->find($id);
     }
 
-    public function create(array $data): LabRequestItem
+    public function createLabRequestItem(array $data): LabRequestItem
     {
         return $this->labRequestItemRepository->create($data);
     }
 
-    public function update(LabRequestItem $labRequestItem, array $data): bool
+    public function updateLabRequestItem(LabRequestItem $labRequestItem, array $data): bool
     {
         return $this->labRequestItemRepository->update($labRequestItem, $data);
     }
 
-    public function delete(LabRequestItem $labRequestItem): bool
+    public function deleteLabRequestItem(LabRequestItem $labRequestItem): bool
     {
         return $this->labRequestItemRepository->delete($labRequestItem);
     }

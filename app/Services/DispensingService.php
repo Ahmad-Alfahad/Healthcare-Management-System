@@ -14,27 +14,27 @@ class DispensingService
         $this->dispensingRepository = $dispensingRepository;
     }
 
-    public function all(): Collection
+    public function getAllDispensings(): Collection
     {
         return $this->dispensingRepository->all();
     }
 
-    public function find(int $id): Dispensing
+    public function getDispensingById(int $id): Dispensing
     {
         return $this->dispensingRepository->find($id);
     }
 
-    public function create(array $data): Dispensing
+    public function createDispensing(array $data): Dispensing
     {
         return $this->dispensingRepository->create($data);
     }
 
-    public function update(int $id, array $data): bool
+    public function updateDispensing(int $id, array $data): bool
     {
         return $this->dispensingRepository->update($id, $data);
     }
 
-    public function delete(int $id): bool
+    public function deleteDispensing(int $id): bool
     {
         return $this->dispensingRepository->delete($id);
     }
