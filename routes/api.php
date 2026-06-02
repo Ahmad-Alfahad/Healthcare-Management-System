@@ -14,6 +14,7 @@ use App\Http\Controllers\VisitController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\PrescriptionItemController;
+use App\Http\Controllers\DispensingController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -42,7 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('visits' , VisitController::class);
     Route::apiResource('diagnoses' , DiagnosisController::class);
     Route::apiResource('prescriptions' , PrescriptionController::class); 
-    Route::apiResource('prescription-items' , PrescriptionItemController::class);   
+    Route::apiResource('prescription-items' , PrescriptionItemController::class); 
+    Route::apiResource('dispensings' , DispensingController::class);  
     // User Management
     Route::post('/logout', [UserController::class, 'logout']);
 });

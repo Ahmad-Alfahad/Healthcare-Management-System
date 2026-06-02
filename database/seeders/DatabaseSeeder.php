@@ -35,6 +35,8 @@ class DatabaseSeeder extends Seeder
             VisitSeeder::class,
             DiagnosisSeeder::class,
             PrescriptionSeeder::class,
+            PrescriptionItemSeeder::class,
+            DispensingSeeder::class,
         ]);
 
     }
