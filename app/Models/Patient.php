@@ -28,5 +28,10 @@ protected $fillable = [
         return $this->hasMany(Visit::class) ;
     }
 
+    public function patientMedicalConditions()
+    {
+        return $this->hasMany(PatientMedicalCondition::class) ;
+    }
+
 }
 
