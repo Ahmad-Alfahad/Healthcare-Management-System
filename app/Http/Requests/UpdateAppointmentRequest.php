@@ -55,7 +55,7 @@ class UpdateAppointmentRequest extends FormRequest
 
             'start_time' => [
                 'nullable',
-                'date'
+                'date_format:H:i'
             ],
             
         ];
@@ -70,6 +70,10 @@ class UpdateAppointmentRequest extends FormRequest
 
             'reason.string' => ' reason must be a valid text string',
             'reason.max' => 'The reason  may not be greater than 500 characters.',
+
+            'scheduled_date.date' => 'scheduled_date must be a valid date.',
+            
+            'start_time.date_format' => 'start_time must be a valid time.',
 
             'status.in' => 'Invalid appointment status.',
         ];

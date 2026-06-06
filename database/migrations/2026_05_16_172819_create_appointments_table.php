@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId("doctor_id")->constrained();
             $table->enum("status" , ["pending" , "confirmed" , "cancelled" , "completed"]);
             $table->string('reason');
-            $table->dateTime("scheduled_date");
-            $table->dateTime("start_time");
+            $table->date("scheduled_date");
+            $table->time("start_time");
             $table->timestamps();
         });
     }
