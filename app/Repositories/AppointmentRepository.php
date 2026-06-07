@@ -42,4 +42,12 @@ class AppointmentRepository
 
         return $appointment->delete();
     }
+
+    public function getAppointmentsByDate(int $doctorId, string $date): Collection
+    {
+        return Appointment::where('doctor_id', $doctorId)
+            ->whereDate('scheduled_date', $date)
+            ->get();
+    }
+
 }

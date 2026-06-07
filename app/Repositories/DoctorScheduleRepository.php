@@ -32,4 +32,13 @@ class DoctorScheduleRepository
         $doctor_schedule = DoctorSchedule::findOrFail($id);
         return $doctor_schedule->delete();
     }
+
+    public function getDoctorScheduleByDay(int $doctorId, string $day): ?DoctorSchedule
+    {
+        return DoctorSchedule::where('doctor_id', $doctorId)
+            ->where('day_of_week', $day)
+            ->first();
+    }
+
+    
 }
