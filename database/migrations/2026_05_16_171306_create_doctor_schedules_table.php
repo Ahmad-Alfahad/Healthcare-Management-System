@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('doctor_schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId("doctor_id")->constrained();
-            $table->string("day_of_week");
+            $table->enum("day_of_week", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]);
             $table->boolean("is_off");
             $table->time("start_time");
             $table->time("end_time");

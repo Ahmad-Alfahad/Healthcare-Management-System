@@ -24,7 +24,7 @@ class UpdateDoctorScheduleRequest extends FormRequest
     {
         return [
             'doctor_id' => [ 'sometimes','integer' ,'exists:doctors,id'],
-            'day_of_week' => ['sometimes','integer','between:0,6'],
+            'day_of_week' => ['sometimes','in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'],
             'is_off' => ['sometimes','boolean'],
             'start_time' => ['date_format:H:i'],
             'end_time' => ['date_format:H:i','after:start_time'],
@@ -38,8 +38,7 @@ class UpdateDoctorScheduleRequest extends FormRequest
         'doctor_id.integer' => 'Doctor ID must be an integer.',
         'doctor_id.exists' => 'The specified doctor does not exist.',
 
-        'day_of_week.integer' => 'Day of the week must be an integer.',
-        'day_of_week.between' => 'Day of the week must be between 0 (Sunday) and 6 (Saturday).',
+        'day_of_week.in' => 'Day of the week must be a valid day.',
 
         'is_off.boolean' => 'Off day status must be true or false.',
 
