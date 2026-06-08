@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
 use App\Http\Requests\AvailableSlotsRequest;
+use App\Http\Requests\ChangeAppointmentStatusRequest;
 use App\Services\AppointmentService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -55,11 +56,11 @@ class AppointmentController extends Controller
     {
 
         $this->appointmentService
-        ->updateAppointment(
-            $id,
-            $request->validated()
+            ->updateAppointment(
+                $id,
+                $request->validated()
             );
-            
+
         return response()->json([
             'success' => true,
             'message' => 'Appointment updated successfully.'
@@ -89,6 +90,18 @@ class AppointmentController extends Controller
             'success' => true,
             'data' => $slots
         ], Response::HTTP_OK);
+    }
+
+    public function changeStatus( ChangeAppointmentStatusRequest $request, int $appointment): JsonResponse
+     {
+        return response()->json([
+            'success' => true,
+            'data' => $this->appointmentService
+                ->changeStatus(
+                    $appointment,
+                    $request->status
+                )
+        ] , Response::HTTP_OK);
     }
 
 }

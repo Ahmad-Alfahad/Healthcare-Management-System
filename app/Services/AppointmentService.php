@@ -51,6 +51,7 @@ class AppointmentService
 
     public function updateAppointment(int $id, array $data): bool
     {
+
         return $this->appointmentRepository->update($id, $data);
     }
 
@@ -272,5 +273,57 @@ class AppointmentService
                 $bookedSlots
             )
         );
+    }
+
+    public function changeStatus(int $appointmentId, string $newStatus): Appointment
+    {
+        $appointment = $this->appointmentRepository
+                ->find($appointmentId);
+
+        $this->validateStatusTransition(
+            $appointment->status,
+            $newStatus
+        );
+
+        $appointment->update([
+            'status' => $newStatus
+        ]);
+
+        return $appointment->fresh();
+
+    }
+
+    private function validateStatusTransition(string $currentStatus, string $newStatus): void
+    {
+        $allowedTransitions = [
+
+            'pending' => [
+                'confirmed',
+                'cancelled'
+            ],
+
+            'confirmed' => [
+                'completed',
+                'cancelled'
+            ],
+
+            'completed' => [],
+
+            'cancelled' => [],
+        ];
+
+        if (
+            !in_array(
+                $newStatus,
+                $allowedTransitions[$currentStatus]
+            )
+        ) {
+
+            throw ValidationException::withMessages([
+                'status' => [
+                    'Invalid status transition.'
+                ]
+            ]);
+        }
     }
 }
