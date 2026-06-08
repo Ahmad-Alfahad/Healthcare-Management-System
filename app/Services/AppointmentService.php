@@ -35,10 +35,17 @@ class AppointmentService
 
     public function createAppointment(array $data): Appointment
     {
-        $this->validateAppointmentData($data['scheduled_date']);
+        $this->validateAppointmentDate($data['scheduled_date']);
         $schedule = $this->validateDoctorSchedule($data['doctor_id'], $data['scheduled_date']);
         $this->validateDoctorAvailability($schedule);
         $this->validateWorkingHours($schedule, $data['start_time']);
+        $this->validateTimeSlot( $schedule, $data['start_time']);
+        $this->validateTimeConflict(
+            $schedule,
+            $data['doctor_id'],
+            $data['scheduled_date'],
+            $data['start_time']
+        );
         return $this->appointmentRepository->create($data);
     }
 
@@ -52,7 +59,7 @@ class AppointmentService
         return $this->appointmentRepository->delete($id);
     }
 
-    private function validateAppointmentData(string $scheduleDate): void
+    private function validateAppointmentDate(string $scheduleDate): void
     {
         $currentDate = now()->startOfDay();
         $appointmentDate = Carbon::parse($scheduleDate)->startOfDay();
@@ -84,7 +91,7 @@ class AppointmentService
         return $schedule;
     }
 
-   
+
     private function validateDoctorAvailability(DoctorSchedule $schedule): void
     {
         if ($schedule->is_off) {
@@ -106,6 +113,101 @@ class AppointmentService
             throw ValidationException::withMessages([
                 'scheduled_date' => [
                     'Appointment time must be within doctor\'s working hours.'
+                ]
+            ]);
+        }
+    }
+
+    private function validateTimeConflict(
+        DoctorSchedule $schedule,
+        int $doctorId,
+        string $date,
+        string $requestedTime
+    ): void {
+
+        $appointments = $this->appointmentRepository
+            ->getAppointmentsByDate(
+                $doctorId,
+                $date
+            );
+
+        $requestStart = Carbon::createFromFormat(
+            'H:i',
+            $requestedTime
+        );
+
+        $requestEnd = $requestStart
+            ->copy()
+            ->addMinutes(
+                $schedule->avg_consultation_time
+            );
+
+        if (
+            $requestEnd->gt(
+                Carbon::createFromFormat(
+                    'H:i:s',
+                    $schedule->end_time
+                )
+            )
+        ) {
+            throw ValidationException::withMessages([
+                'start_time' => [
+                    'Appointment exceeds doctor working hours.'
+                ]
+            ]);
+        }
+
+        foreach ($appointments as $appointment) {
+
+            $existingStart = Carbon::createFromFormat(
+                'H:i:s',
+                $appointment->start_time
+            );
+
+            $existingEnd = $existingStart
+                ->copy()
+                ->addMinutes(
+                    $schedule->avg_consultation_time
+                );
+
+            if (
+                $requestStart->lt($existingEnd)
+                &&
+                $requestEnd->gt($existingStart)
+            ) {
+                throw ValidationException::withMessages([
+                    'start_time' => [
+                        'This time slot is already booked.'
+                    ]
+                ]);
+            }
+        }
+    }
+
+    private function validateTimeSlot(
+        DoctorSchedule $schedule,
+        string $requestedTime
+    ): void {
+        $workStart = Carbon::parse(
+            $schedule->start_time
+        );
+
+        $appointmentTime = Carbon::parse(
+            $requestedTime
+        );
+
+        $minutesDifference =
+            $workStart->diffInMinutes(
+                $appointmentTime
+            );
+
+        if (
+            $minutesDifference %
+            $schedule->avg_consultation_time !== 0
+        ) {
+            throw ValidationException::withMessages([
+                'start_time' => [
+                    'Invalid appointment slot.'
                 ]
             ]);
         }

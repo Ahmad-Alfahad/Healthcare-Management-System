@@ -47,6 +47,7 @@ class AppointmentRepository
     {
         return Appointment::where('doctor_id', $doctorId)
             ->whereDate('scheduled_date', $date)
+            ->whereIn('status', ['pending', 'confirmed'])
             ->get();
     }
 
