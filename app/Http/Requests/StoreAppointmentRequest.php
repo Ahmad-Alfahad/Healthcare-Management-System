@@ -58,7 +58,7 @@ class StoreAppointmentRequest extends FormRequest
         ];
     }
 
-    public function message()
+    public function messages(): array
     {
         return [
 
@@ -73,11 +73,12 @@ class StoreAppointmentRequest extends FormRequest
 
             'scheduled_date.required' => 'scheduled_date  is required.',
             'scheduled_date.date' => 'scheduled_date must be a valid date.',
-
+            
+            'status.in' => 'Invalid appointment status.',
+             
             'start_time.required' => 'start_time  is required.',
             'start_time.date_format' => 'start_time must be a valid time.',
 
-            'status.in' => 'Invalid appointment status.',
         ];
     }
 }

@@ -36,7 +36,9 @@ class AppointmentService
     public function createAppointment(array $data): Appointment
     {
         $this->validateAppointmentData($data['scheduled_date']);
-        $this->validateDoctorSchedule($data['doctor_id'], $data['scheduled_date']);
+        $schedule = $this->validateDoctorSchedule($data['doctor_id'], $data['scheduled_date']);
+        $this->validateDoctorAvailability($schedule);
+        $this->validateWorkingHours($schedule, $data['start_time']);
         return $this->appointmentRepository->create($data);
     }
 
@@ -60,7 +62,8 @@ class AppointmentService
         }
     }
 
-    private function validateDoctorSchedule( int $doctorId, string $date ): DoctorSchedule {
+    private function validateDoctorSchedule(int $doctorId, string $date): DoctorSchedule
+    {
         $day = Carbon::parse($date)
             ->format('l');
         $schedule = $this->doctorScheduleRepository
@@ -79,5 +82,32 @@ class AppointmentService
         }
 
         return $schedule;
+    }
+
+   
+    private function validateDoctorAvailability(DoctorSchedule $schedule): void
+    {
+        if ($schedule->is_off) {
+            throw ValidationException::withMessages([
+                'doctor_id' => [
+                    'Doctor is unavailable on this day.'
+                ]
+            ]);
+        }
+    }
+
+    private function validateWorkingHours(DoctorSchedule $schedule, string $appointmentTime): void
+    {
+        $appointmentTime = strtotime($appointmentTime);
+        $startTime = strtotime($schedule->start_time);
+        $endTime = strtotime($schedule->end_time);
+
+        if ($appointmentTime < $startTime || $appointmentTime >= $endTime) {
+            throw ValidationException::withMessages([
+                'scheduled_date' => [
+                    'Appointment time must be within doctor\'s working hours.'
+                ]
+            ]);
+        }
     }
 }
