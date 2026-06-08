@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('lab-request-items' , LabRequestItemController::class);
     Route::apiResource('lab-results' , LabResultController::class);
     Route::apiResource('patient-medical-conditions' , PatientMedicalConditionController::class);
+    Route::post('/available-slots', [AppointmentController::class, 'availableSlots'])->name('appointments.available-slots');
     // User Management
     Route::post('/logout', [UserController::class, 'logout']);
 });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
+use App\Http\Requests\AvailableSlotsRequest;
 use App\Services\AppointmentService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -74,6 +75,19 @@ class AppointmentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Appointment deleted successfully.'
+        ], Response::HTTP_OK);
+    }
+
+    public function availableSlots(AvailableSlotsRequest $request): JsonResponse
+    {
+        $slots = $this->appointmentService->getAvailableSlots(
+            $request->input('doctor_id'),
+            $request->input('date')
+        );
+
+        return response()->json([
+            'success' => true,
+            'data' => $slots
         ], Response::HTTP_OK);
     }
 

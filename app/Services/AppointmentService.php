@@ -39,7 +39,7 @@ class AppointmentService
         $schedule = $this->validateDoctorSchedule($data['doctor_id'], $data['scheduled_date']);
         $this->validateDoctorAvailability($schedule);
         $this->validateWorkingHours($schedule, $data['start_time']);
-        $this->validateTimeSlot( $schedule, $data['start_time']);
+        $this->validateTimeSlot($schedule, $data['start_time']);
         $this->validateTimeConflict(
             $schedule,
             $data['doctor_id'],
@@ -211,5 +211,66 @@ class AppointmentService
                 ]
             ]);
         }
+    }
+
+    public function getAvailableSlots(int $doctorId, string $date): array
+    {
+        $day = Carbon::parse($date)
+            ->format('l');
+
+        $schedule = $this->doctorScheduleRepository
+            ->getDoctorScheduleByDay(
+                $doctorId,
+                $day
+            );
+
+        if (!$schedule || $schedule->is_off) {
+            return [];
+        }
+
+        $slots = [];
+
+        $current = Carbon::parse(
+            $schedule->start_time
+        );
+
+        $workEnd = Carbon::parse(
+            $schedule->end_time
+        );
+
+        while ($current->lt($workEnd)) {
+
+            $slotEnd = $current
+                ->copy()
+                ->addMinutes(
+                    $schedule->avg_consultation_time
+                );
+
+            if ($slotEnd->gt($workEnd)) {
+                break;
+            }
+
+            $slots[] = $current
+                ->format('H:i:s');
+
+            $current->addMinutes(
+                $schedule->avg_consultation_time
+            );
+        }
+        $appointments = $this->appointmentRepository
+            ->getAppointmentsByDate(
+                $doctorId,
+                $date
+            );
+
+        $bookedSlots = $appointments
+            ->pluck('start_time')
+            ->toArray();
+        return array_values(
+            array_diff(
+                $slots,
+                $bookedSlots
+            )
+        );
     }
 }
