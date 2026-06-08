@@ -14,12 +14,19 @@ return new class extends Migration
         Schema::create('doctor_schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId("doctor_id")->constrained();
-            $table->enum("day_of_week", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]);
+            $table->enum("day_of_week", 
+                   ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]);
             $table->boolean("is_off");
             $table->time("start_time");
             $table->time("end_time");
             $table->integer("avg_consultation_time");
             $table->timestamps();
+
+            $table->unique([
+                'doctor_id',
+                'day_of_week'
+            ]);
+            
         });
     }
 

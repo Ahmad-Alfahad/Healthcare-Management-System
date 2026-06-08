@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateDoctorScheduleRequest extends FormRequest
 {
@@ -24,7 +25,12 @@ class UpdateDoctorScheduleRequest extends FormRequest
     {
         return [
             'doctor_id' => [ 'sometimes','integer' ,'exists:doctors,id'],
-            'day_of_week' => ['sometimes','in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'],
+            'day_of_week' => 
+            ['sometimes','in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday' ,
+            Rule::unique('doctor_schedules')->where(function ($query) {
+                return $query->where('doctor_id', $this->input('doctor_id'))
+                    ->where('day_of_week', $this->input('day_of_week'));
+            })],
             'is_off' => ['sometimes','boolean'],
             'start_time' => ['date_format:H:i'],
             'end_time' => ['date_format:H:i','after:start_time'],

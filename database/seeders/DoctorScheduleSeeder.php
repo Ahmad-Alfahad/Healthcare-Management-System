@@ -38,14 +38,6 @@ class DoctorScheduleSeeder extends Seeder
                 'avg_consultation_time' => 30,
             ],
 
-            [
-                'doctor_id' => 1,
-                'day_of_week' => 'monday',
-                'is_off' => false,
-                'start_time' => '08:00:00',
-                'end_time' => '12:00:00',
-                'avg_consultation_time' => 15,
-            ],
 
             [
                 'doctor_id' => 1,

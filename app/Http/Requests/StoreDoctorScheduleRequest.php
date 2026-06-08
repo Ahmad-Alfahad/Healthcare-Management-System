@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreDoctorScheduleRequest extends FormRequest
 {
@@ -24,7 +25,11 @@ class StoreDoctorScheduleRequest extends FormRequest
     {
         return [
             'doctor_id' => [ 'required' , 'integer' ,'exists:doctors,id'],
-            'day_of_week' => ['required','in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'],
+            'day_of_week' => ['required','in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+            Rule::unique('doctor_schedules')->where(function ($query) {
+                return $query->where('doctor_id', $this->input('doctor_id'))
+                    ->where('day_of_week', $this->input('day_of_week'));
+            })],
             'is_off' => ['required','boolean'],
             'start_time' => ['required_if:is_off,false','date_format:H:i'],
             'end_time' => ['required_if:is_off,false','date_format:H:i','after:start_time'],
@@ -41,6 +46,8 @@ class StoreDoctorScheduleRequest extends FormRequest
 
             'day_of_week.required' => 'Day of the week is required.',
             'day_of_week.in' => 'Day of the week must be a valid day.',
+            
+            'day_of_week.unique' => 'A schedule for this doctor on the specified day already exists.',
             
             'is_off.required' => 'Off day status is required.',
             'is_off.boolean' => 'Off day status must be true or false.',

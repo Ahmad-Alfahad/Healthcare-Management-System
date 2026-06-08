@@ -61,7 +61,7 @@ class UpdateAppointmentRequest extends FormRequest
         ];
     }
 
-    public function message()
+    public function messages()
     {
         return [
             'patient_id.exists' => 'Selected patient does not exist.',

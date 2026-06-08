@@ -22,7 +22,7 @@ return new class extends Migration {
 
             $table->timestamps();
 
-                        $table->unique([
+            $table->unique([
                 'name',
                 'type'
             ]);
