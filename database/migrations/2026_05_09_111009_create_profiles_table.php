@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('address')->nullable(); 
             $table->date('date_of_birth')->nullable();
             $table->timestamps();
+            
         });
     }
 

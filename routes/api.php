@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\DepartmentController;
@@ -19,9 +20,11 @@ use App\Http\Controllers\LabTestController;
 use App\Http\Controllers\LabRequestItemController;
 use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\PatientMedicalConditionController;
+use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -55,6 +58,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('lab-request-items', LabRequestItemController::class);
     Route::apiResource('lab-results', LabResultController::class);
     Route::apiResource('patient-medical-conditions', PatientMedicalConditionController::class);
+    Route::apiResource('profiles', \App\Http\Controllers\ProfileController::class);
+    Route::apiResource('roles-permissions', RolePermissionController::class);
+    Route::post('/roles-permissions/sync-role/{user}', [RolePermissionController::class, 'syncUserAccess']);
     // User Management
     Route::post('/logout', [UserController::class, 'logout']);
 });

@@ -28,6 +28,8 @@ class DoctorRepository
 
     public function create(array $data): Doctor
     {
+        
+
         return Doctor::create($data);
     }
 
