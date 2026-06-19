@@ -10,6 +10,7 @@ class Visit extends Model
         "appointment_id",
         "doctor_id",
         "patient_id",
+        "status",
         "notes",
         "visited_at"
     ];

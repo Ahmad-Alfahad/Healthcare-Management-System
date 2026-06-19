@@ -4,14 +4,20 @@ namespace App\Services;
 
 use App\Models\Visit;
 use App\Repositories\VisitRepository;
+use App\Repositories\AppointmentRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
+use App\Models\Appointment;
+use Carbon\Carbon;
 
 class VisitService
 {
-    protected $visitRepository;
-    public function __construct( VisitRepository $visitRepository)
+    protected VisitRepository $visitRepository;
+    protected AppointmentRepository $appointmentRepository;
+    public function __construct(VisitRepository $visitRepository, AppointmentRepository $appointmentRepository)
     {
         $this->visitRepository = $visitRepository;
+        $this->appointmentRepository = $appointmentRepository;
     }
 
     public function getAllVisits(): Collection
@@ -26,6 +32,34 @@ class VisitService
 
     public function createVisit(array $data): Visit
     {
+        $appointment = $this->appointmentRepository
+            ->find($data['appointment_id']);
+
+        $this->validateVisitUniqueness(
+            $appointment->id
+        );
+
+        $this->validateAppointmentStatus(
+            $appointment
+        );
+
+        $this->validateAppointmentTimeReached(
+            $appointment
+        );
+
+        $visitedAt = Carbon::parse(
+            $appointment->scheduled_date . ' ' .
+                $appointment->start_time
+        );
+
+        $data['doctor_id'] = $appointment->doctor_id;
+
+        $data['patient_id'] = $appointment->patient_id;
+
+        $data['status'] = 'in_progress';
+
+        $data['visited_at'] = $visitedAt;
+
         return $this->visitRepository->create($data);
     }
 
@@ -39,4 +73,47 @@ class VisitService
         return $this->visitRepository->delete($id);
     }
 
+
+    private function validateVisitUniqueness(int $appointmentId): void
+    {
+        if (
+            $this->visitRepository
+            ->existsByAppointmentId($appointmentId)
+        ) {
+            throw ValidationException::withMessages([
+                'appointment_id' => [
+                    'This appointment already has a visit.'
+                ]
+            ]);
+        }
+    }
+
+    private function validateAppointmentStatus(Appointment $appointment): void
+    {
+        if (
+            $appointment->status !== 'confirmed'
+        ) {
+            throw ValidationException::withMessages([
+                'appointment_id' => [
+                    'Appointment must be confirmed.'
+                ]
+            ]);
+        }
+    }
+
+    private function validateAppointmentTimeReached(Appointment $appointment): void
+    {
+        $appointmentDateTime = Carbon::parse(
+            $appointment->scheduled_date . ' ' .
+                $appointment->start_time
+        );
+
+        if (now()->lt($appointmentDateTime)) {
+            throw ValidationException::withMessages([
+                'appointment_id' => [
+                    'Appointment time has not been reached yet.'
+                ]
+            ]);
+        }
+    }
 }

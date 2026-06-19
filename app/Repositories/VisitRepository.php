@@ -33,4 +33,20 @@ class VisitRepository
         $visit = Visit::findOrFail($id);
         return $visit->delete();
     }
+
+    public function existsByAppointmentId(int $appointmentId): bool
+    {
+        return Visit::where(
+            'appointment_id',
+            $appointmentId
+        )->exists();
+    }
+
+    public function findByAppointmentId(int $appointmentId): ?Visit
+    {
+        return Visit::where(
+            'appointment_id',
+            $appointmentId
+        )->first();
+    }
 }
