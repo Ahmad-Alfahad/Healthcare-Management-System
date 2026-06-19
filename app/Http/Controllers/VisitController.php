@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVisitRequest;
 use App\Http\Requests\UpdateVisitRequest;
+use App\Http\Requests\ChangeVisitStatusRequest;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\VisitService;
 
+
 class VisitController extends Controller
 {
-   
-    protected $visitService;
-    
+
+    protected VisitService $visitService;
+
     public function __construct(VisitService $visitService)
     {
         $this->visitService = $visitService;
@@ -57,5 +59,17 @@ class VisitController extends Controller
             'message' => 'Visit deleted successfully.'
         ], Response::HTTP_OK);
     }
-}
 
+    public function changeStatus(ChangeVisitStatusRequest $request, int $id): JsonResponse
+    {
+        $this->visitService->changeStatus(
+            $id,
+            $request->validated()['status']
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Visit status updated successfully.'
+        ]);
+    }
+}

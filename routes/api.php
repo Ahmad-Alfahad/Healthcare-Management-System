@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'changeStatus']);
     Route::apiResource('doctor-schedule', DoctorScheduleController::class);
     Route::apiResource('visits', VisitController::class);
+    Route::patch('visits/{id}/status',[VisitController::class, 'changeStatus']);
     Route::apiResource('diagnoses', DiagnosisController::class);
     Route::apiResource('prescriptions', PrescriptionController::class);
     Route::apiResource('prescription-items', PrescriptionItemController::class);

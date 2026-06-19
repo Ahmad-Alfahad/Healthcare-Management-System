@@ -65,11 +65,15 @@ class VisitService
 
     public function updateVisit(int $id, array $data): bool
     {
+        $visit = $this->visitRepository->find($id);
+        $this->validateVisitIsEditable($visit);
         return $this->visitRepository->update($id, $data);
     }
 
     public function deleteVisit(int $id): bool
     {
+        $visit = $this->visitRepository->find($id);
+        $this->validateVisitIsEditable($visit);
         return $this->visitRepository->delete($id);
     }
 
@@ -112,6 +116,63 @@ class VisitService
             throw ValidationException::withMessages([
                 'appointment_id' => [
                     'Appointment time has not been reached yet.'
+                ]
+            ]);
+        }
+    }
+
+    private function validateVisitStatusTransition(Visit $visit, string $newStatus): void
+    {
+        if (
+            $visit->status !== 'in_progress'
+        ) {
+            throw ValidationException::withMessages([
+                'status' => [
+                    'Visit status cannot be changed.'
+                ]
+            ]);
+        }
+
+        if (
+            ! in_array(
+                $newStatus,
+                ['completed', 'cancelled']
+            )
+        ) {
+            throw ValidationException::withMessages([
+                'status' => [
+                    'Invalid visit status.'
+                ]
+            ]);
+        }
+    }
+
+    public function changeStatus(int $visitId, string $newStatus): bool
+    {
+        $visit = $this->visitRepository
+            ->find($visitId);
+
+        $this->validateVisitStatusTransition(
+            $visit,
+            $newStatus
+        );
+
+        return $this->visitRepository
+            ->update(
+                $visitId,
+                [
+                    'status' => $newStatus
+                ]
+            );
+    }
+
+    private function validateVisitIsEditable(Visit $visit): void
+    {
+        if ($visit->status !== 'in_progress') {
+
+            throw ValidationException::withMessages([
+                'visit' => [
+                    'Only in progress visits can be modified.'
                 ]
             ]);
         }
