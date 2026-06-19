@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -14,9 +13,17 @@ return new class extends Migration
     {
         Schema::create('visits', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("appointment_id")->constrained();
-            $table->foreignId("doctor_id")->constrained()->nullable();
-            $table->foreignId("patient_id")->constrained()->nullable();
+            $table->foreignId("appointment_id")->constrained()->unique();
+            $table->foreignId("doctor_id")->constrained();
+            $table->foreignId("patient_id")->constrained();
+            $table->enum(
+                'status',
+                [
+                    'in_progress',
+                    'completed',
+                    'cancelled'
+                ]
+            )->default('in_progress');
             $table->string("notes")->nullable();
             $table->dateTime("visited_at");
             $table->timestamps();
