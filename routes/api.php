@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('visits/{id}/status',[VisitController::class, 'changeStatus']);
     Route::apiResource('diagnoses', DiagnosisController::class);
     Route::apiResource('prescriptions', PrescriptionController::class);
+    Route::patch('prescriptions/{id}/cancel',[PrescriptionController::class,'cancel']);
     Route::apiResource('prescription-items', PrescriptionItemController::class);
     Route::apiResource('dispensings', DispensingController::class);
     Route::apiResource('lab-tests', LabTestController::class);

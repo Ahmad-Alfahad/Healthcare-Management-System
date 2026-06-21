@@ -33,4 +33,12 @@ class PrescriptionRepository
         $prescription = Prescription::findOrFail($id);
         return $prescription->delete();
     }
+
+    public function existsByVisitId(int $visitId): bool 
+    {
+        return Prescription::where(
+            'visit_id',
+            $visitId
+        )->exists();
+    }
 }

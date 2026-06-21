@@ -38,7 +38,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Appointment whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Appointment whereUpdatedAt($value)
  */
-	class Appointment extends \Eloquent {}
+	class Appointment extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -65,7 +65,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AuditLog whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AuditLog whereUserId($value)
  */
-	class AuditLog extends \Eloquent {}
+	class AuditLog extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -86,7 +86,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereUpdatedAt($value)
  */
-	class Department extends \Eloquent {}
+	class Department extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -112,7 +112,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Diagnosis whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Diagnosis whereVisitId($value)
  */
-	class Diagnosis extends \Eloquent {}
+	class Diagnosis extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -137,7 +137,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Dispensing whereQuantityDispensed($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Dispensing whereUpdatedAt($value)
  */
-	class Dispensing extends \Eloquent {}
+	class Dispensing extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -174,7 +174,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Doctor whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Doctor whereYearsOfExperience($value)
  */
-	class Doctor extends \Eloquent {}
+	class Doctor extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -202,7 +202,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DoctorSchedule whereStartTime($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DoctorSchedule whereUpdatedAt($value)
  */
-	class DoctorSchedule extends \Eloquent {}
+	class DoctorSchedule extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -230,7 +230,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Facility wherePhoneNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Facility whereUpdatedAt($value)
  */
-	class Facility extends \Eloquent {}
+	class Facility extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -251,7 +251,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FacilityDepartment whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FacilityDepartment whereUpdatedAt($value)
  */
-	class FacilityDepartment extends \Eloquent {}
+	class FacilityDepartment extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -272,7 +272,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FacilityDepartmentSpecialization whereSpecializationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FacilityDepartmentSpecialization whereUpdatedAt($value)
  */
-	class FacilityDepartmentSpecialization extends \Eloquent {}
+	class FacilityDepartmentSpecialization extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -298,7 +298,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LabRequestItem whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LabRequestItem whereVisitId($value)
  */
-	class LabRequestItem extends \Eloquent {}
+	class LabRequestItem extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -333,7 +333,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LabResult whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LabResult whereValue($value)
  */
-	class LabResult extends \Eloquent {}
+	class LabResult extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -366,7 +366,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LabStaff whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LabStaff whereYearsOfExperience($value)
  */
-	class LabStaff extends \Eloquent {}
+	class LabStaff extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -391,7 +391,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LabTest whereUnit($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LabTest whereUpdatedAt($value)
  */
-	class LabTest extends \Eloquent {}
+	class LabTest extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -414,7 +414,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MedicalCondition whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MedicalCondition whereUpdatedAt($value)
  */
-	class MedicalCondition extends \Eloquent {}
+	class MedicalCondition extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -456,7 +456,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Patient whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Patient whereWeight($value)
  */
-	class Patient extends \Eloquent {}
+	class Patient extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -481,7 +481,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PatientMedicalCondition wherePatientId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PatientMedicalCondition whereUpdatedAt($value)
  */
-	class PatientMedicalCondition extends \Eloquent {}
+	class PatientMedicalCondition extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -512,7 +512,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Pharmacist whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Pharmacist whereYearsOfExperience($value)
  */
-	class Pharmacist extends \Eloquent {}
+	class Pharmacist extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -536,7 +536,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prescription whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prescription whereVisitId($value)
  */
-	class Prescription extends \Eloquent {}
+	class Prescription extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -566,7 +566,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PrescriptionItem whereQuantityPrescribed($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PrescriptionItem whereUpdatedAt($value)
  */
-	class PrescriptionItem extends \Eloquent {}
+	class PrescriptionItem extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -597,7 +597,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereUserId($value)
  */
-	class Profile extends \Eloquent {}
+	class Profile extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -614,7 +614,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Specialization whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Specialization whereUpdatedAt($value)
  */
-	class Specialization extends \Eloquent {}
+	class Specialization extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -653,7 +653,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutPermission($permissions)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutRole($roles, $guard = null)
  */
-	class User extends \Eloquent {}
+	class User extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -688,6 +688,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Visit whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Visit whereVisitedAt($value)
  */
-	class Visit extends \Eloquent {}
+	class Visit extends \Illuminate\Database\Eloquent\Model {}
 }
 

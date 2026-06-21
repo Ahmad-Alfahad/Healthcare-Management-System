@@ -8,9 +8,10 @@ use App\Http\Requests\UpdatePrescriptionRequest;
 use App\Services\PrescriptionService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+
 class PrescriptionController extends Controller
 {
-    protected $prescriptionService;
+    protected PrescriptionService $prescriptionService;
 
     public function __construct(PrescriptionService $prescriptionService)
     {
@@ -55,5 +56,16 @@ class PrescriptionController extends Controller
             'success' => true,
             'message' => 'Prescription deleted successfully.'
         ], Response::HTTP_OK);
-    }   
+    }
+
+    public function cancel(int $id): JsonResponse
+    {
+        $this->prescriptionService
+            ->cancelPrescription($id);
+
+        return response()->json([
+            'success' => true ,
+            'message' => 'Prescription cancelled successfully.'
+        ] , Response::HTTP_OK);
+    }
 }
