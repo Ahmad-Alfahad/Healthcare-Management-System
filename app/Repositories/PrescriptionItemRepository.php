@@ -33,4 +33,35 @@ class PrescriptionItemRepository
         $item = PrescriptionItem::findOrFail($id);
         return $item->delete();
     }
+
+    public function existsMedicationInPrescription(int $prescriptionId, string $medicationName): bool
+    {
+        return PrescriptionItem::where(
+            'prescription_id',
+            $prescriptionId
+        )
+            ->where(
+                'medication_name',
+                $medicationName
+            )
+            ->exists();
+    }
+
+    public function existsMedicationInPrescriptionExcept(int $prescriptionId, string $medicationName, int $itemId): bool
+    {
+        return PrescriptionItem::where(
+            'prescription_id',
+            $prescriptionId
+        )
+            ->where(
+                'medication_name',
+                $medicationName
+            )
+            ->where(
+                'id',
+                '!=',
+                $itemId
+            )
+            ->exists();
+    }
 }

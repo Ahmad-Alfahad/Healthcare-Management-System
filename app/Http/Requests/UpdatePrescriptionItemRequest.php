@@ -23,7 +23,6 @@ class UpdatePrescriptionItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'prescription_id' => ['sometimes', 'integer', 'exists:prescriptions,id'],
             'medication_name' => ['sometimes', 'string', 'max:255'],
             'dosage' => ['sometimes', 'string', 'max:255'],
             'quantity_prescribed' => ['sometimes', 'integer', 'min:1'],
@@ -35,8 +34,6 @@ class UpdatePrescriptionItemRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'prescription_id.integer' => 'The prescription ID must be an integer.',
-            'prescription_id.exists' => 'The specified prescription does not exist.',
 
             'medication_name.string' => 'The medication name must be a string.',
             'medication_name.max' => 'The medication name may not be greater than 255 characters.',
