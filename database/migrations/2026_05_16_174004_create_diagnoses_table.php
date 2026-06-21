@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId("visit_id")->cosntrained();
             $table->string("diagnosis_code")->default("LOCAL_DIAGNOSIS");
             $table->string("description");
-            $table->string("diagnosis_type");
+            $table->enum('diagnosis_type' , ['primary','secondary']);
             $table->string("notes");
             $table->timestamps();
         });

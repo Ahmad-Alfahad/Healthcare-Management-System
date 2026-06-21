@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DiagnosisController extends Controller
 {
-    protected $diagnosisService;
+    protected DiagnosisService $diagnosisService;
 
     public function __construct(DiagnosisService $diagnosisService)
     {

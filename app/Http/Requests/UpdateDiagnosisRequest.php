@@ -23,20 +23,17 @@ class UpdateDiagnosisRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "visit_id" => ["sometimes", "integer", "exists:visits,id"],
             "diagnosis_code" => ["sometimes", "string", "max:50"],
             "description" => ["sometimes", "string"],
             "diagnosis_type" => ["sometimes", "string", "max:255"],
-            "notes" => ["sometimes", "string"]
+            "notes" => ["sometimes", "nullable", "string"]
         ];
     }
 
     public function messages(): array
     {
         return [
-            "visit_id.integer" => "The visit ID must be an integer.",
-            "visit_id.exists" => "The specified visit does not exist.",
-
+           
             "diagnosis_code.string" => "The diagnosis code must be a string.",
             "diagnosis_code.max" => "The diagnosis code may not be greater than 50 characters.",
 
