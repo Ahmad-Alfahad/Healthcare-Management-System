@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Models\Dispensing;
@@ -32,4 +33,12 @@ class DispensingRepository
         $dispensing = Dispensing::findOrFail($id);
         return $dispensing->delete();
     }
-}   
+
+    public function getTotalDispensedForItem(int $prescriptionItemId): int
+    {
+        return Dispensing::where(
+            'prescription_item_id',
+            $prescriptionItemId
+        )->sum('quantity_dispensed');
+    }
+}

@@ -14,7 +14,7 @@ class PrescriptionRepository
 
     public function find(int $id): Prescription
     {
-        return Prescription::with('visit')->findOrFail($id);
+        return Prescription::with(['visit' , 'items'])->findOrFail($id);
     }
 
     public function create(array $data): Prescription
@@ -34,11 +34,21 @@ class PrescriptionRepository
         return $prescription->delete();
     }
 
-    public function existsByVisitId(int $visitId): bool 
+    public function existsByVisitId(int $visitId): bool
     {
         return Prescription::where(
             'visit_id',
             $visitId
         )->exists();
+    }
+
+    public function updateStatus(int $prescriptionId, string $status): bool
+    {
+        return Prescription::where(
+            'id',
+            $prescriptionId
+        )->update([
+            'status' => $status
+        ]);
     }
 }
