@@ -23,26 +23,7 @@ class UpdatePatientMedicalConditionRequest extends FormRequest
      */
     public function rules(): array
     {
-        $record = $this->route(
-            'patient_medical_condition'
-        );
-
         return [
-            'patient_id' => ['sometimes', 'exists:patients,id'],
-            'medical_condition_id' => [
-                'sometimes',
-                'exists:medical_conditions,id'
-                ,
-                Rule::unique('patient_medical_conditions')
-                    ->where(
-                        fn($query) =>
-                        $query->where(
-                            'patient_id',
-                            $this->patient_id
-                        )
-                    )
-                    ->ignore($record),
-            ],
             'notes' => ['nullable', 'string'],
             'diagnosed_at' => ['sometimes', 'date']
         ];
@@ -51,10 +32,6 @@ class UpdatePatientMedicalConditionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'patient_id.exists' => 'The specified patient does not exist.',
-
-            'medical_condition_id.exists' => 'The specified medical condition does not exist.',
-
             'notes.string' => 'Notes must be a valid text string.',
 
             'diagnosed_at.date' => 'Diagnosed at must be a valid date.'

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Models\PatientMedicalCondition;
@@ -13,7 +14,7 @@ class PatientMedicalConditionRepository
 
     public function find(int $id): ?PatientMedicalCondition
     {
-        return PatientMedicalCondition::find($id);
+        return PatientMedicalCondition::findOrFail($id);
     }
 
     public function create(array $data): PatientMedicalCondition
@@ -29,5 +30,36 @@ class PatientMedicalConditionRepository
     public function delete(PatientMedicalCondition $patientMedicalCondition): bool
     {
         return $patientMedicalCondition->delete();
+    }
+
+    public function existsForPatient(int $patientId, int $medicalConditionId): bool
+    {
+        return PatientMedicalCondition::where(
+            'patient_id',
+            $patientId
+        )
+            ->where(
+                'medical_condition_id',
+                $medicalConditionId
+            )
+            ->exists();
+    }
+
+    public function existsForPatientExcept(int $patientId, int $medicalConditionId, int $id): bool
+    {
+        return PatientMedicalCondition::where(
+            'patient_id',
+            $patientId
+        )
+            ->where(
+                'medical_condition_id',
+                $medicalConditionId
+            )
+            ->where(
+                'id',
+                '!=',
+                $id
+            )
+            ->exists();
     }
 }
