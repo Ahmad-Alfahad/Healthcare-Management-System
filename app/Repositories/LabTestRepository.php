@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Models\LabTest;
@@ -31,5 +32,34 @@ class LabTestRepository
     {
         $lab_test = LabTest::findOrFail($id);
         return $lab_test->delete();
+    }
+
+    public function existsByName(string $name): bool
+    {
+        return LabTest::where(
+            'name',
+            $name
+        )->exists();
+    }
+
+    public function existsByNameExcept(string $name, int $id): bool
+    {
+        return LabTest::where(
+            'name',
+            $name
+        )
+            ->where(
+                'id',
+                '!=',
+                $id
+            )
+            ->exists();
+    }
+
+    public function hasRequests(int $id): bool
+    {
+        return LabTest::whereKey($id)
+            ->whereHas('labRequestItems')
+            ->exists();
     }
 }

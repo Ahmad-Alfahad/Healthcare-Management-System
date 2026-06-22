@@ -25,7 +25,7 @@ class StoreLab_testRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255' , 'unique:lab_tests,name'],
             'range_high' => ['required', 'numeric', 'gt:range_low'],
-            'range_low' => ['required', 'numeric' , 'lt:range_high'],
+            'range_low' => ['required', 'numeric' ],
             'unit' => ['required', 'string', 'max:255'],
         ];
     }
@@ -44,7 +44,7 @@ class StoreLab_testRequest extends FormRequest
           
             'range_low.required' => 'The range low field is required.',
             'range_low.numeric' => 'The range low must be a number.',
-            'range_low.lt' => 'The range low must be less than range high.',
+        
           
             'unit.required' => 'The unit field is required.',
             'unit.string' => 'The unit must be a string.',

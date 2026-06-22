@@ -27,7 +27,7 @@ class UpdateLab_testRequest extends FormRequest
         return [
             'name' => ['sometimes', 'string', 'max:255' , Rule::unique('lab_tests')->ignore($lab_test)],
             'range_high' => ['sometimes', 'numeric', 'gt:range_low'],
-            'range_low' => ['sometimes', 'numeric', 'lt:range_high'],
+            'range_low' => ['sometimes', 'numeric'],
             'unit' => ['sometimes', 'string', 'max:255'],
         ];
     }
@@ -43,7 +43,6 @@ class UpdateLab_testRequest extends FormRequest
             'range_high.gt' => 'The range high must be greater than range low.',
           
             'range_low.numeric' => 'The range low must be a number.',
-            'range_low.lt' => 'The range low must be less than range high.',
           
             'unit.string' => 'The unit must be a string.',
             'unit.max' => 'The unit may not be greater than 255 characters.',

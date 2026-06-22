@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('lab_tests', function (Blueprint $table) {
             $table->id();
             $table->string("name");
-            $table->integer("range_high");
-            $table->integer("range_low");
+            $table->decimal("range_high", 10, 2);;
+            $table->decimal("range_low" , 10 , 2);
             $table->string("unit");
             $table->timestamps();
         });
