@@ -44,7 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('labstaff', LabStaffController::class);
     Route::apiResource('pharmacists', PharmacistController::class);
     Route::apiResource('patients', PatientController::class);
-    Route::apiResource('medical_conditions', MedicalConditionController::class);
+    Route::apiResource('medical-conditions', MedicalConditionController::class);
     Route::apiResource('appointments', AppointmentController::class);
     Route::get('available-slots', [AppointmentController::class, 'availableSlots']);
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'changeStatus']);
