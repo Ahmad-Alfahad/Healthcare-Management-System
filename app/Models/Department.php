@@ -18,4 +18,9 @@ class Department extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+       public function facilityDepartment() 
+    {
+        return $this->hasMany(FacilityDepartment::class) ;
+    }
 }

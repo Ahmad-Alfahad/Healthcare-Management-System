@@ -29,4 +29,9 @@ class Facility extends Model
     {
         return $this->hasMany(Facility::class, 'parent_id');
     }
+
+    public function facilityDepartment(): HasMany
+    {
+        return $this->hasMany(FacilityDepartment::class);
+    }
 }
