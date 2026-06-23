@@ -33,4 +33,26 @@ class SpecializationRepository
         $specialization = Specialization::findOrFail($id);
         return $specialization->delete();
     }
+
+    public function existsByName(string $name): bool
+    {
+        return Specialization::where(
+            'name',
+            $name
+        )->exists();
+    }
+
+    public function existsByNameExcept(string $name, int $id): bool
+    {
+        return Specialization::where(
+            'name',
+            $name
+        )
+            ->where(
+                'id',
+                '!=',
+                $id
+            )
+            ->exists();
+    }
 }
