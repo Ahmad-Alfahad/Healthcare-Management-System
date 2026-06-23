@@ -14,6 +14,7 @@ class StoreSpecializationRequest extends FormRequest
     {
         return [
             'name' => 'required|string|unique:specializations,name|max:255',
+            'description' => 'string|nullable'
         ];
     }
 
@@ -25,6 +26,8 @@ class StoreSpecializationRequest extends FormRequest
             'name.string'   => 'The specialization name must be a valid text string.',
             'name.unique'   => 'This medical specialization already exists in our records.',
             'name.max'      => 'The specialization name may not be greater than 255 characters.',
+
+            'description.string' => 'description must be a valid string'
         ];
     }
 }

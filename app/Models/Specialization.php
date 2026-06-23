@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Specialization extends Model
 {
-    protected $fillable = ["name"];
+    protected $fillable = ["name" , "description"];
+
+        public function facilityDepartmentSpecialization() 
+    {
+        return $this->hasMany(FacilityDepartmentSpecialization::class) ;
+    }
 }
