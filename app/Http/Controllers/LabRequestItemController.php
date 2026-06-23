@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LabRequestItemController extends Controller
 {
-    protected $labRequestItemService;
+    protected LabRequestItemService $labRequestItemService;
 
     public function __construct(LabRequestItemService $labRequestItemService)
     {
@@ -47,8 +47,7 @@ class LabRequestItemController extends Controller
 
     public function update(UpdateLabRequestItemRequest $request, int $id): JsonResponse
     {
-        $item = $this->labRequestItemService->getLabRequestItemById($id);
-        $this->labRequestItemService->updateLabRequestItem($item, $request->validated());
+        $this->labRequestItemService->updateLabRequestItem($id, $request->validated());
         return response()->json([
             'success' => true,
             'message' => 'Lab request item updated successfully.'
@@ -57,8 +56,7 @@ class LabRequestItemController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
-        $item = $this->labRequestItemService->getLabRequestItemById($id);
-        $this->labRequestItemService->deleteLabRequestItem($item);
+        $this->labRequestItemService->deleteLabRequestItem($id);
         return response()->json([
             'success' => true,
             'message' => 'Lab request item deleted successfully.'

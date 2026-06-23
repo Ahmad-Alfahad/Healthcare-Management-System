@@ -26,7 +26,7 @@ class UpdateLab_testRequest extends FormRequest
         $lab_test = $this->route('lab_test');
         return [
             'name' => ['sometimes', 'string', 'max:255' , Rule::unique('lab_tests')->ignore($lab_test)],
-            'range_high' => ['sometimes', 'numeric', 'gt:range_low'],
+            'range_high' => ['sometimes', 'numeric'],
             'range_low' => ['sometimes', 'numeric'],
             'unit' => ['sometimes', 'string', 'max:255'],
         ];
@@ -40,7 +40,6 @@ class UpdateLab_testRequest extends FormRequest
             'name.unique' => 'The name has already been taken.',
 
             'range_high.numeric' => 'The range high must be a number.',
-            'range_high.gt' => 'The range high must be greater than range low.',
           
             'range_low.numeric' => 'The range low must be a number.',
           
