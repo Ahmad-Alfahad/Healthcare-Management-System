@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LabResultController extends Controller
 {
-    protected $labResultService;
+    protected LabResultService $labResultService;
 
     public function __construct(LabResultService $labResultService)
     {
@@ -48,8 +48,7 @@ class LabResultController extends Controller
 
     public function update(UpdateLabResultRequest $request, int $id): JsonResponse
     {
-        $result = $this->labResultService->getLabResultById($id);
-        $this->labResultService->updateLabResult($result, $request->validated());
+        $this->labResultService->updateLabResult($id, $request->validated());
         return response()->json([
             'success' => true,
             'message' => 'Lab result updated successfully.'
@@ -59,8 +58,7 @@ class LabResultController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
-        $result = $this->labResultService->getLabResultById($id);
-        $this->labResultService->deleteLabResult($result);
+        $this->labResultService->deleteLabResult($id);
         return response()->json([
             'success' => true,
             'message' => 'Lab result deleted successfully.'

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Models\LabResult;
@@ -13,7 +14,7 @@ class LabResultRepository
 
     public function find(int $id): LabResult
     {
-        return LabResult::with(['labRequestItem', 'labStaff'])->find($id);
+        return LabResult::with(['labRequestItem', 'labStaff'])->findOrFail($id);
     }
 
     public function create(array $data): LabResult
@@ -21,13 +22,31 @@ class LabResultRepository
         return LabResult::create($data);
     }
 
-    public function update(LabResult $labResult, array $data): bool
+    public function update(int $id, array $data): bool
     {
+        $labResult = LabResult::findOrFail($id);
         return $labResult->update($data);
     }
 
-    public function delete(LabResult $labResult): bool
+    public function delete(int $id): bool
     {
+        $labResult = LabResult::findOrFail($id);
         return $labResult->delete();
+    }
+
+    public function existsForRequest(int $labRequestItemId): bool
+    {
+        return LabResult::where(
+            'lab_request_item_id',
+            $labRequestItemId
+        )->exists();
+    }
+
+    public function findByRequest(int $labRequestItemId): ?LabResult
+    {
+        return LabResult::where(
+            'lab_request_item_id',
+            $labRequestItemId
+        )->first();
     }
 }

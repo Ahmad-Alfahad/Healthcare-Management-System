@@ -15,14 +15,14 @@ return new class extends Migration
         Schema::create('lab_results', function (Blueprint $table) {
             $table->id();
             $table->foreignId("lab_request_item_id")->constrained();
-            $table->foreignId("lab_staff_id")->constraiend();
-            $table->string("notes");
+            $table->foreignId("lab_staff_id")->constrained()->references('id')->on('lab_staff');
+            $table->string("notes")->nullable();
             $table->enum("status" , ["pending" , "completed" , "processing" , "cancelled"])->default("pending");
             $table->decimal("value", 10, 2);
             $table->string("unit");
             $table->string("reference_range");
             $table->string("access_token")->nullable();
-            $table->dateTime("completed_at");
+            $table->dateTime("completed_at")->nullable();
             $table->timestamps();
         });
     }
