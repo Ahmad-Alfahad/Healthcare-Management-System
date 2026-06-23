@@ -33,4 +33,26 @@ class DepartmentRepository
         $department = Department::findOrFail($id);
         return $department->delete();
     }
+
+    public function existsByName(string $name): bool
+    {
+        return Department::where(
+            'name',
+            $name
+        )->exists();
+    }
+
+    public function existsByNameExcept(string $name, int $id): bool
+    {
+        return Department::where(
+            'name',
+            $name
+        )
+            ->where(
+                'id',
+                '!=',
+                $id
+            )
+            ->exists();
+    }
 }

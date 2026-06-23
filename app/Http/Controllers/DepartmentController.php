@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DepartmentController extends Controller
 {
-    protected $departmentService;
+    protected DepartmentService $departmentService;
 
     public function __construct(DepartmentService $departmentService)
     {
@@ -56,4 +56,13 @@ class DepartmentController extends Controller
             'message' => 'Department deleted successfully.'
         ], Response::HTTP_OK);
     }
+
+//     public function deactivate(int $id): JsonResponse
+//     {
+//         $this->departmentService->deactivate($id);
+//         return response()->json([
+//             'success' => true,
+//             'message' => 'Department deactivate successfully.'
+//         ], Response::HTTP_OK);
+//     }
 }

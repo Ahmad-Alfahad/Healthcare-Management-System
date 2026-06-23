@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('facilities', FacilityController::class);
     Route::apiResource('specialization', SpecializationController::class);
     Route::apiResource('departments', DepartmentController::class);
+    // Route::patch('departments/{id}/deactivate',[DepartmentController::class,'deactivate']);
     Route::apiResource('doctors', DoctorController::class);
     Route::apiResource('labstaff', LabStaffController::class);
     Route::apiResource('pharmacists', PharmacistController::class);
