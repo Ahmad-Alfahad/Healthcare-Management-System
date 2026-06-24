@@ -18,19 +18,21 @@ class Facility extends Model
         'phone_number',
         'address'
     ];
-
+    protected $casts = [
+        'parent_id' => 'integer',
+    ];
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Facility::class, 'parent_id');
     }
 
 
-    public function children(): HasMany
+    public function childrens(): HasMany
     {
         return $this->hasMany(Facility::class, 'parent_id');
     }
 
-    public function facilityDepartment(): HasMany
+    public function facilityDepartments(): HasMany
     {
         return $this->hasMany(FacilityDepartment::class);
     }

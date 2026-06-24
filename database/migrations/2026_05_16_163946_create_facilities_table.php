@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId("parent_id")->nullable()->constrained("facilities")->nullOnDelete();
             $table->string("name");
-            $table->enum("facility_type" , ["pharmacy" , "laboratory" , "clinic" , "hospital"]);
+            $table->enum("facility_type", ["pharmacy", "laboratory", "clinic", "hospital"]);
             $table->string("phone_number");
             $table->string("address");
+            $table->boolean('is_active')
+                ->default(true);
             $table->timestamps();
         });
     }

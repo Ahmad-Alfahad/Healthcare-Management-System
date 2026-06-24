@@ -17,7 +17,7 @@ class StoreFacilityRequest extends FormRequest
         return [
             'parent_id'     => 'nullable|exists:facilities,id',
             'name'          => 'required|string|max:255',
-            'facility_type' => 'required|string|max:100',
+            'facility_type' => 'required|string|max:100|in:pharmacy,laboratory,clinic,hospital',
             'phone_number'  => 'required|string|max:20',
             'address'       => 'required|string|max:500',
         ];
@@ -35,6 +35,7 @@ class StoreFacilityRequest extends FormRequest
             'facility_type.required' => 'Please specify the facility type (e.g., Hospital, Clinic).',
             'facility_type.string'   => 'The facility type must be a valid text string.',
             'facility_type.max'      => 'The facility type may not be greater than 100 characters.',
+            'facility_type.in'      => 'The facility type must be valid Type.',
 
             'phone_number.required' => 'The facility phone number is required.',
             'phone_number.string'   => 'The phone number format is invalid.',

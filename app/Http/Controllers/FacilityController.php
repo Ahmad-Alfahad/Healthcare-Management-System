@@ -8,7 +8,7 @@ use Illuminate\Http\JsonResponse;
 
 class FacilityController extends Controller
 {
-    protected $facilityService;
+    protected FacilityService $facilityService;
 
     public function __construct(FacilityService $facilityService)
     {

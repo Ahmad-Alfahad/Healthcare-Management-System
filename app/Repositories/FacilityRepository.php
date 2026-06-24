@@ -9,12 +9,12 @@ class FacilityRepository
 {
     public function all(): Collection
     {
-        return Facility::with('parent')->get();
+        return Facility::with(['parent', 'childrens'])->get();
     }
 
     public function find(int $id): ?Facility
     {
-        return Facility::with('children')->findOrFail($id);
+        return Facility::with('childrens')->findOrFail($id);
     }
 
     public function create(array $data): Facility
