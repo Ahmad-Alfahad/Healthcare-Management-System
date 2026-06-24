@@ -6,10 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Specialization extends Model
 {
-    protected $fillable = ["name" , "description"];
+    protected $fillable = [
+        'name',
+        'description',
+        'is_active'
+    ];
 
-        public function facilityDepartmentSpecialization() 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+    public function facilityDepartmentSpecializations()
     {
-        return $this->hasMany(FacilityDepartmentSpecialization::class) ;
+        return $this->hasMany(FacilityDepartmentSpecialization::class);
     }
 }

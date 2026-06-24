@@ -17,7 +17,8 @@ class UpdateSpecializationRequest extends FormRequest
 
         return [
             'name' => "string|max:255|unique:specializations,name,{$specializationId}",
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
+            'is_active' => 'sometimes|boolean'
         ];
     }
 

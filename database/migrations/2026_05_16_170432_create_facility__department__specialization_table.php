@@ -17,7 +17,14 @@ return new class extends Migration
             $table->foreignId("specialization_id")->constrained();
             $table->timestamps();
 
-            $table->foreign("facility_department_id" , "fa_dept_spec_fa_dept")->references("id")->on("facility_department");
+            $table->foreign("facility_department_id", "fa_dept_spec_fa_dept")
+                ->references("id")
+                ->on("facility_department");
+
+            $table->unique([
+                'facility_department_id',
+                'specialization_id'
+            ] , 'facility-dp-sp-unique');
         });
     }
 

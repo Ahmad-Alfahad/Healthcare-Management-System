@@ -16,9 +16,14 @@ class FacilityDepartmentSpecialization extends Model
         return $this->belongsTo(FacilityDepartment::class, 'facility_department_id');
     }
 
-    
+
     public function specialization(): BelongsTo
     {
         return $this->belongsTo(Specialization::class);
+    }
+
+    public function doctors()
+    {
+        return $this->hasMany(Doctor::class);
     }
 }

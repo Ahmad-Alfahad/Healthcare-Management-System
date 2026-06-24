@@ -21,6 +21,7 @@ use App\Http\Controllers\LabRequestItemController;
 use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\PatientMedicalConditionController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\FacilityDepartmentSpecializationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('facilities', FacilityController::class);
     Route::apiResource('specialization', SpecializationController::class);
     Route::apiResource('departments', DepartmentController::class);
+    Route::apiResource(
+        'facility-dept-specs',
+        FacilityDepartmentSpecializationController::class
+    );
     // Route::patch('departments/{id}/deactivate',[DepartmentController::class,'deactivate']);
     Route::apiResource('doctors', DoctorController::class);
     Route::apiResource('labstaff', LabStaffController::class);
@@ -51,10 +56,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'changeStatus']);
     Route::apiResource('doctor-schedule', DoctorScheduleController::class);
     Route::apiResource('visits', VisitController::class);
-    Route::patch('visits/{id}/status',[VisitController::class, 'changeStatus']);
+    Route::patch('visits/{id}/status', [VisitController::class, 'changeStatus']);
     Route::apiResource('diagnoses', DiagnosisController::class);
     Route::apiResource('prescriptions', PrescriptionController::class);
-    Route::patch('prescriptions/{id}/cancel',[PrescriptionController::class,'cancel']);
+    Route::patch('prescriptions/{id}/cancel', [PrescriptionController::class, 'cancel']);
     Route::apiResource('prescription-items', PrescriptionItemController::class);
     Route::apiResource('dispensings', DispensingController::class);
     Route::apiResource('lab-tests', LabTestController::class);
