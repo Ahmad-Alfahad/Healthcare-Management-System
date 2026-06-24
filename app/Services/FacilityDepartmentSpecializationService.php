@@ -65,6 +65,44 @@ class FacilityDepartmentSpecializationService
 
     public function update(int $id, array $data): bool
     {
+        $facilityDepartmentSpecialization =
+            $this->repository->find($id);
+
+        $facilityDepartmentId =
+            $data['facility_department_id']
+            ?? $facilityDepartmentSpecialization->facility_department_id;
+
+
+        $specializationId =
+            $data['specialization_id']
+            ?? $facilityDepartmentSpecialization->specialization_id;
+
+        $facilityDepartment =
+            FacilityDepartment::with('department')
+            ->findOrFail(
+                $facilityDepartmentId
+            );
+
+        $specialization =
+            $this->specializationRepository
+            ->find(
+                $specializationId
+            );
+
+        $this->validateDuplicateAssignmentForUpdate(
+            $facilityDepartmentId,
+            $specializationId,
+            $id
+        );
+
+        $this->validateDepartmentIsActive(
+            $facilityDepartment
+        );
+
+        $this->validateSpecializationIsActive(
+            $specialization
+        );
+
         return $this->repository->update($id, $data);
     }
 
@@ -76,7 +114,7 @@ class FacilityDepartmentSpecializationService
         $this->validateDeletion(
             $facilityDepartmentSpecialization
         );
-        
+
         return $this->repository->delete($id);
     }
 
@@ -138,6 +176,33 @@ class FacilityDepartmentSpecializationService
             throw ValidationException::withMessages([
                 'facility_department_specialization_id' => [
                     'Cannot delete specialization assignment because doctors are assigned to it.'
+                ]
+            ]);
+        }
+    }
+
+    private function validateDuplicateAssignmentForUpdate(int $facilityDepartmentId, int $specializationId, int $currentId): void
+    {
+        $exists =
+            FacilityDepartmentSpecialization::where(
+                'facility_department_id',
+                $facilityDepartmentId
+            )
+            ->where(
+                'specialization_id',
+                $specializationId
+            )
+            ->where(
+                'id',
+                '!=',
+                $currentId
+            )
+            ->exists();
+
+        if ($exists) {
+            throw ValidationException::withMessages([
+                'specialization_id' => [
+                    'Specialization already assigned.'
                 ]
             ]);
         }

@@ -24,14 +24,14 @@ class FacilityDepartmentSpecializationRepository
 
     public function update(int $id, array $data): bool
     {
-        $doctor_Schedule = FacilityDepartmentSpecialization::findOrFail($id);
-        return $doctor_Schedule->update($data);
+        $facilityDepartmentSpecialization = FacilityDepartmentSpecialization::findOrFail($id);
+        return $facilityDepartmentSpecialization->update($data);
     }
 
     public function delete(int $id): bool
     {
-        $doctor_schedule = FacilityDepartmentSpecialization::findOrFail($id);
-        return $doctor_schedule->delete();
+        $facilityDepartmentSpecialization = FacilityDepartmentSpecialization::findOrFail($id);
+        return $facilityDepartmentSpecialization->delete();
     }
 
     public function exists(int $facilityDepartmentId, int $specializationId): bool

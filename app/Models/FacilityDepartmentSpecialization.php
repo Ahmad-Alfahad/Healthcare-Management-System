@@ -9,8 +9,11 @@ class FacilityDepartmentSpecialization extends Model
 {
     protected $table = 'facility_department_specialization';
 
-    protected $fillable = ['facility_department_id', 'specialization_id'];
+    protected $fillable = ['facility_department_id', 'specialization_id', 'is_active'];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
     public function facilityDepartment(): BelongsTo
     {
         return $this->belongsTo(FacilityDepartment::class, 'facility_department_id');

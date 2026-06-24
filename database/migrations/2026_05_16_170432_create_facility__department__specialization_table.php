@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger("facility_department_id");
             $table->foreignId("specialization_id")->constrained();
+            $table->boolean('is_active')
+                ->default(true);
+                
             $table->timestamps();
 
             $table->foreign("facility_department_id", "fa_dept_spec_fa_dept")
@@ -24,7 +27,7 @@ return new class extends Migration
             $table->unique([
                 'facility_department_id',
                 'specialization_id'
-            ] , 'facility-dp-sp-unique');
+            ], 'facility-dp-sp-unique');
         });
     }
 
