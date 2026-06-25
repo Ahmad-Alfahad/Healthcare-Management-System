@@ -21,6 +21,7 @@ use App\Http\Controllers\LabRequestItemController;
 use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\PatientMedicalConditionController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\FacilityDepartmentController;
 use App\Http\Controllers\FacilityDepartmentSpecializationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -41,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('facilities', FacilityController::class);
     Route::apiResource('specialization', SpecializationController::class);
     Route::apiResource('departments', DepartmentController::class);
+    Route::apiResource('facility-departments', FacilityDepartmentController::class);
     Route::apiResource(
         'facility-dept-specs',
         FacilityDepartmentSpecializationController::class

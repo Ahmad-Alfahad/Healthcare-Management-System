@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ class FacilityDepartment extends Model
 
     protected $fillable = ['facility_id', 'department_id'];
 
-    
+
     public function facility(): BelongsTo
     {
         return $this->belongsTo(Facility::class);
@@ -19,5 +20,12 @@ class FacilityDepartment extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function facilityDepartmentSpecializations()
+    {
+        return $this->hasMany(
+            FacilityDepartmentSpecialization::class
+        );
     }
 }
