@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\DepartmentController;
@@ -21,16 +20,12 @@ use App\Http\Controllers\LabRequestItemController;
 use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\PatientMedicalConditionController;
 use App\Http\Controllers\RolePermissionController;
-use App\Http\Controllers\FacilityDepartmentController;
 use App\Http\Controllers\FacilityDepartmentSpecializationController;
 use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::get('/user', [UserController::class, 'currentUser'])->middleware('auth:sanctum');
 
 
 Route::post('/register', [UserController::class, 'register']);
@@ -40,9 +35,10 @@ Route::post('/login', [UserController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('facilities', FacilityController::class);
+    Route::post('facilities/{facility}/departments', [FacilityController::class, 'addDepartment']);
+    Route::delete('facilities/departments/{facilityDepartment}', [FacilityController::class, 'removeDepartment']);
     Route::apiResource('specialization', SpecializationController::class);
     Route::apiResource('departments', DepartmentController::class);
-    Route::apiResource('facility-departments', FacilityDepartmentController::class);
     Route::apiResource(
         'facility-dept-specs',
         FacilityDepartmentSpecializationController::class

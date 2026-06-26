@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Repositories\FacilityDepartmentSpecializationRepository;
-use App\Repositories\FacilityDepartmentRepository;
 use App\Repositories\SpecializationRepository;
 use App\Models\FacilityDepartmentSpecialization;
 use App\Models\FacilityDepartment;

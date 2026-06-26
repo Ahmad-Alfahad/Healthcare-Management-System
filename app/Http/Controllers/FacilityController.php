@@ -5,6 +5,7 @@ use App\Http\Requests\StoreFacilityRequest;
 use App\Http\Requests\UpdateFacilityRequest;
 use App\Services\FacilityService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class FacilityController extends Controller
 {
@@ -43,5 +44,36 @@ class FacilityController extends Controller
     {
         $this->facilityService->deleteFacility($id);
         return response()->json(['success' => true, 'message' => 'Facility deleted successfully'], 200);
+    }
+
+    public function addDepartment(Request $request, int $facility): JsonResponse
+    {
+        $validated = $request->validate([
+            'department_id' => [
+                'required',
+                'exists:departments,id'
+            ],
+        ]);
+
+        $facilityDepartment = $this->facilityService->addDepartment(
+            $facility,
+            $validated['department_id']
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Department assigned to facility successfully',
+            'data' => $facilityDepartment
+        ], 201);
+    }
+
+    public function removeDepartment(int $facilityDepartment): JsonResponse
+    {
+        $this->facilityService->removeDepartment($facilityDepartment);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Department removed from facility successfully'
+        ], 200);
     }
 }

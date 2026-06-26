@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Repositories\FacilityRepository;
+use App\Models\Department;
 use App\Models\Facility;
+use App\Models\FacilityDepartment;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 
@@ -194,5 +196,56 @@ class FacilityService
                 ]
             ]);
         }
+    }
+
+    public function addDepartment(int $facilityId, int $departmentId): FacilityDepartment
+    {
+        $this->facilityRepository->find($facilityId);
+        Department::findOrFail($departmentId);
+
+        $exists = FacilityDepartment::where(
+            'facility_id',
+            $facilityId
+        )
+            ->where(
+                'department_id',
+                $departmentId
+            )
+            ->exists();
+
+        if ($exists) {
+            throw ValidationException::withMessages([
+                'department_id' => [
+                    'Department already assigned.'
+                ]
+            ]);
+        }
+
+        return FacilityDepartment::create([
+            'facility_id' => $facilityId,
+            'department_id' => $departmentId,
+        ]);
+    }
+
+    public function removeDepartment(int $facilityDepartmentId): bool
+    {
+        $facilityDepartment =
+            FacilityDepartment::findOrFail(
+                $facilityDepartmentId
+            );
+
+        if (
+            $facilityDepartment
+            ->facilityDepartmentSpecializations()
+            ->exists()
+        ) {
+            throw ValidationException::withMessages([
+                'department' => [
+                    'Department has assigned specializations.'
+                ]
+            ]);
+        }
+
+        return $facilityDepartment->delete();
     }
 }

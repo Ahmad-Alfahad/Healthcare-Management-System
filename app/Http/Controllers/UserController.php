@@ -14,6 +14,11 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+    public function currentUser(Request $request)
+    {
+        return $request->user();
+    }
+
     /**
      * Handle initial user registration (Default: Patient)
      */
