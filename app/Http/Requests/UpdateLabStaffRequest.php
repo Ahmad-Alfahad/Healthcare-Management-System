@@ -24,17 +24,17 @@ class UpdateLabStaffRequest extends FormRequest
 
 
         return [
-            'facility_id' => 'required|exists:facilities,id',
+            'facility_id' => 'sometimes|exists:facilities,id',
 
             'profile_id'  => [
-                'required',
+                'sometimes',
                 'exists:profiles,id',
                 Rule::unique('lab_staff', 'profile_id')->ignore($labStaffId, 'id'),
             ],
 
-            'specialization'      => 'required|string|max:255',
-            'degree'              => 'required|string|max:255',
-            'years_of_experience' => 'required|integer|min:0|max:60',
+            'specialization'      => 'sometimes|string|max:255',
+            'degree'              => 'sometimes|string|max:255',
+            'years_of_experience' => 'sometimes|integer|min:0|max:60',
 
             'license_number' => [
                 'nullable',
@@ -43,7 +43,7 @@ class UpdateLabStaffRequest extends FormRequest
                 Rule::unique('lab_staff', 'license_number')->ignore($labStaffId, 'id'),
             ],
 
-            'is_active' => 'required|boolean'
+            'is_active' => 'sometimes|boolean'
         ];
     }
 

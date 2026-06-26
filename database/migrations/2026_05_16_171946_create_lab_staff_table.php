@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('lab_staff', function (Blueprint $table) {
             $table->id();
             $table->foreignId("facility_id")->constrained()->onDelete('cascade');
-            $table->foreignId("profile_id")->constrained()->onDelete('cascade');
+            $table->foreignId("profile_id")->unique()->constrained()->onDelete('cascade');
 
             $table->string("specialization"); //  (like: Hematology, Biochemistry)
             $table->string("degree"); //   (like: Bachelor, Diploma, Master)
