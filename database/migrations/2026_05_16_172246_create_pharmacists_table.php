@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pharmacists', function (Blueprint $table) {
             $table->id();
             $table->foreignId("facility_id")->constrained()->onDelete('cascade');
-            $table->foreignId("profile_id")->constrained()->onDelete('cascade');
+            $table->foreignId("profile_id")->unique()->constrained()->onDelete('cascade');
             
             $table->string("degree"); 
             $table->unsignedTinyInteger("years_of_experience")->default(0); 

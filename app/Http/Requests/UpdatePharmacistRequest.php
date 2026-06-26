@@ -17,21 +17,21 @@ class UpdatePharmacistRequest extends FormRequest
         $pharmacistId = $this->route('pharmacist'); 
 
         return [
-            'facility_id'         => 'required|exists:facilities,id',
+            'facility_id'         => 'sometimes|exists:facilities,id',
             'profile_id'          => [
-                'required',
+                'sometimes',
                 'exists:profiles,id',
                 Rule::unique('pharmacists', 'profile_id')->ignore($pharmacistId, 'id'),
             ],
-            'degree'              => 'required|string|max:255',
-            'years_of_experience' => 'required|integer|min:0|max:60',
+            'degree'              => 'sometimes|string|max:255',
+            'years_of_experience' => 'sometimes|integer|min:0|max:60',
             'license_number'      => [
                 'nullable',
                 'string',
                 'max:100',
                 Rule::unique('pharmacists', 'license_number')->ignore($pharmacistId, 'id'),
             ],
-            'is_active'           => 'required|boolean'
+            'is_active'           => 'sometimes|boolean'
         ];
     }
 
