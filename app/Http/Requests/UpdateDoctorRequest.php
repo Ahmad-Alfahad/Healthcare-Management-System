@@ -16,13 +16,14 @@ class UpdateDoctorRequest extends FormRequest
         $doctorId = $this->route('doctor');
 
         return [
-            'facility_department_specialization_id' => 'required|exists:facility_department_specialization,id',
-            'profile_id' => "required|exists:profiles,id|unique:doctors,profile_id,{$doctorId}",
-            'qualification'         => 'required|string|max:255',
-            'years_of_experience'   => 'required|integer|min:0|max:60',
+            'facility_department_specialization_id' => 'sometimes|exists:facility_department_specialization,id',
+            'profile_id' => "sometimes|exists:profiles,id|unique:doctors,profile_id,{$doctorId}",
+            'qualification'         => 'sometimes|string|max:255',
+            'years_of_experience'   => 'sometimes|integer|min:0',
             'biography'             => 'nullable|string|max:2000',
             'achievements'          => 'nullable|string|max:2000',
-            'languages'             => 'nullable|string|max:255',
+            'languages'             => 'nullable|array',
+            'is_active'             => 'sometimes|boolean',
         ];
       
     }
@@ -40,13 +41,12 @@ class UpdateDoctorRequest extends FormRequest
             'years_of_experience.required' => 'The years of experience is required for updating.',
             'years_of_experience.integer'  => 'The years of experience must be a valid integer.',
             'years_of_experience.min'      => 'The years of experience must be at least 0.',
-            'years_of_experience.max'      => 'The years of experience must not exceed 60.',
             'biography.string' => 'The biography must be a valid string.',
             'biography.max'    => 'The biography must not exceed 2000 characters.',
             'achievements.string' => 'The achievements must be a valid string.',
             'achievements.max'    => 'The achievements must not exceed 2000 characters.',
-            'languages.string' => 'The languages must be a valid string.',
-            'languages.max'    => 'The languages must not exceed 255 characters.',
+            'languages.array' => 'The languages must be a valid array.',
+            'is_active.boolean' => 'The active status must be true or false.',
             
         ];
     }

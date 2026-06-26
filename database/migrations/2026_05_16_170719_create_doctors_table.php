@@ -14,12 +14,15 @@ return new class extends Migration
         Schema::create('doctors', function (Blueprint $table) {
             $table->id();
             $table->foreignId("facility_department_specialization_id")->references("id")->on("facility_department_specialization");
-            $table->foreignId("profile_id")->constrained();
+            $table->foreignId("profile_id")
+                ->unique()
+                ->constrained();
             $table->string('qualification'); // (like: MD, PhD, Master's)
             $table->unsignedTinyInteger('years_of_experience')->default(0); 
             $table->text('biography')->nullable(); 
             $table->text('achievements')->nullable(); 
-            $table->string('languages')->nullable();
+            $table->json('languages')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

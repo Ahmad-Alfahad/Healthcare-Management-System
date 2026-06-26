@@ -17,13 +17,16 @@ class Doctor extends Model
         'years_of_experience',
         'biography',
         'achievements',
-        'languages'
+        'languages',
+        'is_active'
     ];
     protected $casts = [
         'years_of_experience' => 'integer',
+        'languages' => 'array',
+        'is_active' => 'boolean',
     ];
 
-    public function workConfiguration(): BelongsTo
+    public function facilityDepartmentSpecialization(): BelongsTo
     {
         return $this->belongsTo(FacilityDepartmentSpecialization::class, 'facility_department_specialization_id');
     }

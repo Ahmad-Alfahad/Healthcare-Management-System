@@ -10,9 +10,9 @@ class DoctorRepository
     {
         return Doctor::with([
             'profile', 
-            'workConfiguration.specialization', 
-            'workConfiguration.facilityDepartment.facility', 
-            'workConfiguration.facilityDepartment.department'
+            'facilityDepartmentSpecialization.specialization', 
+            'facilityDepartmentSpecialization.facilityDepartment.facility', 
+            'facilityDepartmentSpecialization.facilityDepartment.department'
         ])->get();
     }
 
@@ -20,9 +20,9 @@ class DoctorRepository
     {
         return Doctor::with([
             'profile', 
-            'workConfiguration.specialization', 
-            'workConfiguration.facilityDepartment.facility', 
-            'workConfiguration.facilityDepartment.department'
+            'facilityDepartmentSpecialization.specialization', 
+            'facilityDepartmentSpecialization.facilityDepartment.facility', 
+            'facilityDepartmentSpecialization.facilityDepartment.department'
         ])->findOrFail($id);
     }
 
@@ -37,6 +37,12 @@ class DoctorRepository
     {
         $doctor = Doctor::findOrFail($id);
         return $doctor->update($data);
+    }
+
+    public function deactivate(int $id): bool
+    {
+        $doctor = Doctor::findOrFail($id);
+        return $doctor->update(['is_active' => false]);
     }
 
     public function delete(int $id): bool
