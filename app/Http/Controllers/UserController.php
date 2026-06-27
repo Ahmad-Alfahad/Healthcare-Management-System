@@ -3,104 +3,58 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\Profile;
-use App\Models\Patient;
-use App\Models\Doctor;
+use App\Services\UserService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    public function currentUser(Request $request)
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
     {
-        return $request->user();
+        $this->userService = $userService;
     }
 
-    /**
-     * Handle initial user registration (Default: Patient)
-     */
-    public function register(Request $request)
+    public function currentUser(Request $request): JsonResponse
     {
-        $request->validate([
+        return response()->json(['user' => $request->user()]);
+    }
+
+    public function register(Request $request): JsonResponse
+    {
+        $payload = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
+            'phone' => 'nullable|string|max:20',
+            'gender' => 'nullable|in:male,female',
+            'address' => 'nullable|string|max:500',
+            'national_number' => 'nullable|string|max:20|unique:profiles,national_number',
+            'date_of_birth' => 'nullable|date|before:today',
         ]);
 
-        return DB::transaction(function () use ($request) {
+        $response = $this->userService->register($payload);
 
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-
-                'active' => true,
-            ]);
-            // add role to user
-            $user->assignRole('patient');
-
-            // 2. Create the associated Profile
-            $profile = Profile::create([
-                'user_id' => $user->id,
-                'full_name' => $request->name,
-                "phone" => $request->phone ?? 'N/A',
-                "gender" => $request->gender ?? 'N/A',
-                "address" => $request->address ?? 'N/A',
-                "national_number" => $request->national_number ?? 'N/A',
-                "date_of_birth" => $request->date_of_birth ?? 'N/A'
-            ]);
-
-            // 3. Initialize Patient record
-            Patient::create([
-                'profile_id' => $profile->id,
-            ]);
-
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json([
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'user' => $user->load('profile'),
-            ]);
-        });
+        return response()->json($response);
     }
 
-    /**
-     * Authenticate user and return Sanctum token
-     */
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
-        $request->validate([
+        $payload = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $response = $this->userService->login($payload);
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Invalid credentials.'],
-            ]);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'access_token' => $token,
-            'user' => $user->load('profile'),
-        ]);
+        return response()->json($response);
     }
 
-
-    /**
-     * Revoke current session token
-     */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logged out successfully.']);
+        $response = $this->userService->logout($request->user());
+
+        return response()->json($response);
     }
 }
