@@ -3,19 +3,20 @@
 namespace App\Services;
 
 use App\Repositories\ProfileRepository;
-use Illuminate\Support\Facades\DB;
 use App\Models\Profile;
+use Illuminate\Validation\ValidationException;
+
 
 class ProfileService
 {
-    protected $profileRepository;
+    protected ProfileRepository $profileRepository;
 
     public function __construct(ProfileRepository $profileRepository)
     {
         $this->profileRepository = $profileRepository;
     }
 
-    public function listAllProfiles()
+    public function getAll()
     {
         return $this->profileRepository->getAll();
     }
@@ -23,55 +24,80 @@ class ProfileService
     public function getProfileById(int $id)
     {
         $profile = $this->profileRepository->findById($id);
-        return $profile->load(['user.roles']); 
+
+        return $profile->load([
+            'user.roles',
+        ]);
     }
 
-    public function storeProfile(array $data)
+    public function createProfile(array $data): Profile
     {
-        return DB::transaction(function () use ($data) {
-            $profile = $this->profileRepository->create($data);
-            $user = $profile->user;
-
-            if ($user->hasRole('doctor')) {
-                $user->doctor()->create([
-                    'specialization_id' => $data['specialization_id'],
-                    'facility_id'       => $data['facility_id'],
-                ]);
-            } elseif ($user->hasRole('patient')) {
-                $user->patient()->create([
-                    'blood_type' => $data['blood_type'],
-                ]);
-            } 
-
-            return $profile;
-        });
+        return $this->profileRepository->create(
+            $data
+        );
     }
 
-    public function updateProfile(int $id, array $data)
+    public function update(int $id, array $data): ?Profile
     {
-        return DB::transaction(function () use ($id, $data) {
-            $profile = $this->profileRepository->findById($id);
-            $updatedProfile = $this->profileRepository->update($profile, $data);
-            $user = $updatedProfile->user;
+        $profile =
+            $this->profileRepository->findById($id);
 
-            if ($user->hasRole('doctor') && $user->doctor) {
-                $user->doctor()->update([
-                    'specialization_id' => $data['specialization_id'] ?? $user->doctor->specialization_id,
-                    'facility_id'       => $data['facility_id'] ?? $user->doctor->facility_id,
-                ]);
-            } elseif ($user->hasRole('patient') && $user->patient) {
-                $user->patient()->update([
-                    'blood_type' => $data['blood_type'] ?? $user->patient->blood_type,
-                ]);
-            }
+        $this->profileRepository->update(
+            $profile,
+            $data
+        );
 
-            return $updatedProfile;
-        });
+        return $profile->fresh();
     }
 
-    public function deleteProfile(int $id)
+    public function delete(int $id): bool
     {
-        $profile = $this->profileRepository->findById($id);
-        return $this->profileRepository->delete($profile);
+        $profile =
+            $this->profileRepository->findById($id);
+
+        $this->validateCanDelete($profile);
+
+        return $this->profileRepository->delete(
+            $profile
+        );
+    }
+
+    private function validateCanDelete(Profile $profile): void
+    {
+        if ($profile->patient) {
+
+            throw ValidationException::withMessages([
+                'profile' => [
+                    'Profile is assigned to a patient.'
+                ]
+            ]);
+        }
+
+        if ($profile->doctor) {
+
+            throw ValidationException::withMessages([
+                'profile' => [
+                    'Profile is assigned to a doctor.'
+                ]
+            ]);
+        }
+
+        if ($profile->pharmacist) {
+
+            throw ValidationException::withMessages([
+                'profile' => [
+                    'Profile is assigned to a pharmacist.'
+                ]
+            ]);
+        }
+
+        if ($profile->labStaff) {
+
+            throw ValidationException::withMessages([
+                'profile' => [
+                    'Profile is assigned to a lab staff member.'
+                ]
+            ]);
+        }
     }
 }

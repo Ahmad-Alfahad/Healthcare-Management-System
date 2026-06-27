@@ -1,9 +1,9 @@
 <?php
 
-
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -14,27 +14,53 @@ class UpdateProfileRequest extends FormRequest
 
     public function rules(): array
     {
+        $profileId = $this->route('profile');
+
         return [
-            'user_id'         => 'required|exists:users,id|unique:profiles,user_id',
-            'full_name'       => 'required|string|max:255',
-            'national_number' => 'nullable|string|unique:profiles,national_number',
-            'phone'           => 'nullable|string',
-            'gender'          => 'nullable|in:male,female',
-            'date_of_birth'   => 'nullable|date',
-            'address'         => 'nullable|string',
-            // حقول إضافية مشروطة بناءً على نوع الحساب المرسل
-            'specialization_id' => 'required_if:role,doctor|exists:specializations,id',
-            'facility_id'     => 'required_if:role,doctor,pharmacist,laboratorian|exists:facilities,id',
-            'blood_type'      => 'required_if:role,patient|string',
+            'user_id'           => [
+                'sometimes',
+                'integer',
+                'exists:users,id',
+                Rule::unique('profiles', 'user_id')->ignore($profileId),
+            ],
+            'full_name'         => 'sometimes|string|max:255',
+            'national_number'   => [
+                'nullable',
+                'string',
+                'max:20',
+                Rule::unique('profiles', 'national_number')->ignore($profileId),
+            ],
+            'phone'             => 'nullable|string|max:20',
+            'gender'            => 'nullable|in:male,female',
+            'date_of_birth' => 'nullable|date|before:today',
+            'address'       => 'nullable|string|max:500',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'full_name.required' => 'The full name field is strictly required.',
-            'user_id.unique'     => 'This user already has an active profile.',
-            'specialization_id.required_if' => 'Specialization is required for doctor profiles.',
+            'user_id.integer'               => 'The user ID must be an integer.',
+            'user_id.exists'                => 'The selected user does not exist.',
+            'user_id.unique'                => 'This user already has a profile.',
+
+            'full_name.string'              => 'The full name must be a string.',
+            'full_name.max'                 => 'The full name must not exceed 255 characters.',
+           
+            'national_number.string'        => 'The national number must be a string.',
+            'national_number.max'           => 'The national number must not exceed 20 characters.',
+            'national_number.unique'        => 'The national number has already been taken.',
+           
+            'phone.string'                  => 'The phone number must be a string.',
+            'phone.max'                     => 'The phone number must not exceed 20 characters.',
+           
+            'gender.in'                     => 'The gender must be male or female.',
+           
+            'date_of_birth.date'            => 'The date of birth must be a valid date.',
+            'date_of_birth.before'          => 'The date of birth must be before today.',
+           
+            'address.string'                => 'The address must be a string.',
+            'address.max'                   => 'The address must not exceed 500 characters.',
         ];
     }
 }

@@ -17,6 +17,10 @@ class Profile extends Model
         'date_of_birth'
     ];
 
+    protected $casts = [
+        'date_of_birth' => 'date',
+    ];
+
     /**
      * Get the user that owns the profile.
      */
@@ -27,5 +31,17 @@ class Profile extends Model
     public function patient()
     {
         return $this->hasOne(Patient::class);
+    }
+    public function doctor()
+    {
+        return $this->hasOne(Doctor::class);
+    }
+    public function pharmacist()
+    {
+        return $this->hasOne(Pharmacist::class);
+    }
+    public function labStaff()
+    {
+        return $this->hasOne(LabStaff::class);
     }
 }

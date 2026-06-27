@@ -5,75 +5,71 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProfileRequest;
 use App\Http\Requests\UpdateProfileRequest;
-use App\Http\Resources\ProfileResource;
 use App\Services\ProfileService;
+use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProfileController extends Controller
 {
-    protected $profileService;
+    protected ProfileService $profileService;
 
     public function __construct(ProfileService $profileService)
     {
         $this->profileService = $profileService;
     }
 
-
-    // 1. READ (ALL)
-    public function index()
+    public function index(): JsonResponse
     {
-    
+        $profiles = $this->profileService->getAll();
 
-        $profiles = $this->profileService->listAllProfiles();
-        dd($profiles); // تحقق من تحميل العلاقات
-        return ProfileResource::collection($profiles)->additional([
+        return response()->json([
             'success' => true,
-            'message' => 'Profiles list retrieved successfully.'
-        ]);
+            'message' => 'Profiles list retrieved successfully.',
+            'data' => $profiles->toArray(),
+        ], Response::HTTP_OK);
     }
 
-    // 2. CREATE
-    public function store(StoreProfileRequest $request)
+    public function store(StoreProfileRequest $request): JsonResponse
     {
-        $profile = $this->profileService->storeProfile($request->validated());
-        return (new ProfileResource($profile))
-            ->additional([
-                'success' => true,
-                'message' => 'Profile created successfully.'
-            ])
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED); // 201
+        $profile = $this->profileService->createProfile($request->validated());
+        $profile->load(['user.roles', 'patient', 'doctor', 'pharmacist', 'labStaff']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile created successfully.',
+            'data' => $profile->toArray(),
+        ], Response::HTTP_CREATED);
     }
 
-    // 3. READ (SINGLE)
-    public function show(int $id)
+    public function show(int $id): JsonResponse
     {
         $profile = $this->profileService->getProfileById($id);
+
         return response()->json([
             'success' => true,
             'message' => 'Profile details retrieved successfully.',
-            'data'    => new ProfileResource($profile)
-        ], Response::HTTP_OK); // 200
+            'data' => $profile->toArray(),
+        ], Response::HTTP_OK);
     }
 
-    // 4. UPDATE
-    public function update(UpdateProfileRequest $request, int $id)
+    public function update(UpdateProfileRequest $request, int $id): JsonResponse
     {
-        $profile = $this->profileService->updateProfile($id, $request->validated());
+        $profile = $this->profileService->update($id, $request->validated());
+        $profile->load(['user.roles']);
+
         return response()->json([
             'success' => true,
             'message' => 'Profile updated successfully.',
-            'data'    => new ProfileResource($profile)
-        ], Response::HTTP_OK); // 200
+        ], Response::HTTP_OK);
     }
 
-    // 5. DELETE
-    public function destroy(int $id)
+    public function destroy(int $id): JsonResponse
     {
-        $this->profileService->deleteProfile($id);
+        $this->profileService->delete($id);
+
         return response()->json([
             'success' => true,
-            'message' => 'Profile deleted successfully.'
-        ], Response::HTTP_NO_CONTENT); // 204
+            'message' => 'Profile deleted successfully.',
+        ], Response::HTTP_OK);
     }
 }
