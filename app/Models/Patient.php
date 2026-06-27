@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Patient extends Model
 {
-protected $fillable = [
-    'profile_id', 'blood_type', 'height', 'weight', 
-    'allergies', 'chronic_diseases', 'medical_history', 
-    'emergency_contact_name', 'emergency_contact_phone', 
-    'emergency_contact_relation', 'insurance_provider', 'insurance_number'
-];
+    protected $fillable = [
+        'profile_id',
+        'blood_type',
+        'emergency_contact_name',
+        'emergency_contact_phone',
+        'emergency_contact_relation',
+    ];
 
     public function profile()
     {
@@ -20,18 +21,16 @@ protected $fillable = [
 
     public function appointments()
     {
-        return $this->hasMany(Appointment::class) ;
+        return $this->hasMany(Appointment::class);
     }
 
     public function visits()
     {
-        return $this->hasMany(Visit::class) ;
+        return $this->hasMany(Visit::class);
     }
 
     public function patientMedicalConditions()
     {
-        return $this->hasMany(PatientMedicalCondition::class) ;
+        return $this->hasMany(PatientMedicalCondition::class);
     }
-
 }
-

@@ -1,41 +1,108 @@
 <?php
+
 namespace App\Services;
 
 use App\Repositories\PatientRepository;
 use App\Models\Patient;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
 
 class PatientService
 {
-    protected $patientRepository;
+    protected PatientRepository $patientRepository;
 
     public function __construct(PatientRepository $patientRepository)
     {
         $this->patientRepository = $patientRepository;
     }
 
-    public function jsonIndex()
+    public function getAllPatients(): Collection
     {
-        return $this->patientRepository->getAll();
+        return $this->patientRepository->get();
     }
 
-    public function jsonShow(Patient $patient)
+    public function getPatient(int $id): Patient
     {
-        return $this->patientRepository->findById($patient);
+        return $this->patientRepository->find($id);
     }
 
-    public function jsonStore(array $data)
+    public function createPatient(array $data): Patient
     {
+        $this->validateProfileNotAssigned(
+            $data['profile_id']
+        );
         return $this->patientRepository->create($data);
     }
 
-    public function jsonUpdate(Patient $patient, array $data)
+    public function updatePatient(int $id, array $data): bool
     {
-        return $this->patientRepository->update($patient, $data);
+      
+        if (
+            isset($data['profile_id'])
+        ) {
+
+            $this->validateProfileNotAssigned(
+                $data['profile_id'],
+                $id
+            );
+        }
+        return $this->patientRepository->update($id, $data);
     }
 
-    public function jsonDestroy(Patient $patient)
+    public function deletePatient(int $id): bool
     {
-        
-        return $this->patientRepository->delete($patient);
+        $patient = $this->patientRepository->find($id);
+        $this->validateCanDelete($patient);
+        return $this->patientRepository->delete($id);
+    }
+
+    private function validateProfileNotAssigned(int $profileId, ?int $ignoreId = null): void
+    {
+        $query = Patient::where(
+            'profile_id',
+            $profileId
+        );
+
+        if ($ignoreId) {
+            $query->where(
+                'id',
+                '!=',
+                $ignoreId
+            );
+        }
+
+        if ($query->exists()) {
+
+            throw ValidationException::withMessages([
+                'profile_id' => [
+                    'Profile already assigned to a patient.'
+                ]
+            ]);
+        }
+    }
+
+    private function validateCanDelete(Patient $patient): void
+    {
+        if (
+            $patient->appointments()->exists()
+        ) {
+
+            throw ValidationException::withMessages([
+                'patient' => [
+                    'Patient has appointments.'
+                ]
+            ]);
+        }
+
+        if (
+            $patient->visits()->exists()
+        ) {
+
+            throw ValidationException::withMessages([
+                'patient' => [
+                    'Patient has visits.'
+                ]
+            ]);
+        }
     }
 }

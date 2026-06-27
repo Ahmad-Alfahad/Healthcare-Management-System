@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PatientController extends Controller
 {
-    protected $patientService;
+    protected PatientService $patientService;
 
     public function __construct(PatientService $patientService)
     {
@@ -21,33 +21,33 @@ class PatientController extends Controller
 
     public function index(): JsonResponse
     {
-        $patients = $this->patientService->jsonIndex();
+        $patients = $this->patientService->getAllPatients();
         return response()->json(['data' => $patients], Response::HTTP_OK);
     }
 
     public function store(StorePatientRequest $request): JsonResponse
     {
-       
-        $patient = $this->patientService->jsonStore($request->validated());
+
+        $patient = $this->patientService->createPatient($request->validated());
         return response()->json(['message' => 'Patient created successfully', 'data' => $patient], Response::HTTP_CREATED);
     }
 
-    public function show(Patient $patient): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        $patientData = $this->patientService->jsonShow($patient);
+        $patientData = $this->patientService->getPatient($id);
         return response()->json(['data' => $patientData], Response::HTTP_OK);
     }
 
-    public function update(UpdatePatientRequest $request, Patient $patient): JsonResponse
+    public function update(UpdatePatientRequest $request, int $id): JsonResponse
     {
-        $updatedPatient = $this->patientService->jsonUpdate($patient, $request->validated());
+        $updatedPatient = $this->patientService->updatePatient($id, $request->validated());
         return response()->json(['message' => 'Patient updated successfully', 'data' => $updatedPatient], Response::HTTP_OK);
     }
 
-    public function destroy(Patient $patient): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
-   
-        $this->patientService->jsonDestroy($patient);
+
+        $this->patientService->deletePatient($id);
         return response()->json(['message' => 'Patient deleted successfully'], Response::HTTP_OK);
     }
 }

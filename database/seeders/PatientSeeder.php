@@ -32,12 +32,9 @@ class PatientSeeder extends Seeder
             ['profile_id' => $profile->id],
             [
                 'blood_type' => 'O+',
-                'height' => 178.00,
-                'weight' => 75.50,
-                'allergies' => 'Penicillin',
-                'chronic_diseases' => 'None',
                 'emergency_contact_name' => 'Jane Doe',
-                'emergency_contact_phone' => '+987654321'
+                'emergency_contact_phone' => '+987654321',
+                'emergency_contact_relation' => 'father'
             ]
         );
     }

@@ -2,32 +2,76 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Patient;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdatePatientRequest extends FormRequest
 {
-    public function authorize(): bool { return true; }
+    public function authorize(): bool
+    {
+        return true;
+    }
 
     public function rules(): array
     {
-        $patient = $this->route('patient');
-        $profileId = $patient ? $patient->profile_id : null;
-
         return [
-            'full_name' => 'sometimes|required|string|max:255',
-            'national_number' => ['nullable', 'string', Rule::unique('profiles', 'national_number')->ignore($profileId)],
-            'phone' => 'nullable|string',
-            'gender' => 'nullable|in:male,female',
-            'date_of_birth' => 'nullable|date',
-            'address' => 'nullable|string',
-            'blood_type' => 'nullable|string|max:5',
-            'height' => 'nullable|numeric|between:30,250',
-            'weight' => 'nullable|numeric|between:2,500',
-            'allergies' => 'nullable|string',
-            'chronic_diseases' => 'nullable|string',
-            'emergency_contact_name' => 'nullable|string|max:255',
-            'emergency_contact_phone' => 'nullable|string',
+            'profile_id' => [
+                'sometimes',
+                'exists:profiles,id',
+                Rule::unique('patients', 'profile_id')->ignore($this->route('patient')),
+            ],
+
+            'blood_type' => [
+                'nullable',
+                Rule::in([
+                    'A+',
+                    'A-',
+                    'B+',
+                    'B-',
+                    'AB+',
+                    'AB-',
+                    'O+',
+                    'O-',
+                ]),
+            ],
+
+            'emergency_contact_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'emergency_contact_phone' => [
+                'nullable',
+                'string',
+                'max:20',
+            ],
+
+            'emergency_contact_relation' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'profile_id.exists' => 'The selected profile does not exist.',
+            'profile_id.unique' => 'This profile is already associated with another patient.',
+
+            'blood_type.in' => 'The selected blood type is invalid. Accepted types are: A+, A-, B+, B-, AB+, AB-, O+, O-.',
+
+            'emergency_contact_name.string' => 'The emergency contact name must be a string.',
+            'emergency_contact_name.max' => 'The emergency contact name must not exceed 255 characters.',
+
+            'emergency_contact_phone.string' => 'The emergency contact phone must be a string.',
+            'emergency_contact_phone.max' => 'The emergency contact phone must not exceed 20 characters.',
+
+            'emergency_contact_relation.string' => 'The emergency contact relation must be a string.',
+            'emergency_contact_relation.max' => 'The emergency contact relation must not exceed 100 characters.',
         ];
     }
 }

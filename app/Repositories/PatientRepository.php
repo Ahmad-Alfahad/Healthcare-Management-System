@@ -3,74 +3,36 @@
 namespace App\Repositories;
 
 use App\Models\Patient;
-use App\Models\Profile;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Collection;
 
 class PatientRepository
 {
-    public function getAll()
+    public function get(): Collection
     {
-        return Patient::with('profile')->paginate(15);
+        return Patient::with('profile')->get();
     }
 
-    public function findById(Patient $patient)
+    public function find(int $id): Patient
     {
-        return $patient->load('profile');
+        return Patient::with('profile')->findOrFail($id);
     }
 
-    public function create(array $data)
+    public function create(array $data): Patient
     {
-        return DB::transaction(function () use ($data) {
-            $profile = Profile::create([
-                'user_id' => $data['user_id'],
-                'full_name' => $data['full_name'],
-                'national_number' => $data['national_number'] ?? null,
-                'phone' => $data['phone'] ?? null,
-                'gender' => $data['gender'] ?? null,
-                'address' => $data['address'] ?? null,
-                'date_of_birth' => $data['date_of_birth'] ?? null,
-            ]);
-
-            return $profile->patient()->create([
-                'blood_type' => $data['blood_type'] ?? null,
-                'height' => $data['height'] ?? null,
-                'weight' => $data['weight'] ?? null,
-                'allergies' => $data['allergies'] ?? null,
-                'chronic_diseases' => $data['chronic_diseases'] ?? null,
-                'emergency_contact_name' => $data['emergency_contact_name'] ?? null,
-                'emergency_contact_phone' => $data['emergency_contact_phone'] ?? null,
-            ]);
-        });
+        return Patient::create($data);
     }
 
-    public function update(Patient $patient, array $data)
+    public function update(int $id, array $data): bool
     {
-        return DB::transaction(function () use ($patient, $data) {
-            $patient->profile->update(array_intersect_key($data, array_flip([
-                'full_name',
-                'national_number',
-                'phone',
-                'gender',
-                'address',
-                'date_of_birth'
-            ])));
+        $patient = Patient::findOrFail($id);
 
-            $patient->update(array_intersect_key($data, array_flip([
-                'blood_type',
-                'height',
-                'weight',
-                'allergies',
-                'chronic_diseases',
-                'emergency_contact_name',
-                'emergency_contact_phone'
-            ])));
-
-            return $patient->load('profile');
-        });
+        return $patient->update($data);
     }
 
-    public function delete(Patient $patient)
+    public function delete(int $id): bool
     {
-        return $patient->profile->delete();
+        $patient = Patient::findOrFail($id);
+
+        return $patient->delete();
     }
 }

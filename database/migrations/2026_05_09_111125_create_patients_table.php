@@ -9,27 +9,27 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up(): void
+    public function up(): void
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            
+
             $table->foreignId('profile_id')->unique()->constrained()->onDelete('cascade');
-            
-            $table->string('blood_type')->nullable(); // فصيلة الدم
-            $table->decimal('height', 5, 2)->nullable(); // الطول بالسنتيمتر (مثال: 175.50)
-            $table->decimal('weight', 5, 2)->nullable(); // الوزن بالكيلوغرام (مثال: 70.25)
-            
-            $table->text('allergies')->nullable(); // الحساسية (أدوية، أطعمة)
-            $table->text('chronic_diseases')->nullable(); // الأمراض المزمنة (سكري، ضغط...)
-            $table->text('medical_history')->nullable(); // التاريخ الجراحي أو العائلي المرضي
-            
-            // (Emergency Contact)
+            $table->enum('blood_type', [
+                'A+',
+                'A-',
+                'B+',
+                'B-',
+                'AB+',
+                'AB-',
+                'O+',
+                'O-'
+            ])->nullable();
             $table->string('emergency_contact_name')->nullable(); // اسم شخص للطوارئ
             $table->string('emergency_contact_phone')->nullable(); // رقم هاتف الطوارئ
             $table->string('emergency_contact_relation')->nullable(); // صلة القرابة (أب، زوج...)
-            
-        
+
+
             $table->timestamps();
         });
     }
