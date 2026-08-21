@@ -9,11 +9,14 @@ use App\Http\Requests\ChangeAppointmentStatusRequest;
 use App\Services\AppointmentService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Appointment;
+use App\Models\Doctor;
+use App\Models\Patient;
 
 
 class AppointmentController extends Controller
 {
-    protected $appointmentService;
+    protected AppointmentService $appointmentService;
 
     public function __construct(AppointmentService $appointmentService)
     {
@@ -22,19 +25,30 @@ class AppointmentController extends Controller
 
     public function index(): JsonResponse
     {
+        $this->authorize('viewAny', Appointment::class);
+
+        $appointments = $this->appointmentService
+            ->getAllAppointments(request()->user());
+
         return response()->json([
             'success' => true,
-            'data' => $this->appointmentService->getAllAppointments()
+            'data' => $appointments
         ], Response::HTTP_OK);
     }
 
     public function store(StoreAppointmentRequest $request): JsonResponse
     {
+        $data = $request->validated();
+        $patient = Patient::findOrFail($data['patient_id']);
+        $doctor = Doctor::findOrFail($data['doctor_id']);
+
+        $this->authorize('create', [Appointment::class, $patient, $doctor]);
+
         $appointment =
             $this->appointmentService
-                ->createAppointment(
-                    $request->validated()
-                );
+            ->createAppointment(
+                $data
+            );
 
         return response()->json([
             'success' => true,
@@ -45,15 +59,20 @@ class AppointmentController extends Controller
 
     public function show(int $id): JsonResponse
     {
+        $appointment = $this->appointmentService->getAppointment($id);
+        $this->authorize('view', $appointment);
+
         return response()->json([
             'success' => true,
-            'data' => $this->appointmentService->getAppointment($id)
+            'data' => $appointment
         ], Response::HTTP_OK);
     }
 
 
     public function update(UpdateAppointmentRequest $request, int $id): JsonResponse
     {
+        $appointment = $this->appointmentService->getAppointment($id);
+        $this->authorize('update', $appointment);
 
         $this->appointmentService
             ->updateAppointment(
@@ -69,6 +88,8 @@ class AppointmentController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
+        $appointment = $this->appointmentService->getAppointment($id);
+        $this->authorize('delete', $appointment);
 
         $this->appointmentService
             ->deleteAppointment($id);
@@ -92,8 +113,11 @@ class AppointmentController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public function changeStatus( ChangeAppointmentStatusRequest $request, int $appointment): JsonResponse
-     {
+    public function changeStatus(ChangeAppointmentStatusRequest $request, int $appointment): JsonResponse
+    {
+        $appointmentModel = $this->appointmentService->getAppointment($appointment);
+        $this->authorize('changeStatus', $appointmentModel);
+
         return response()->json([
             'success' => true,
             'data' => $this->appointmentService
@@ -101,7 +125,6 @@ class AppointmentController extends Controller
                     $appointment,
                     $request->status
                 )
-        ] , Response::HTTP_OK);
+        ], Response::HTTP_OK);
     }
-
 }

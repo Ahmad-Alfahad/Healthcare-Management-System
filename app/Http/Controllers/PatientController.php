@@ -21,13 +21,14 @@ class PatientController extends Controller
 
     public function index(): JsonResponse
     {
+        $this->authorize('viewAny', Patient::class);
         $patients = $this->patientService->getAllPatients();
-        return response()->json(['data' => $patients], Response::HTTP_OK);
+        return response()->json(['message' => 'Patients retrieved successfully', 'data' => $patients], Response::HTTP_OK);
     }
 
     public function store(StorePatientRequest $request): JsonResponse
     {
-
+        $this->authorize('create', Patient::class);
         $patient = $this->patientService->createPatient($request->validated());
         return response()->json(['message' => 'Patient created successfully', 'data' => $patient], Response::HTTP_CREATED);
     }
@@ -35,18 +36,22 @@ class PatientController extends Controller
     public function show(int $id): JsonResponse
     {
         $patientData = $this->patientService->getPatient($id);
-        return response()->json(['data' => $patientData], Response::HTTP_OK);
+        $this->authorize('view', $patientData);
+        return response()->json(['message' => 'Patient retrieved successfully', 'data' => $patientData], Response::HTTP_OK);
     }
 
     public function update(UpdatePatientRequest $request, int $id): JsonResponse
     {
+        $patient = $this->patientService->getPatient($id);
+        $this->authorize('update', $patient);
         $updatedPatient = $this->patientService->updatePatient($id, $request->validated());
         return response()->json(['message' => 'Patient updated successfully', 'data' => $updatedPatient], Response::HTTP_OK);
     }
 
     public function destroy(int $id): JsonResponse
     {
-
+        $patient = $this->patientService->getPatient($id);
+        $this->authorize('delete', $patient);
         $this->patientService->deletePatient($id);
         return response()->json(['message' => 'Patient deleted successfully'], Response::HTTP_OK);
     }

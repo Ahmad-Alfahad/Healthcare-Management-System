@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Diagnosis;
 use App\Http\Requests\StoreDiagnosisRequest;
 use App\Http\Requests\UpdateDiagnosisRequest;
+use App\Models\Visit;
 use App\Services\DiagnosisService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,13 +22,16 @@ class DiagnosisController extends Controller
 
     public function index(): JsonResponse
     {
-        $diagnoses = $this->diagnosisService->getAllDiagnoses();
+        $this->authorize('viewAny', Diagnosis::class);
+        $diagnoses = $this->diagnosisService->getAllDiagnoses(request()->user());
 
         return response()->json(['success' => true, 'data' => $diagnoses], Response::HTTP_OK);
     }
 
     public function store(StoreDiagnosisRequest $request): JsonResponse
     {
+        $visit = Visit::findOrFail($request->validated()['visit_id']);
+        $this->authorize('create', [Diagnosis::class, $visit]);
         $diagnosis = $this->diagnosisService->createDiagnosis($request->validated());
 
         return response()->json([
@@ -40,12 +44,15 @@ class DiagnosisController extends Controller
     public function show(int $id): JsonResponse
     {
         $diagnosis = $this->diagnosisService->getDiagnosisById($id);
+        $this->authorize('view', $diagnosis);
 
         return response()->json(['success' => true, 'data' => $diagnosis], Response::HTTP_OK);
     }
 
     public function update(UpdateDiagnosisRequest $request, int $id): JsonResponse
     {
+        $diagnosis = $this->diagnosisService->getDiagnosisById($id);
+        $this->authorize('update', $diagnosis);
         $this->diagnosisService->updateDiagnosis($id, $request->validated());
 
         return response()->json([
@@ -56,6 +63,8 @@ class DiagnosisController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
+        $diagnosis = $this->diagnosisService->getDiagnosisById($id);
+        $this->authorize('delete', $diagnosis);
         $this->diagnosisService->deleteDiagnosis($id);
 
         return response()->json([
@@ -63,6 +72,4 @@ class DiagnosisController extends Controller
             'message' => 'Diagnosis deleted successfully.'
         ], Response::HTTP_OK);
     }
-
-
 }

@@ -18,7 +18,9 @@ class UserController extends Controller
 
     public function currentUser(Request $request): JsonResponse
     {
-        return response()->json(['user' => $request->user()]);
+        return response()->json([
+            'user' => $this->userService->currentUser($request->user()),
+        ]);
     }
 
     public function register(Request $request): JsonResponse

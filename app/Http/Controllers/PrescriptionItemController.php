@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PrescriptionItem;
+use App\Models\Prescription;
 use App\Http\Requests\StorePrescriptionItemRequest;
 use App\Http\Requests\UpdatePrescriptionItemRequest;
 use App\Services\PrescriptionItemService;
@@ -20,12 +21,15 @@ class PrescriptionItemController extends Controller
 
     public function index(): JsonResponse
     {
+        $this->authorize('viewAny', PrescriptionItem::class);
         $items = $this->prescriptionItemService->getAllPrescriptionItems();
         return response()->json(['success' => true, 'data' => $items], Response::HTTP_OK);
     }
 
     public function store(StorePrescriptionItemRequest $request): JsonResponse
     {
+        $prescription = Prescription::findOrFail($request->validated()['prescription_id']);
+        $this->authorize('create', [PrescriptionItem::class, $prescription]);
         $item = $this->prescriptionItemService->createPrescriptionItem($request->validated());
         return response()->json([
             'success' => true,
@@ -37,11 +41,14 @@ class PrescriptionItemController extends Controller
     public function show(int $id): JsonResponse
     {
         $item = $this->prescriptionItemService->getPrescriptionItemById($id);
+        $this->authorize('view', $item);
         return response()->json(['success' => true, 'data' => $item], Response::HTTP_OK);
     }
 
     public function update(UpdatePrescriptionItemRequest $request, int $id): JsonResponse
     {
+        $item = $this->prescriptionItemService->getPrescriptionItemById($id);
+        $this->authorize('update', $item);
         $this->prescriptionItemService->updatePrescriptionItem($id, $request->validated());
         return response()->json([
             'success' => true,
@@ -51,6 +58,8 @@ class PrescriptionItemController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
+        $item = $this->prescriptionItemService->getPrescriptionItemById($id);
+        $this->authorize('delete', $item);
         $this->prescriptionItemService->deletePrescriptionItem($id);
         return response()->json([
             'success' => true,

@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Models\Dispensing;
+use App\Models\PrescriptionItem;
 use App\Http\Requests\StoreDispensingRequest;
 use App\Http\Requests\UpdateDispensingRequest;
 use App\Services\DispensingService;
@@ -18,16 +21,20 @@ class DispensingController extends Controller
 
     public function index(): JsonResponse
     {
+        $this->authorize('viewAny', Dispensing::class);
         $dispensings = $this->dispensingService->getAllDispensings();
         return response()->json(['success' => true, 'data' => $dispensings], Response::HTTP_OK);
     }
 
     public function store(StoreDispensingRequest $request): JsonResponse
     {
-        $dispensing = $this->dispensingService->createDispensing($request->validated());
+        $data = $request->validated();
+        $item = PrescriptionItem::findOrFail($data['prescription_item_id']);
+        $this->authorize('create', [Dispensing::class, $item, $data['pharmacist_id']]);
+        $dispensing = $this->dispensingService->createDispensing($data);
         return response()->json([
-            'success' => true, 
-            'message' => 'Dispensing record created successfully.', 
+            'success' => true,
+            'message' => 'Dispensing record created successfully.',
             'data'    => $dispensing
         ], Response::HTTP_CREATED);
     }
@@ -35,23 +42,28 @@ class DispensingController extends Controller
     public function show(int $id): JsonResponse
     {
         $dispensing = $this->dispensingService->getDispensingById($id);
+        $this->authorize('view', $dispensing);
         return response()->json(['success' => true, 'data' => $dispensing], Response::HTTP_OK);
     }
 
     public function update(UpdateDispensingRequest $request, int $id): JsonResponse
     {
+        $dispensing = $this->dispensingService->getDispensingById($id);
+        $this->authorize('update', $dispensing);
         $this->dispensingService->updateDispensing($id, $request->validated());
         return response()->json([
-            'success' => true, 
+            'success' => true,
             'message' => 'Dispensing record updated successfully.'
         ], Response::HTTP_OK);
     }
 
     public function destroy(int $id): JsonResponse
     {
+        $dispensing = $this->dispensingService->getDispensingById($id);
+        $this->authorize('delete', $dispensing);
         $this->dispensingService->deleteDispensing($id);
         return response()->json([
-            'success' => true, 
+            'success' => true,
             'message' => 'Dispensing record deleted successfully.'
         ], Response::HTTP_OK);
     }

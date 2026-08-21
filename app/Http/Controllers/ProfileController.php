@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Profile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProfileRequest;
 use App\Http\Requests\UpdateProfileRequest;
@@ -21,6 +21,7 @@ class ProfileController extends Controller
     public function index(): JsonResponse
     {
         $profiles = $this->profileService->getAll();
+        $this->authorize('viewAny', Profile::class);
 
         return response()->json([
             'success' => true,
@@ -31,6 +32,7 @@ class ProfileController extends Controller
 
     public function store(StoreProfileRequest $request): JsonResponse
     {
+
         $profile = $this->profileService->createProfile($request->validated());
         $profile->load(['user.roles', 'patient', 'doctor', 'pharmacist', 'labStaff']);
 
@@ -44,6 +46,7 @@ class ProfileController extends Controller
     public function show(int $id): JsonResponse
     {
         $profile = $this->profileService->getProfileById($id);
+        $this->authorize('view', $profile);
 
         return response()->json([
             'success' => true,
@@ -55,6 +58,7 @@ class ProfileController extends Controller
     public function update(UpdateProfileRequest $request, int $id): JsonResponse
     {
         $profile = $this->profileService->update($id, $request->validated());
+         $this->authorize('update', $profile);
         $profile->load(['user.roles']);
 
         return response()->json([
@@ -65,6 +69,8 @@ class ProfileController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
+        $profile = $this->profileService->getProfileById($id);
+        $this->authorize('delete', $profile);
         $this->profileService->delete($id);
 
         return response()->json([

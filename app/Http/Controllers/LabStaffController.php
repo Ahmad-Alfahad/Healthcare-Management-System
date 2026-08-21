@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\LabStaff;
 use App\Http\Requests\StoreLabStaffRequest;
 use App\Http\Requests\UpdateLabStaffRequest;
 use App\Services\LabStaffService;
@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LabStaffController extends Controller
 {
-    protected $labStaffService;
+    protected LabStaffService $labStaffService;
 
     public function __construct(LabStaffService $labStaffService)
     {
@@ -19,7 +19,7 @@ class LabStaffController extends Controller
 
   
     public function index(): JsonResponse
-    {
+    {   $this->authorize('viewAny', LabStaff::class);
         $staff = $this->labStaffService->getAllStaff();
         return response()->json([
             'success' => true,
@@ -30,6 +30,7 @@ class LabStaffController extends Controller
   
     public function store(StoreLabStaffRequest $request): JsonResponse
     {
+        $this->authorize('create', LabStaff::class);
         $staff = $this->labStaffService->createStaff($request->validated());
         return response()->json([
             'success' => true,
@@ -42,6 +43,7 @@ class LabStaffController extends Controller
     public function show(int $id): JsonResponse
     {
         $staff = $this->labStaffService->getStaffById($id);
+        $this->authorize('view', $staff);
         return response()->json([
             'success' => true,
             'data'    => $staff
@@ -50,6 +52,8 @@ class LabStaffController extends Controller
 
     public function update(UpdateLabStaffRequest $request, int $id): JsonResponse
     {
+        $staff = $this->labStaffService->getStaffById($id);
+        $this->authorize('update', $staff);
         $this->labStaffService->updateStaff($id, $request->validated());
         return response()->json([
             'success' => true,
@@ -59,7 +63,9 @@ class LabStaffController extends Controller
 
    
     public function destroy(int $id): JsonResponse
-    {
+    {   
+        $staff = $this->labStaffService->getStaffById($id);
+        $this->authorize('delete', $staff);
         $this->labStaffService->deleteStaff($id);
         return response()->json([
             'success' => true,

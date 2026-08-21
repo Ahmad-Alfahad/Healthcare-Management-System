@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDepartmentRequest;
 use App\Http\Requests\UpdateDepartmentRequest;
+use App\Models\Department;
 use App\Services\DepartmentService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,12 +20,14 @@ class DepartmentController extends Controller
 
     public function index(): JsonResponse
     {
+        $this->authorize('viewAny', Department::class);
         $departments = $this->departmentService->getAllDepartments();
         return response()->json(['success' => true, 'data' => $departments], Response::HTTP_OK);
     }
 
     public function store(StoreDepartmentRequest $request): JsonResponse
     {
+        $this->authorize('create', Department::class);
         $department = $this->departmentService->createDepartment($request->validated());
         return response()->json([
             'success' => true,
@@ -36,11 +39,14 @@ class DepartmentController extends Controller
     public function show(int $id): JsonResponse
     {
         $department = $this->departmentService->getDepartmentById($id);
+        $this->authorize('view', $department);
         return response()->json(['success' => true, 'data' => $department], Response::HTTP_OK);
     }
 
     public function update(UpdateDepartmentRequest $request, int $id): JsonResponse
     {
+        $department = $this->departmentService->getDepartmentById($id);
+        $this->authorize('update', $department);
         $this->departmentService->updateDepartment($id, $request->validated());
         return response()->json([
             'success' => true,
@@ -50,6 +56,8 @@ class DepartmentController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
+        $department = $this->departmentService->getDepartmentById($id);
+        $this->authorize('delete', $department);
         $this->departmentService->deleteDepartment($id);
         return response()->json([
             'success' => true,
@@ -57,12 +65,12 @@ class DepartmentController extends Controller
         ], Response::HTTP_OK);
     }
 
-//     public function deactivate(int $id): JsonResponse
-//     {
-//         $this->departmentService->deactivate($id);
-//         return response()->json([
-//             'success' => true,
-//             'message' => 'Department deactivate successfully.'
-//         ], Response::HTTP_OK);
-//     }
+    //     public function deactivate(int $id): JsonResponse
+    //     {
+    //         $this->departmentService->deactivate($id);
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Department deactivate successfully.'
+    //         ], Response::HTTP_OK);
+    //     }
 }

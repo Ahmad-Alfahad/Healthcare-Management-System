@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLabRequestItemRequest;
 use App\Http\Requests\UpdateLabRequestItemRequest;
+use App\Models\LabRequestItem;
+use App\Models\Visit;
 use App\Services\LabRequestItemService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 class LabRequestItemController extends Controller
@@ -19,7 +22,11 @@ class LabRequestItemController extends Controller
 
     public function index(): JsonResponse
     {
-        $items = $this->labRequestItemService->getAllLabRequestItems();
+        $this->authorize('viewAny', LabRequestItem::class);
+        $items = $this->labRequestItemService
+            ->getAllLabRequestItems()
+            ->filter(fn(LabRequestItem $item): bool => $this->authorizeForItem($item));
+
         return response()->json([
             'success' => true,
             'data'    => $items
@@ -28,6 +35,8 @@ class LabRequestItemController extends Controller
 
     public function store(StoreLabRequestItemRequest $request): JsonResponse
     {
+        $visit = Visit::findOrFail($request->validated()['visit_id']);
+        $this->authorize('create', [LabRequestItem::class, $visit]);
         $item = $this->labRequestItemService->createLabRequestItem($request->validated());
         return response()->json([
             'success' => true,
@@ -39,6 +48,7 @@ class LabRequestItemController extends Controller
     public function show(int $id): JsonResponse
     {
         $item = $this->labRequestItemService->getLabRequestItemById($id);
+        $this->authorize('view', $item);
         return response()->json([
             'success' => true,
             'data'    => $item
@@ -47,6 +57,8 @@ class LabRequestItemController extends Controller
 
     public function update(UpdateLabRequestItemRequest $request, int $id): JsonResponse
     {
+        $item = $this->labRequestItemService->getLabRequestItemById($id);
+        $this->authorize('update', $item);
         $this->labRequestItemService->updateLabRequestItem($id, $request->validated());
         return response()->json([
             'success' => true,
@@ -56,6 +68,8 @@ class LabRequestItemController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
+        $item = $this->labRequestItemService->getLabRequestItemById($id);
+        $this->authorize('delete', $item);
         $this->labRequestItemService->deleteLabRequestItem($id);
         return response()->json([
             'success' => true,
@@ -63,4 +77,8 @@ class LabRequestItemController extends Controller
         ], Response::HTTP_OK);
     }
 
+    private function authorizeForItem(LabRequestItem $item): bool
+    {
+        return Gate::allows('view', $item);
+    }
 }

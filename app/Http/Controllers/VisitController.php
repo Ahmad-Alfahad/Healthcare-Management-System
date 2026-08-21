@@ -8,6 +8,8 @@ use App\Http\Requests\ChangeVisitStatusRequest;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\VisitService;
+use App\Models\Appointment;
+use App\Models\Visit;
 
 
 class VisitController extends Controller
@@ -22,12 +24,17 @@ class VisitController extends Controller
 
     public function index(): JsonResponse
     {
-        $visits = $this->visitService->getAllVisits();
+        $this->authorize('viewAny', Visit::class);
+        $visits = $this->visitService->getAllVisits(request()->user());
         return response()->json(['success' => true, 'data' => $visits], Response::HTTP_OK);
     }
 
     public function store(StoreVisitRequest $request): JsonResponse
     {
+        $appointment = Appointment::findOrFail(
+            $request->validated()['appointment_id']
+        );
+        $this->authorize('create', [Visit::class, $appointment]);
         $visit = $this->visitService->createVisit($request->validated());
         return response()->json([
             'success' => true,
@@ -39,11 +46,14 @@ class VisitController extends Controller
     public function show(int $id): JsonResponse
     {
         $visit = $this->visitService->getVisitById($id);
+        $this->authorize('view', $visit);
         return response()->json(['success' => true, 'data' => $visit], Response::HTTP_OK);
     }
 
     public function update(UpdateVisitRequest $request, int $id): JsonResponse
     {
+        $visit = $this->visitService->getVisitById($id);
+        $this->authorize('update', $visit);
         $this->visitService->updateVisit($id, $request->validated());
         return response()->json([
             'success' => true,
@@ -53,6 +63,8 @@ class VisitController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
+        $visit = $this->visitService->getVisitById($id);
+        $this->authorize('delete', $visit);
         $this->visitService->deleteVisit($id);
         return response()->json([
             'success' => true,
@@ -62,6 +74,8 @@ class VisitController extends Controller
 
     public function changeStatus(ChangeVisitStatusRequest $request, int $id): JsonResponse
     {
+        $visit = $this->visitService->getVisitById($id);
+        $this->authorize('changeStatus', $visit);
         $this->visitService->changeStatus(
             $id,
             $request->validated()['status']

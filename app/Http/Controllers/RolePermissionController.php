@@ -19,6 +19,7 @@ class RolePermissionController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', User::class);
         $accessData = $this->service->getAccessData();
 
         return response()->json([
@@ -34,6 +35,7 @@ class RolePermissionController extends Controller
 
     public function syncUserAccess(RolePermissionRequest $request, User $user)
     {
+        $this->authorize('managePermissions', $user);
         $updatedUser = $this->service->syncUserAccess($user, $request->validated());
 
         return response()->json([
@@ -45,6 +47,6 @@ class RolePermissionController extends Controller
                 'roles'       => $updatedUser->roles->pluck('name'),
                 'permissions' => $updatedUser->permissions->pluck('name'),
             ]
-        ], Response::HTTP_OK); 
+        ], Response::HTTP_OK);
     }
 }
