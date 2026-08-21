@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('diagnoses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("visit_id")->cosntrained();
+            $table->foreignId("visit_id")->constrained();
             $table->string("diagnosis_code")->default("LOCAL_DIAGNOSIS");
             $table->string("description");
-            $table->enum('diagnosis_type' , ['primary','secondary']);
+            $table->enum('diagnosis_type', ['primary', 'secondary']);
             $table->string("notes");
             $table->timestamps();
         });
