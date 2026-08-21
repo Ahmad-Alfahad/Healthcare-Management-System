@@ -34,6 +34,6 @@ class Facility extends Model
 
     public function facilityDepartments(): HasMany
     {
-        return $this->hasMany(FacilityDepartment::class);
+        return $this->hasMany(FacilityDepartment::class , 'facility_id');
     }
 }

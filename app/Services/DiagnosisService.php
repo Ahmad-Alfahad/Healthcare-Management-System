@@ -6,6 +6,8 @@ use App\Repositories\DiagnosisRepository;
 use App\Repositories\VisitRepository;
 use App\Models\Diagnosis;
 use App\Models\Visit;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 
 class DiagnosisService
@@ -19,9 +21,37 @@ class DiagnosisService
         $this->visitRepository = $visitRepository;
     }
 
-    public function getAllDiagnoses()
+    public function getAllDiagnoses(User $user): Collection
     {
-        return $this->diagnosisRepository->all();
+        if ($user->isAdmin()) {
+            return $this->diagnosisRepository->all();
+        }
+
+        if ($user->isManager()) {
+            $facility = $user->facility();
+
+            return $facility
+                ? $this->diagnosisRepository->getByFacility($facility->id)
+                : new Collection();
+        }
+
+        if ($user->isDoctor()) {
+            $doctor = $user->doctor;
+
+            return $doctor
+                ? $this->diagnosisRepository->getByDoctor($doctor->id)
+                : new Collection();
+        }
+
+        if ($user->isPatient()) {
+            $patient = $user->patient;
+
+            return $patient
+                ? $this->diagnosisRepository->getByPatient($patient->id)
+                : new Collection();
+        }
+
+        return new Collection();
     }
 
     public function getDiagnosisById(int $id): Diagnosis

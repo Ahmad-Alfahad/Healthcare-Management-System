@@ -51,7 +51,21 @@ class UserService
             return [
                 'access_token' => $user->createToken('auth_token')->plainTextToken,
                 'token_type' => 'Bearer',
-                'user' => $user->load('profile'),
+                'id' => $profile->id,
+                'full_name' => $profile->full_name,
+                'national_number' => $profile->national_number,
+                'phone' => $profile->phone,
+                'gender' => $profile->gender,
+                'address' => $profile->address,
+                'date_of_birth' => $profile->date_of_birth?->format('Y-m-d'),
+
+                'user' => [
+                    'id' => $profile->user->id,
+                    'name' => $profile->user->name,
+                    'email' => $profile->user->email,
+                    'is_active' => (bool) $profile->user->is_active,
+                    'roles' => $profile->user->getRoleNames()->values(),
+                ],
             ];
         });
     }
@@ -72,9 +86,33 @@ class UserService
             ]);
         }
 
+        $user->load('profile');
+
         return [
             'access_token' => $user->createToken('auth_token')->plainTextToken,
-            'user' => $user->load('profile'),
+            'token_type' => 'Bearer',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'is_active' => $user->is_active,
+                'roles' => $user->getRoleNames(),
+                'profile' => $user->profile,
+            ],
+        ];
+    }
+
+    public function currentUser(User $user): array
+    {
+        $user = $this->userRepository->getAuthenticatedUser($user->id);
+
+        return [
+            'id'        => $user->id,
+            'name'      => $user->name,
+            'email'     => $user->email,
+            'is_active' => $user->is_active,
+            'roles'     => $user->getRoleNames(),
+            'profile'   => $user->profile,
         ];
     }
 

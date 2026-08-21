@@ -8,6 +8,7 @@ use App\Repositories\AppointmentRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 use App\Models\Appointment;
+use App\Models\User;
 use Carbon\Carbon;
 
 class VisitService
@@ -20,9 +21,37 @@ class VisitService
         $this->appointmentRepository = $appointmentRepository;
     }
 
-    public function getAllVisits(): Collection
+    public function getAllVisits(User $user): Collection
     {
-        return $this->visitRepository->all();
+        if ($user->isAdmin()) {
+            return $this->visitRepository->all();
+        }
+
+        if ($user->isManager()) {
+            $facility = $user->facility();
+
+            return $facility
+                ? $this->visitRepository->getByFacility($facility->id)
+                : new Collection();
+        }
+
+        if ($user->isDoctor()) {
+            $doctor = $user->doctor;
+
+            return $doctor
+                ? $this->visitRepository->getByDoctor($doctor->id)
+                : new Collection();
+        }
+
+        if ($user->isPatient()) {
+            $patient = $user->patient;
+
+            return $patient
+                ? $this->visitRepository->getByPatient($patient->id)
+                : new Collection();
+        }
+
+        return new Collection();
     }
 
     public function getVisitById(int $id): Visit

@@ -198,6 +198,13 @@ class FacilityService
         }
     }
 
+
+    // I will move direct data access methods to the repository
+
+    public function getFacilityDepartmentById(int $facilityDepartmentId): FacilityDepartment
+    {
+        return FacilityDepartment::findOrFail($facilityDepartmentId);
+    }
     public function addDepartment(int $facilityId, int $departmentId): FacilityDepartment
     {
         $this->facilityRepository->find($facilityId);
@@ -247,5 +254,15 @@ class FacilityService
         }
 
         return $facilityDepartment->delete();
+    }
+
+    public function getFacilityDepartments(int $facilityId)
+    {
+        $this->facilityRepository->find($facilityId);
+
+        return FacilityDepartment::with('department')
+            ->where('facility_id', $facilityId)
+            ->get()
+            ->pluck('department');
     }
 }

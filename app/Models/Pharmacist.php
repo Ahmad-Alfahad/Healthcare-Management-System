@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pharmacist extends Model
 {
@@ -34,8 +35,8 @@ class Pharmacist extends Model
         return $this->belongsTo(Profile::class);
     }
 
-    public function dispensings()
+    public function dispensings(): HasMany
     {
-        return $this->hasMany(Dispensing::class);
+        return $this->hasMany(Dispensing::class ,'pharmacist_id');
     }
 }

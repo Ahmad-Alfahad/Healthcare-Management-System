@@ -2,25 +2,71 @@
 
 namespace App\Repositories;
 
+use App\Models\User;
 use App\Models\Appointment;
 use Illuminate\Database\Eloquent\Collection;
 
 class AppointmentRepository
-    
+
 {
     public function get(): Collection
     {
         return Appointment::with([
             'patient',
-            'doctor',
+            'doctor.facilityDepartmentSpecialization.specialization',
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
         ])->get();
+    }
+
+    public function getByFacility(int $facilityId): Collection
+    {
+        return Appointment::with([
+            'patient',
+            'doctor.facilityDepartmentSpecialization.specialization',
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
+        ])
+            ->whereHas(
+                'doctor.facilityDepartmentSpecialization.facilityDepartment',
+                function ($query) use ($facilityId) {
+                    $query->where('facility_id', $facilityId);
+                }
+            )
+            ->get();
+    }
+
+    public function getByDoctor(int $doctorId): Collection
+    {
+        return Appointment::with([
+            'patient',
+            'doctor.facilityDepartmentSpecialization.specialization',
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
+        ])
+            ->where('doctor_id', $doctorId)
+            ->get();
+    }
+
+    public function getByPatient(int $patientId): Collection
+    {
+        return Appointment::with([
+            'patient',
+            'doctor.facilityDepartmentSpecialization.specialization',
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
+        ])
+            ->where('patient_id', $patientId)
+            ->get();
     }
 
     public function find(int $id): Appointment
     {
         return Appointment::with([
             'patient',
-            'doctor',
+            'doctor.facilityDepartmentSpecialization.specialization',
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
         ])->findOrFail($id);
     }
 
@@ -30,9 +76,9 @@ class AppointmentRepository
     }
 
     public function update(int $id, array $data): bool
-    {   
+    {
         $appointment = Appointment::findOrFail($id);
-        
+
         return $appointment->update($data);
     }
 
@@ -50,5 +96,4 @@ class AppointmentRepository
             ->whereIn('status', ['pending', 'confirmed'])
             ->get();
     }
-
 }

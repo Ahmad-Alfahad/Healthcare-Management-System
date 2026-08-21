@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Appointment;
+use App\Models\User;
 use App\Repositories\AppointmentRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Carbon\Carbon;
@@ -14,8 +15,8 @@ use App\Repositories\DoctorScheduleRepository;
 class AppointmentService
 {
 
-    protected $appointmentRepository;
-    protected $doctorScheduleRepository;
+    protected AppointmentRepository $appointmentRepository;
+    protected DoctorScheduleRepository $doctorScheduleRepository;
 
     public function __construct(AppointmentRepository $appointmentRepository, DoctorScheduleRepository $doctorScheduleRepository)
     {
@@ -23,9 +24,46 @@ class AppointmentService
         $this->doctorScheduleRepository = $doctorScheduleRepository;
     }
 
-    public function getAllAppointments(): Collection
+    public function getAllAppointments(User $user): Collection
     {
-        return $this->appointmentRepository->get();
+        if ($user->isAdmin()) {
+            return $this->appointmentRepository->get();
+        }
+
+        if ($user->isManager()) {
+            $facility = $user->facility();
+
+            if (!$facility) {
+                return new Collection();
+            }
+
+            return $this->appointmentRepository
+                ->getByFacility($facility->id);
+        }
+
+        if ($user->isDoctor()) {
+            $doctor = $user->doctor;
+
+            if (!$doctor) {
+                return new Collection();
+            }
+
+            return $this->appointmentRepository
+                ->getByDoctor($doctor->id);
+        }
+
+        if ($user->isPatient()) {
+            $patient = $user->patient;
+
+            if (!$patient) {
+                return new Collection();
+            }
+
+            return $this->appointmentRepository
+                ->getByPatient($patient->id);
+        }
+
+        return new Collection();
     }
 
     public function getAppointment(int $id): Appointment
@@ -278,7 +316,7 @@ class AppointmentService
     public function changeStatus(int $appointmentId, string $newStatus): Appointment
     {
         $appointment = $this->appointmentRepository
-                ->find($appointmentId);
+            ->find($appointmentId);
 
         $this->validateStatusTransition(
             $appointment->status,
@@ -290,7 +328,6 @@ class AppointmentService
         ]);
 
         return $appointment->fresh();
-
     }
 
     private function validateStatusTransition(string $currentStatus, string $newStatus): void

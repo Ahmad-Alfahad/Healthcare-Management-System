@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FacilityDepartmentSpecialization extends Model
 {
@@ -25,8 +26,9 @@ class FacilityDepartmentSpecialization extends Model
         return $this->belongsTo(Specialization::class);
     }
 
-    public function doctors()
+    public function doctors(): HasMany
     {
-        return $this->hasMany(Doctor::class);
+        return $this->hasMany(Doctor::class
+        , 'facility_department_specialization_id');
     }
 }

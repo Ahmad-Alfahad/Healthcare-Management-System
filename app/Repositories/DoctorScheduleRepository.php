@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Models\DoctorSchedule;
@@ -8,12 +9,16 @@ class DoctorScheduleRepository
 {
     public function all(): Collection
     {
-        return DoctorSchedule::with('doctor')->get();
+        return DoctorSchedule::with([
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.facility'
+        ])->get();
     }
 
     public function find(int $id): DoctorSchedule
     {
-        return DoctorSchedule::with('doctor')->findOrFail($id);
+        return DoctorSchedule::with([
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.facility'
+        ])->findOrFail($id);
     }
 
     public function create(array $data): DoctorSchedule
@@ -40,5 +45,17 @@ class DoctorScheduleRepository
             ->first();
     }
 
-    
+    public function getByFacility(int $facilityId): Collection
+    {
+        return DoctorSchedule::with([
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.facility'
+        ])
+            ->whereHas(
+                'doctor.facilityDepartmentSpecialization.facilityDepartment',
+                function ($query) use ($facilityId) {
+                    $query->where('facility_id', $facilityId);
+                }
+            )
+            ->get();
+    }
 }

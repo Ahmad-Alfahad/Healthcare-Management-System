@@ -26,4 +26,9 @@ class UserRepository
         $user = User::findOrFail($id);
         return $user->update($data);
     }
+
+    public function getAuthenticatedUser(int $id): User
+    {
+        return User::with('profile')->findOrFail($id);
+    }
 }

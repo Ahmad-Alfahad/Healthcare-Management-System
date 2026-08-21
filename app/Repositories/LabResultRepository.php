@@ -9,12 +9,18 @@ class LabResultRepository
 {
     public function all(): Collection
     {
-        return LabResult::with(['labRequestItem', 'labStaff'])->get();
+        return LabResult::with([
+            'labRequestItem.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
+            'labStaff.facility',
+        ])->get();
     }
 
     public function find(int $id): LabResult
     {
-        return LabResult::with(['labRequestItem', 'labStaff'])->findOrFail($id);
+        return LabResult::with([
+            'labRequestItem.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
+            'labStaff.facility',
+        ])->findOrFail($id);
     }
 
     public function create(array $data): LabResult

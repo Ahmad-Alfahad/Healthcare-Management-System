@@ -2,22 +2,39 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Repositories\DoctorScheduleRepository;
 use App\Models\DoctorSchedule;
 use Illuminate\Database\Eloquent\Collection;
 
 class DoctorScheduleService
 {
-    protected $doctorscheduleRepository;
+    protected DoctorScheduleRepository $doctorscheduleRepository;
 
     public function __construct(DoctorScheduleRepository $doctorscheduleRepository)
     {
         $this->doctorscheduleRepository = $doctorscheduleRepository;
     }
 
-    public function getAllDoctorSchedules(): Collection
+    public function getAllDoctorSchedules(User $user): Collection
     {
-        return $this->doctorscheduleRepository->all();
+        if ($user->isAdmin()) {
+            return $this->doctorscheduleRepository->all();
+        }
+
+        if ($user->isManager()) {
+            $facility = $user->facility();
+
+            if (!$facility) {
+                return new Collection();
+            }
+
+            return $this->doctorscheduleRepository->getByFacility(
+                $facility->id
+            );
+        }
+
+        return new Collection();
     }
 
     public function getDoctorScheduleById(int $id): DoctorSchedule

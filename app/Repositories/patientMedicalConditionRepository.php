@@ -9,12 +9,18 @@ class PatientMedicalConditionRepository
 {
     public function all(): Collection
     {
-        return PatientMedicalCondition::all();
+        return PatientMedicalCondition::with([
+            'patient',
+            'medicalCondition',
+        ])->get();
     }
 
     public function find(int $id): ?PatientMedicalCondition
     {
-        return PatientMedicalCondition::findOrFail($id);
+        return PatientMedicalCondition::with([
+            'patient',
+            'medicalCondition',
+        ])->findOrFail($id);
     }
 
     public function create(array $data): PatientMedicalCondition

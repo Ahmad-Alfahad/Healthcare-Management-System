@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class LabStaff extends Model
 {
@@ -37,8 +38,8 @@ class LabStaff extends Model
         return $this->belongsTo(Profile::class);
     }
 
-    public function labResults()
+    public function labResults(): HasMany
     {
-        return $this->hasMany(LabResult::class);
+        return $this->hasMany(LabResult::class , 'lab_staff_id');
     }
 }

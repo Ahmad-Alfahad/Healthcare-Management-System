@@ -9,12 +9,42 @@ class DiagnosisRepository
 {
     public function all(): Collection
     {
-        return Diagnosis::all();
+        return Diagnosis::with('visit.appointment')->get();
+    }
+
+    public function getByFacility(int $facilityId): Collection
+    {
+        return Diagnosis::with('visit.appointment')
+            ->whereHas(
+                'visit.doctor.facilityDepartmentSpecialization.facilityDepartment',
+                function ($query) use ($facilityId) {
+                    $query->where('facility_id', $facilityId);
+                }
+            )
+            ->get();
+    }
+
+    public function getByDoctor(int $doctorId): Collection
+    {
+        return Diagnosis::with('visit.appointment')
+            ->whereHas('visit', function ($query) use ($doctorId) {
+                $query->where('doctor_id', $doctorId);
+            })
+            ->get();
+    }
+
+    public function getByPatient(int $patientId): Collection
+    {
+        return Diagnosis::with('visit.appointment')
+            ->whereHas('visit', function ($query) use ($patientId) {
+                $query->where('patient_id', $patientId);
+            })
+            ->get();
     }
 
     public function find(int $id): Diagnosis
     {
-        return Diagnosis::with('visit')->findOrFail($id);
+        return Diagnosis::with('visit.appointment')->findOrFail($id);
     }
 
     public function create(array $data): Diagnosis

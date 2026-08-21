@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Profile extends Model
 {
@@ -28,20 +29,25 @@ class Profile extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function patient()
+    public function patient(): HasOne
     {
         return $this->hasOne(Patient::class);
     }
-    public function doctor()
+    public function doctor(): HasOne
     {
         return $this->hasOne(Doctor::class);
     }
-    public function pharmacist()
+    public function pharmacist(): HasOne
     {
         return $this->hasOne(Pharmacist::class);
     }
-    public function labStaff()
+    public function labStaff(): HasOne
     {
         return $this->hasOne(LabStaff::class);
     }
+
+    // public function belongsToUser(User $user): bool
+    // {
+    //     return $this->user_id === $user->id;
+    // }
 }

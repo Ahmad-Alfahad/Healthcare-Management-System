@@ -50,4 +50,21 @@ class DoctorRepository
         $doctor = Doctor::findOrFail($id);
         return $doctor->delete();
     }
+
+    public function getByFacility(int $facilityId): Collection
+{
+    return Doctor::with([
+        'profile',
+        'facilityDepartmentSpecialization.specialization',
+        'facilityDepartmentSpecialization.facilityDepartment.facility',
+        'facilityDepartmentSpecialization.facilityDepartment.department'
+    ])
+    ->whereHas(
+        'facilityDepartmentSpecialization.facilityDepartment',
+        function ($query) use ($facilityId) {
+            $query->where('facility_id', $facilityId);
+        }
+    )
+    ->get();
+}
 }

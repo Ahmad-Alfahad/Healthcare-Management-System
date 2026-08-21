@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Repositories\DoctorRepository;
 use App\Models\Doctor;
 use App\Models\FacilityDepartmentSpecialization;
@@ -17,8 +18,24 @@ class DoctorService
         $this->doctorRepository = $doctorRepository;
     }
 
-    public function getAllDoctors(): Collection
+    public function getAllDoctors(User $user): Collection
     {
+        if ($user->isAdmin()) {
+            return $this->doctorRepository->all();
+        }
+
+        if ($user->isManager()) {
+            $facility = $user->facility();
+
+            if (!$facility) {
+                return new Collection();
+            }
+
+            return $this->doctorRepository->getByFacility(
+                $facility->id
+            );
+        }
+
         return $this->doctorRepository->all();
     }
 
