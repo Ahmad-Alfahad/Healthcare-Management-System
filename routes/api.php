@@ -24,6 +24,7 @@ use App\Http\Controllers\FacilityDepartmentSpecializationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -37,6 +38,7 @@ Route::post('/login', [UserController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     // Current user session
     Route::get('/me', [UserController::class, 'currentUser']);
+    Route::get('/dashboard', [DashboardController::class, 'show']);
     Route::post('/logout', [UserController::class, 'logout']);
 
     // Publicly readable reference data for authenticated users
@@ -46,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Facilities and medical staff
     Route::apiResource('facilities', FacilityController::class);
+    Route::get('facilities/{facility}/staff', [FacilityController::class, 'staff']);
     Route::get('facilities/{facility}/departments', [FacilityController::class, 'departments']);
     Route::post('facilities/{facility}/departments', [FacilityController::class, 'addDepartment']);
     Route::delete('facilities/departments/{facilityDepartment}', [FacilityController::class, 'removeDepartment']);
