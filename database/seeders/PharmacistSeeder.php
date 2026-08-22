@@ -16,13 +16,14 @@ class PharmacistSeeder extends Seeder
      */
     public function run(): void
     {
-        $clinic = Facility::where('facility_type', 'Clinic')->first();
+        $clinic = Facility::where('facility_type', 'pharmacy')->first();
         if (!$clinic) return;
 
         $user = User::firstOrCreate(
             ['email' => 'rawan.pharmacy@healthcare.com'],
             ['password' => Hash::make('password123'), 'name' => 'Rawan Al-Jamil']
         );
+        $user->syncRoles(['pharmacist']);
 
         $profile = Profile::firstOrCreate(
             ['national_number' => '040400776655'],

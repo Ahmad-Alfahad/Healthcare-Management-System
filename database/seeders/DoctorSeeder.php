@@ -20,8 +20,8 @@ class DoctorSeeder extends Seeder
      */
     public function run(): void
     {
-        $hospital = Facility::where('facility_type', 'Hospital')->first();
-        $clinic   = Facility::where('facility_type', 'Clinic')->first();
+        $hospital = Facility::where('facility_type', 'hospital')->first();
+        $clinic   = Facility::where('facility_type', 'clinic')->first();
 
         $erDept   = Department::where('name', 'like', '%Emergency%')->first();
         $opdDept  = Department::where('name', 'like', '%Outpatient%')->first();
@@ -33,20 +33,20 @@ class DoctorSeeder extends Seeder
             return;
         }
 
-       
+
         $link1 = FacilityDepartment::firstOrCreate([
             'facility_id'   => $hospital->id,
             'department_id' => $erDept->id,
         ]);
 
-     
+
         $link2 = FacilityDepartment::firstOrCreate([
             'facility_id'   => $clinic->id,
             'department_id' => $opdDept->id ?? $erDept->id,
         ]);
 
 
-      
+
         $workConfig1 = FacilityDepartmentSpecialization::firstOrCreate([
             'facility_department_id' => $link1->id,
             'specialization_id'      => $cardioSpec->id,
@@ -66,7 +66,7 @@ class DoctorSeeder extends Seeder
             ]
         );
 
-     
+
         $userDoctor2 = User::firstOrCreate(
             ['email' => 'nour.doctor@healthcare.com'],
             [
@@ -76,8 +76,11 @@ class DoctorSeeder extends Seeder
             ]
         );
 
+        $userDoctor1->syncRoles(['doctor']);
+        $userDoctor2->syncRoles(['doctor']);
 
-       
+
+
         $profileDoctor1 = Profile::firstOrCreate(
             ['national_number' => '010100223344'],
             [
@@ -104,27 +107,29 @@ class DoctorSeeder extends Seeder
 
 
 
-        Doctor::firstOrCreate(
-            ['profile_id' => $profileDoctor2->id],
+        Doctor::updateOrCreate(
+            ['profile_id' => $profileDoctor1->id],
             [
-                'facility_department_specialization_id' => $workConfig2->id,
-                'qualification'       => 'Master’s Degree in Pediatrics, American University of Beirut',
-                'years_of_experience' => 8,
-                'biography'           => 'Dedicated and compassionate Pediatrician focused on comprehensive childhood development, neonatal intensive care, and preventive medicine.',
-                'achievements'        => 'Published 3 research papers on neonatal health. Head of Pediatric Care Committee at Al-Amal Hospital.',
-                'languages'           => 'Arabic, English, French'
+                'facility_department_specialization_id' => $workConfig1->id,
+                'qualification'       => 'Board-certified cardiologist',
+                'years_of_experience' => 12,
+                'biography'           => 'Experienced cardiologist providing preventive and acute cardiovascular care.',
+                'achievements'        => 'Published research on hypertension management.',
+                'languages'           => ['Arabic', 'English'],
+                'is_active'           => true,
             ]
         );
 
-        Doctor::firstOrCreate(
+        Doctor::updateOrCreate(
             ['profile_id' => $profileDoctor2->id],
             [
                 'facility_department_specialization_id' => $workConfig2->id,
-                'qualification'       => 'Master’s Degree in Pediatrics, American University of Beirut',
+                'qualification'       => 'Master of Pediatrics',
                 'years_of_experience' => 8,
-                'biography'           => 'Dedicated and compassionate Pediatrician focused on comprehensive childhood development, neonatal intensive care, and preventive medicine.',
-                'achievements'        => 'Published 3 research papers on neonatal health. Head of Pediatric Care Committee at Al-Amal Hospital.',
-                'languages'           => 'Arabic, English, French'
+                'biography'           => 'Pediatrician focused on preventive care and childhood development.',
+                'achievements'        => 'Published research on neonatal health.',
+                'languages'           => ['Arabic', 'English', 'French'],
+                'is_active'           => true,
             ]
         );
     }

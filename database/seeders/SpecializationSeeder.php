@@ -13,20 +13,8 @@ class SpecializationSeeder extends Seeder
      */
     public function run(): void
     {
-        Specialization::create([
-            'name' => 'Cardiology'
-        ]);
-        Specialization::create([
-            'name' => 'Neurology'
-        ]);
-        Specialization::create([
-            'name' => 'Gastroenterology'
-        ]);
-        Specialization::create([
-            'name' => 'Pediatrics'
-        ]);
-        Specialization::create([
-            'name' => 'Dermatology'
-        ]);
+        foreach (['Cardiology', 'Neurology', 'Gastroenterology', 'Pediatrics', 'Dermatology'] as $name) {
+            Specialization::firstOrCreate(['name' => $name]);
+        }
     }
 }

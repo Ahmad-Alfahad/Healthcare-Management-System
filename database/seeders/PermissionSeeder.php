@@ -72,7 +72,7 @@ class PermissionSeeder extends Seeder
         foreach ($permissions as $permission) {
             Permission::firstOrCreate([
                 'name' => $permission,
-                'guard_name' => 'api' // تأكد من مطابقة الـ Guard المستخدم في الـ API الخاص بك
+                'guard_name' => 'web'
             ]);
         }
     }

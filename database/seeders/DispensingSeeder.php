@@ -16,13 +16,13 @@ class DispensingSeeder extends Seeder
             [
                 'prescription_item_id' => 1,
                 'pharmacist_id' => 1,
-                'quantity_dispensed' => 30,
+                'quantity_dispensed' => 20,
                 'dispensed_at' => now()->subDays(2),
             ],
             [
                 'prescription_item_id' => 2,
                 'pharmacist_id' => 1,
-                'quantity_dispensed' => 20,
+                'quantity_dispensed' => 21,
                 'dispensed_at' => now()->subDays(1),
             ],
             [
@@ -35,6 +35,6 @@ class DispensingSeeder extends Seeder
 
         foreach ($dispensings as $dispensing) {
             Dispensing::create($dispensing);
-        }   
+        }
     }
 }

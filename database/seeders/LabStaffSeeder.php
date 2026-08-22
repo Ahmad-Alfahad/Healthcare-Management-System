@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Seeders;
 
 use App\Models\LabStaff;
@@ -12,14 +13,17 @@ class LabStaffSeeder extends Seeder
 {
     public function run(): void
     {
-        $hospital = Facility::where('facility_type', 'Hospital')->first();
+        $hospital = Facility::where('facility_type', 'laboratory')->first();
         if (!$hospital) return;
 
         $user = User::firstOrCreate(
             ['email' => 'sami.lab@healthcare.com'],
-            ['password' => Hash::make('password123'), 
-            'name' => 'Sami Mansour']
+            [
+                'password' => Hash::make('password123'),
+                'name' => 'Sami Mansour'
+            ]
         );
+        $user->syncRoles(['laboratory']);
 
         $profile = Profile::firstOrCreate(
             ['national_number' => '030300998811'],

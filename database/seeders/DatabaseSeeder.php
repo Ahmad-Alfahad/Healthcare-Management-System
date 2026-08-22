@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -21,26 +20,29 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call([
-            FacilitySeeder::class,
+            PermissionSeeder::class,
             RoleSeeder::class,
+            AdminSeeder::class,
+            FacilitySeeder::class,
+            ManagerSeeder::class,
             SpecializationSeeder::class,
             DepartmentSeeder::class,
+            LabTestSeeder::class,
+            PatientSeeder::class,
             DoctorSeeder::class,
             LabStaffSeeder::class,
             PharmacistSeeder::class,
-            PatientSeeder::class,
-            MedicalConditionSeeder::class,
-            AppointmentSeeder::class,
             DoctorScheduleSeeder::class,
+            MedicalConditionSeeder::class,
+            PatientMedicalConditionSeeder::class,
+            AppointmentSeeder::class,
             VisitSeeder::class,
             DiagnosisSeeder::class,
             PrescriptionSeeder::class,
             PrescriptionItemSeeder::class,
-            DispensingSeeder::class,
-            LabTestSeeder::class,
             LabRequestItemSeeder::class,
             LabResultSeeder::class,
+            DispensingSeeder::class,
         ]);
-
     }
 }
