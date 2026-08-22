@@ -12,6 +12,13 @@ class LabStaffRepository
         return LabStaff::with(['profile', 'facility'])->get();
     }
 
+    public function getByFacility(int $facilityId): Collection
+    {
+        return LabStaff::with(['profile', 'facility'])
+            ->where('facility_id', $facilityId)
+            ->get();
+    }
+
     public function find(int $id): LabStaff
     {
         return LabStaff::with(['profile', 'facility'])->findOrFail($id);

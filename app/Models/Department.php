@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\Auditable;
 
 class Department extends Model
 {
+    use Auditable;
+
     use HasFactory;
 
     protected $fillable = [
@@ -19,8 +22,8 @@ class Department extends Model
         'is_active' => 'boolean',
     ];
 
-       public function facilityDepartment() 
+    public function facilityDepartment()
     {
-        return $this->hasMany(FacilityDepartment::class) ;
+        return $this->hasMany(FacilityDepartment::class);
     }
 }

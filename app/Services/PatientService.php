@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\PatientRepository;
 use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 
@@ -16,8 +17,16 @@ class PatientService
         $this->patientRepository = $patientRepository;
     }
 
-    public function getAllPatients(): Collection
+    public function getAllPatients(User $user): Collection
     {
+        if ($user->isManager()) {
+            $facility = $user->facility();
+
+            return $facility
+                ? $this->patientRepository->getByFacility($facility->id)
+                : new Collection();
+        }
+
         return $this->patientRepository->get();
     }
 
@@ -36,7 +45,7 @@ class PatientService
 
     public function updatePatient(int $id, array $data): bool
     {
-      
+
         if (
             isset($data['profile_id'])
         ) {

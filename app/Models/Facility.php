@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Concerns\Auditable;
 
 class Facility extends Model
 {
+    use Auditable;
+
     use HasFactory;
 
     protected $fillable = [
@@ -34,6 +37,6 @@ class Facility extends Model
 
     public function facilityDepartments(): HasMany
     {
-        return $this->hasMany(FacilityDepartment::class , 'facility_id');
+        return $this->hasMany(FacilityDepartment::class, 'facility_id');
     }
 }

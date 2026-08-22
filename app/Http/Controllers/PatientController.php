@@ -22,7 +22,7 @@ class PatientController extends Controller
     public function index(): JsonResponse
     {
         $this->authorize('viewAny', Patient::class);
-        $patients = $this->patientService->getAllPatients();
+        $patients = $this->patientService->getAllPatients(request()->user());
         return response()->json(['message' => 'Patients retrieved successfully', 'data' => $patients], Response::HTTP_OK);
     }
 

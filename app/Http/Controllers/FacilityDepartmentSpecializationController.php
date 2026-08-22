@@ -26,7 +26,7 @@ class FacilityDepartmentSpecializationController extends Controller
             FacilityDepartmentSpecialization::class
         );
 
-        $facilitiesDeptSpec = $this->service->getAll();
+        $facilitiesDeptSpec = $this->service->getAll(request()->user());
 
         return response()->json([
             'success' => true,

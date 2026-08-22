@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\Auditable;
 
 class LabResult extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         "lab_request_item_id",
         "lab_staff_id",

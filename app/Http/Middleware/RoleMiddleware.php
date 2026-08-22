@@ -34,7 +34,7 @@ class RoleMiddleware
             abort(500, 'The authenticated user model does not support role checks.');
         }
 
-        if ($user->hasAnyRole($requiredRoles)) {
+        if ($user->hasAnyRole($requiredRoles, 'web')) {
             return $next($request);
         }
 

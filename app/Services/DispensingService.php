@@ -10,6 +10,7 @@ use App\Repositories\PrescriptionItemRepository;
 use App\Repositories\PrescriptionRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
 
 
 class DispensingService
@@ -18,18 +19,19 @@ class DispensingService
     protected PrescriptionItemRepository  $prescriptionItemRepository;
     protected PrescriptionRepository  $prescriptionRepository;
 
-    public function __construct(DispensingRepository $dispensingRepository
-                               , PrescriptionItemRepository $prescriptionItemRepository
-                               , PrescriptionRepository $prescriptionRepository)
-    {
+    public function __construct(
+        DispensingRepository $dispensingRepository,
+        PrescriptionItemRepository $prescriptionItemRepository,
+        PrescriptionRepository $prescriptionRepository
+    ) {
         $this->dispensingRepository = $dispensingRepository;
-        $this->prescriptionItemRepository = $prescriptionItemRepository;    
-        $this->prescriptionRepository = $prescriptionRepository;    
+        $this->prescriptionItemRepository = $prescriptionItemRepository;
+        $this->prescriptionRepository = $prescriptionRepository;
     }
 
-    public function getAllDispensings(): Collection
+    public function getAllDispensings(User $user): Collection
     {
-        return $this->dispensingRepository->all();
+        return $this->dispensingRepository->all($user);
     }
 
     public function getDispensingById(int $id): Dispensing
@@ -108,8 +110,8 @@ class DispensingService
     }
 
 
-    private function updatePrescriptionStatusAfterDispensing(int $prescriptionId ): void
-     {
+    private function updatePrescriptionStatusAfterDispensing(int $prescriptionId): void
+    {
         $prescription = $this->prescriptionRepository
             ->find($prescriptionId);
 

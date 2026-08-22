@@ -12,6 +12,16 @@ class PatientRepository
         return Patient::with('profile')->get();
     }
 
+    public function getByFacility(int $facilityId): Collection
+    {
+        return Patient::with('profile')
+            ->whereHas(
+                'appointments.doctor.facilityDepartmentSpecialization.facilityDepartment',
+                fn($query) => $query->where('facility_id', $facilityId)
+            )
+            ->get();
+    }
+
     public function find(int $id): Patient
     {
         return Patient::with('profile')->findOrFail($id);

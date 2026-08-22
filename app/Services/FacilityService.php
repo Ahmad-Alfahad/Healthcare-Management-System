@@ -6,6 +6,7 @@ use App\Repositories\FacilityRepository;
 use App\Models\Department;
 use App\Models\Facility;
 use App\Models\FacilityDepartment;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 
@@ -18,8 +19,14 @@ class FacilityService
         $this->facilityRepository = $facilityRepository;
     }
 
-    public function getAllFacilities(): Collection
+    public function getAllFacilities(User $user): Collection
     {
+        if ($user->isManager()) {
+            $facility = $user->facility();
+
+            return $facility ? new Collection([$facility]) : new Collection();
+        }
+
         return $this->facilityRepository->all();
     }
 

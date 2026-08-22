@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DispensingController extends Controller
 {
-    protected $dispensingService;
+    protected DispensingService $dispensingService;
 
     public function __construct(DispensingService $dispensingService)
     {
@@ -22,7 +22,7 @@ class DispensingController extends Controller
     public function index(): JsonResponse
     {
         $this->authorize('viewAny', Dispensing::class);
-        $dispensings = $this->dispensingService->getAllDispensings();
+        $dispensings = $this->dispensingService->getAllDispensings(request()->user());
         return response()->json(['success' => true, 'data' => $dispensings], Response::HTTP_OK);
     }
 

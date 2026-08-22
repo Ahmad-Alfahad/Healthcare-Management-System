@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\Auditable;
 
 class Patient extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'profile_id',
         'blood_type',

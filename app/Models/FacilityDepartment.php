@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Concerns\Auditable;
 
 class FacilityDepartment extends Model
 {
+    use Auditable;
+
     protected $table = 'facility_department';
 
     protected $fillable = ['facility_id', 'department_id'];
@@ -26,7 +29,7 @@ class FacilityDepartment extends Model
     public function facilityDepartmentSpecializations(): HasMany
     {
         return $this->hasMany(
-            FacilityDepartmentSpecialization::class ,
+            FacilityDepartmentSpecialization::class,
             'facility_department_id'
         );
     }

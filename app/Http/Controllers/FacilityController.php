@@ -21,7 +21,7 @@ class FacilityController extends Controller
     public function index(): JsonResponse
     {
         $this->authorize('viewAny', Facility::class);
-        $facilities = $this->facilityService->getAllFacilities();
+        $facilities = $this->facilityService->getAllFacilities(request()->user());
         return response()->json(['success' => true, 'data' => $facilities], 200);
     }
 

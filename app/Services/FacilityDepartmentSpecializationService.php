@@ -9,6 +9,7 @@ use App\Models\FacilityDepartment;
 use App\Models\Specialization;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
 
 class FacilityDepartmentSpecializationService
 {
@@ -21,9 +22,9 @@ class FacilityDepartmentSpecializationService
         $this->specializationRepository = $specializationRepository;
     }
 
-    public function getAll(): Collection
+    public function getAll(?User $user = null): Collection
     {
-        return $this->repository->all();
+        return $this->repository->all($user);
     }
 
     public function getById(int $id): FacilityDepartmentSpecialization

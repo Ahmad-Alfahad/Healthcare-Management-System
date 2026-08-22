@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\Auditable;
 
 class DoctorSchedule extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         "doctor_id",
         "day_of_week",
@@ -17,7 +20,6 @@ class DoctorSchedule extends Model
 
     public function doctor()
     {
-        return $this->belongsTo(Doctor::class) ;
+        return $this->belongsTo(Doctor::class);
     }
-
 }

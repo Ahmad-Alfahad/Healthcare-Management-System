@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\Auditable;
 
 class Dispensing extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         "prescription_item_id",
         "pharmacist_id",
@@ -23,6 +26,3 @@ class Dispensing extends Model
         return $this->belongsTo(Pharmacist::class);
     }
 }
-
-
-

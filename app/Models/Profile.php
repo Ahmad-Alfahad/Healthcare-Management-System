@@ -5,9 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\Concerns\Auditable;
+use App\Models\User;
 
 class Profile extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'user_id',
         'full_name',
@@ -46,8 +50,8 @@ class Profile extends Model
         return $this->hasOne(LabStaff::class);
     }
 
-    // public function belongsToUser(User $user): bool
-    // {
-    //     return $this->user_id === $user->id;
-    // }
+    public function belongsToUser(User $user): bool
+    {
+        return $this->user_id === $user->id;
+    }
 }

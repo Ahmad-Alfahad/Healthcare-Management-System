@@ -6,6 +6,7 @@ use App\Repositories\LabStaffRepository;
 use App\Repositories\FacilityRepository;
 use App\Models\LabStaff;
 use App\Models\Facility;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 
@@ -20,8 +21,14 @@ class LabStaffService
         $this->facilityRepository = $facilityRepository;
     }
 
-    public function getAllStaff(): Collection
+    public function getAllStaff(User $user): Collection
     {
+        if ($user->isManager()) {
+            return $user->facility()
+                ? $this->labStaffRepository->getByFacility($user->facility()->id)
+                : new Collection();
+        }
+
         return $this->labStaffRepository->all();
     }
 

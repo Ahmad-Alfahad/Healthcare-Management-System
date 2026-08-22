@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\ProfileRepository;
 use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
 
@@ -16,9 +17,9 @@ class ProfileService
         $this->profileRepository = $profileRepository;
     }
 
-    public function getAll()
+    public function getAll(?User $user = null)
     {
-        return $this->profileRepository->getAll();
+        return $this->profileRepository->getAll($user);
     }
 
     public function getProfileById(int $id)

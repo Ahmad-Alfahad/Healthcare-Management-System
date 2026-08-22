@@ -7,6 +7,7 @@ use App\Models\Visit;
 use Illuminate\Database\Eloquent\Collection;
 use App\Repositories\PrescriptionRepository;
 use App\Repositories\VisitRepository;
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
 
@@ -21,9 +22,9 @@ class PrescriptionService
         $this->visitRepository = $visitRepository;
     }
 
-    public function getAllPrescriptions(): Collection
+    public function getAllPrescriptions(User $user): Collection
     {
-        return $this->prescriptionRepository->all();
+        return $this->prescriptionRepository->all($user);
     }
 
     public function getPrescriptionById(int $id): Prescription

@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Concerns\Auditable;
 
 class Pharmacist extends Model
 {
+    use Auditable;
+
     use HasFactory;
 
     protected $fillable = [
@@ -37,6 +40,6 @@ class Pharmacist extends Model
 
     public function dispensings(): HasMany
     {
-        return $this->hasMany(Dispensing::class ,'pharmacist_id');
+        return $this->hasMany(Dispensing::class, 'pharmacist_id');
     }
 }

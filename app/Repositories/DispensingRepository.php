@@ -3,13 +3,18 @@
 namespace App\Repositories;
 
 use App\Models\Dispensing;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
 class DispensingRepository
 {
-    public function all(): Collection
+    public function all(?User $user = null): Collection
     {
-        return Dispensing::with(['prescriptionItem', 'pharmacist'])->get();
+        $query = Dispensing::with(['prescriptionItem', 'pharmacist']);
+        if ($user?->isManager()) {
+            $query->whereHas('prescriptionItem.prescription.visit.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $user->facility()?->id));
+        }
+        return $query->get();
     }
 
     public function find(int $id): Dispensing

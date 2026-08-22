@@ -3,13 +3,18 @@
 namespace App\Repositories;
 
 use App\Models\FacilityDepartmentSpecialization;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
 class FacilityDepartmentSpecializationRepository
 {
-    public function all(): Collection
+    public function all(?User $user = null): Collection
     {
-        return FacilityDepartmentSpecialization::with(['specialization', 'facilityDepartment'])->get();
+        $query = FacilityDepartmentSpecialization::with(['specialization', 'facilityDepartment']);
+        if ($user?->isManager()) {
+            $query->whereHas('facilityDepartment', fn($q) => $q->where('facility_id', $user->facility()?->id));
+        }
+        return $query->get();
     }
 
     public function find(int $id): FacilityDepartmentSpecialization

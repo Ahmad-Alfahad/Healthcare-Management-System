@@ -3,18 +3,23 @@
 namespace App\Repositories;
 
 use App\Models\Prescription;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
 class PrescriptionRepository
 {
-    public function all(): Collection
+    public function all(?User $user = null): Collection
     {
-        return Prescription::with('visit')->get();
+        $query = Prescription::with('visit');
+        if ($user?->isManager()) {
+            $query->whereHas('visit.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $user->facility()?->id));
+        }
+        return $query->get();
     }
 
     public function find(int $id): Prescription
     {
-        return Prescription::with(['visit' , 'items'])->findOrFail($id);
+        return Prescription::with(['visit', 'items'])->findOrFail($id);
     }
 
     public function create(array $data): Prescription

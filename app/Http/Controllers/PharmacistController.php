@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Pharmacist;
+use App\Models\Facility;
 use App\Http\Requests\StorePharmacistRequest;
 use App\Http\Requests\UpdatePharmacistRequest;
 use App\Services\PharmacistService;
@@ -20,15 +22,17 @@ class PharmacistController extends Controller
     public function index(): JsonResponse
     {
         $this->authorize('viewAny', Pharmacist::class);
-        $pharmacists = $this->pharmacistService->getAllPharmacists();
+        $pharmacists = $this->pharmacistService->getAllPharmacists(request()->user());
         return response()->json(['success' => true, 'data' => $pharmacists], Response::HTTP_OK);
     }
 
 
     public function store(StorePharmacistRequest $request): JsonResponse
     {
-        $this->authorize('create', Pharmacist::class);
-        $pharmacist = $this->pharmacistService->createPharmacist($request->validated());
+        $data = $request->validated();
+        $facility = Facility::findOrFail($data['facility_id']);
+        $this->authorize('create', [Pharmacist::class, $facility]);
+        $pharmacist = $this->pharmacistService->createPharmacist($data);
         return response()->json([
             'success' => true,
             'message' => 'Pharmacist created successfully.',
@@ -50,8 +54,12 @@ class PharmacistController extends Controller
     public function update(UpdatePharmacistRequest $request, int $id): JsonResponse
     {
         $pharmacist = $this->pharmacistService->getPharmacistById($id);
+        $data = $request->validated();
         $this->authorize('update', $pharmacist);
-        $this->pharmacistService->updatePharmacist($id, $request->validated());
+        if (request()->user()->isManager() && isset($data['facility_id'])) {
+            abort_unless(request()->user()->managesFacility(Facility::findOrFail($data['facility_id'])), 403);
+        }
+        $this->pharmacistService->updatePharmacist($id, $data);
         return response()->json([
             'success' => true,
             'message' => 'Pharmacist records updated successfully.'
@@ -62,7 +70,7 @@ class PharmacistController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(int $id): JsonResponse
-    {   
+    {
         $pharmacist = $this->pharmacistService->getPharmacistById($id);
         $this->authorize('delete', $pharmacist);
         $this->pharmacistService->deletePharmacist($id);

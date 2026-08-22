@@ -3,12 +3,25 @@
 namespace App\Repositories;
 
 use App\Models\Profile;
+use App\Models\User;
 
 class ProfileRepository
 {
-    public function getAll()
+    public function getAll(?User $user = null)
     {
-        return Profile::with('user.roles')->paginate(15);
+        $query = Profile::with('user.roles');
+
+        if ($user?->isManager()) {
+            $facilityId = $user->facility()?->id;
+            $query->where(function ($query) use ($facilityId): void {
+                $query->whereHas('doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $facilityId))
+                    ->orWhereHas('pharmacist', fn($q) => $q->where('facility_id', $facilityId))
+                    ->orWhereHas('labStaff', fn($q) => $q->where('facility_id', $facilityId))
+                    ->orWhereHas('patient.appointments.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $facilityId));
+            });
+        }
+
+        return $query->paginate(15);
     }
 
     public function findById(int $id)

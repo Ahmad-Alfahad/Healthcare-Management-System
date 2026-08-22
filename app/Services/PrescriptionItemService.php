@@ -8,6 +8,7 @@ use App\Repositories\PrescriptionItemRepository;
 use App\Repositories\PrescriptionRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
 
 class PrescriptionItemService
 {
@@ -20,9 +21,9 @@ class PrescriptionItemService
         $this->prescriptionRepository = $prescriptionRepository;
     }
 
-    public function getAllPrescriptionItems(): Collection
+    public function getAllPrescriptionItems(User $user): Collection
     {
-        return $this->prescriptionItemRepository->all();
+        return $this->prescriptionItemRepository->all($user);
     }
 
     public function getPrescriptionItemById(int $id): PrescriptionItem
@@ -118,7 +119,7 @@ class PrescriptionItemService
 
     private function validatePrescriptionAllowsItemModification(Prescription $prescription): void
     {
-        if ( $prescription->status !== 'pending' ) {
+        if ($prescription->status !== 'pending') {
             throw ValidationException::withMessages([
                 'prescription_id' => [
                     'Prescription items can only be modified while the prescription is pending.'

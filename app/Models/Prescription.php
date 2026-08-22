@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\Auditable;
 
 class Prescription extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         "visit_id",
         "status",
@@ -21,5 +24,4 @@ class Prescription extends Model
     {
         return $this->hasMany(PrescriptionItem::class);
     }
-    
 }

@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Concerns\Auditable;
 
 class LabStaff extends Model
 {
+    use Auditable;
+
     use HasFactory;
 
     protected $table = 'lab_staff';
@@ -40,6 +43,6 @@ class LabStaff extends Model
 
     public function labResults(): HasMany
     {
-        return $this->hasMany(LabResult::class , 'lab_staff_id');
+        return $this->hasMany(LabResult::class, 'lab_staff_id');
     }
 }

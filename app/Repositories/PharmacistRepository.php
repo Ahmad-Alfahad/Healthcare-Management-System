@@ -12,6 +12,13 @@ class PharmacistRepository
         return Pharmacist::with(['profile', 'facility'])->get();
     }
 
+    public function getByFacility(int $facilityId): Collection
+    {
+        return Pharmacist::with(['profile', 'facility'])
+            ->where('facility_id', $facilityId)
+            ->get();
+    }
+
     public function find(int $id): Pharmacist
     {
         return Pharmacist::with(['profile', 'facility'])->findOrFail($id);

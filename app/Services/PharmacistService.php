@@ -6,6 +6,7 @@ use App\Repositories\PharmacistRepository;
 use App\Repositories\FacilityRepository;
 use App\Models\Pharmacist;
 use App\Models\Facility;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 
@@ -20,8 +21,14 @@ class PharmacistService
         $this->facilityRepository = $facilityRepository;
     }
 
-    public function getAllPharmacists(): Collection
+    public function getAllPharmacists(User $user): Collection
     {
+        if ($user->isManager()) {
+            return $user->facility()
+                ? $this->pharmacistRepository->getByFacility($user->facility()->id)
+                : new Collection();
+        }
+
         return $this->pharmacistRepository->all();
     }
 
@@ -68,7 +75,7 @@ class PharmacistService
         $facilityId =
             $data['facility_id']
             ?? $pharmacist->facility_id;
-            
+
         $facility =
             $this->facilityRepository
             ->find($facilityId);

@@ -22,7 +22,7 @@ class PrescriptionItemController extends Controller
     public function index(): JsonResponse
     {
         $this->authorize('viewAny', PrescriptionItem::class);
-        $items = $this->prescriptionItemService->getAllPrescriptionItems();
+        $items = $this->prescriptionItemService->getAllPrescriptionItems(request()->user());
         return response()->json(['success' => true, 'data' => $items], Response::HTTP_OK);
     }
 
