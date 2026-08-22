@@ -3,13 +3,16 @@
 namespace App\Repositories;
 
 use App\Models\MedicalCondition;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\ListQuery;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class MedicalConditionRepository
 {
-    public function all(): collection
+    use ListQuery;
+
+    public function all(array $filters = []): LengthAwarePaginator
     {
-        return MedicalCondition::all();
+        return $this->paginateList(MedicalCondition::query(), $filters, ['name', 'type', 'description', 'status']);
     }
 
     public function find(int $id): MedicalCondition

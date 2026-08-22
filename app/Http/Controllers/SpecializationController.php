@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+
 use App\Http\Requests\StoreSpecializationRequest;
 use App\Http\Requests\UpdateSpecializationRequest;
 use App\Models\Specialization;
@@ -18,10 +20,11 @@ class SpecializationController extends Controller
         $this->specializationService = $specializationService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Specialization::class);
-        $specializations = $this->specializationService->getAllSpecializations();
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $specializations = $this->specializationService->getAllSpecializations($filters);
         return response()->json(['success' => true, 'data' => $specializations], Response::HTTP_OK);
     }
 

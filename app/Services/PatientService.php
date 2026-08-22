@@ -17,17 +17,17 @@ class PatientService
         $this->patientRepository = $patientRepository;
     }
 
-    public function getAllPatients(User $user): Collection
+    public function getAllPatients(User $user, array $filters = [])
     {
         if ($user->isManager()) {
             $facility = $user->facility();
 
             return $facility
-                ? $this->patientRepository->getByFacility($facility->id)
-                : new Collection();
+                ? $this->patientRepository->getByFacility($facility->id, $filters)
+                : $this->patientRepository->getByFacility(-1, $filters);
         }
 
-        return $this->patientRepository->get();
+        return $this->patientRepository->get($filters);
     }
 
     public function getPatient(int $id): Patient

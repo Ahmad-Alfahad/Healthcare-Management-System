@@ -8,6 +8,7 @@ use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
 use App\Services\DoctorService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class DoctorController extends Controller
@@ -19,14 +20,13 @@ class DoctorController extends Controller
         $this->doctorService = $doctorService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $user = request()->user();
         $this->authorize('viewAny', Doctor::class);
-  
-        $doctors = $this->doctorService->getAllDoctors(
-        $user
-        );
+
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string']]);
+        $doctors = $this->doctorService->getAllDoctors($user, $filters);
         return response()->json(['success' => true, 'data' => $doctors], Response::HTTP_OK);
     }
 

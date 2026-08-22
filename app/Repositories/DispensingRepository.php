@@ -4,17 +4,20 @@ namespace App\Repositories;
 
 use App\Models\Dispensing;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\ListQuery;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DispensingRepository
 {
-    public function all(?User $user = null): Collection
+    use ListQuery;
+
+    public function all(?User $user = null, array $filters = []): LengthAwarePaginator
     {
         $query = Dispensing::with(['prescriptionItem', 'pharmacist']);
         if ($user?->isManager()) {
             $query->whereHas('prescriptionItem.prescription.visit.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $user->facility()?->id));
         }
-        return $query->get();
+        return $this->paginateList($query, $filters, ['quantity_dispensed', 'dispensed_at'], ['prescriptionItem' => ['medication_name'], 'pharmacist.profile' => ['full_name']]);
     }
 
     public function find(int $id): Dispensing

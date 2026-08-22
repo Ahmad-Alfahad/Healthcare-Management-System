@@ -16,9 +16,9 @@ class LabTestService
         $this->labTestRepository = $labTestRepository;
     }
 
-    public function getAllTests(): Collection
+    public function getAllTests(array $filters = [])
     {
-        return $this->labTestRepository->all();
+        return $this->labTestRepository->all($filters);
     }
 
     public function getTestById(int $id): LabTest

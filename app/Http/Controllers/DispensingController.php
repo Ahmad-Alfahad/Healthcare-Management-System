@@ -8,6 +8,7 @@ use App\Http\Requests\StoreDispensingRequest;
 use App\Http\Requests\UpdateDispensingRequest;
 use App\Services\DispensingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class DispensingController extends Controller
@@ -19,10 +20,11 @@ class DispensingController extends Controller
         $this->dispensingService = $dispensingService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Dispensing::class);
-        $dispensings = $this->dispensingService->getAllDispensings(request()->user());
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $dispensings = $this->dispensingService->getAllDispensings($request->user(), $filters);
         return response()->json(['success' => true, 'data' => $dispensings], Response::HTTP_OK);
     }
 

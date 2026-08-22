@@ -18,10 +18,11 @@ class FacilityController extends Controller
         $this->facilityService = $facilityService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Facility::class);
-        $facilities = $this->facilityService->getAllFacilities(request()->user());
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $facilities = $this->facilityService->getAllFacilities(request()->user(), $filters);
         return response()->json(['success' => true, 'data' => $facilities], 200);
     }
 
@@ -90,6 +91,29 @@ class FacilityController extends Controller
             'message' => 'Department assigned to facility successfully',
             'data' => $facilityDepartment
         ], 201);
+    }
+
+    public function staff(Facility $facility): JsonResponse
+    {
+        $this->authorize('viewStaff', $facility);
+        $filters = request()->validate([
+            'search' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'facility' => $facility,
+                ...$this->facilityService->getFacilityStaff(
+                    $facility->id,
+                    $filters['search'] ?? null,
+                    $filters['page'] ?? 1,
+                    $filters['per_page'] ?? 10
+                ),
+            ],
+        ], 200);
     }
 
     public function removeDepartment(int $facilityDepartmentId): JsonResponse

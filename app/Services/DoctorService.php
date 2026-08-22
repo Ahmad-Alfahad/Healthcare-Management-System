@@ -18,10 +18,10 @@ class DoctorService
         $this->doctorRepository = $doctorRepository;
     }
 
-    public function getAllDoctors(User $user): Collection
+    public function getAllDoctors(User $user, array $filters = [])
     {
         if ($user->isAdmin()) {
-            return $this->doctorRepository->all();
+            return $this->doctorRepository->all($filters);
         }
 
         if ($user->isManager()) {
@@ -32,11 +32,12 @@ class DoctorService
             }
 
             return $this->doctorRepository->getByFacility(
-                $facility->id
+                $facility->id,
+                $filters
             );
         }
 
-        return $this->doctorRepository->all();
+        return $this->doctorRepository->all($filters);
     }
 
     public function getDoctorById(int $id): Doctor

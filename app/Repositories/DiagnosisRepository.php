@@ -3,43 +3,58 @@
 namespace App\Repositories;
 
 use App\Models\Diagnosis;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\ListQuery;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DiagnosisRepository
 {
-    public function all(): Collection
+    use ListQuery;
+
+    public function all(array $filters = []): LengthAwarePaginator
     {
-        return Diagnosis::with('visit.appointment')->get();
+        return $this->paginateList(Diagnosis::with('visit.appointment'), $filters, ['diagnosis', 'status', 'diagnosed_at'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]);
     }
 
-    public function getByFacility(int $facilityId): Collection
+    public function getByFacility(int $facilityId, array $filters = []): LengthAwarePaginator
     {
-        return Diagnosis::with('visit.appointment')
-            ->whereHas(
-                'visit.doctor.facilityDepartmentSpecialization.facilityDepartment',
-                function ($query) use ($facilityId) {
-                    $query->where('facility_id', $facilityId);
-                }
-            )
-            ->get();
+        return $this->paginateList(
+            Diagnosis::with('visit.appointment')
+                ->whereHas(
+                    'visit.doctor.facilityDepartmentSpecialization.facilityDepartment',
+                    function ($query) use ($facilityId) {
+                        $query->where('facility_id', $facilityId);
+                    }
+                ),
+            $filters,
+            ['diagnosis', 'status', 'diagnosed_at'],
+            ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]
+        );
     }
 
-    public function getByDoctor(int $doctorId): Collection
+    public function getByDoctor(int $doctorId, array $filters = []): LengthAwarePaginator
     {
-        return Diagnosis::with('visit.appointment')
-            ->whereHas('visit', function ($query) use ($doctorId) {
-                $query->where('doctor_id', $doctorId);
-            })
-            ->get();
+        return $this->paginateList(
+            Diagnosis::with('visit.appointment')
+                ->whereHas('visit', function ($query) use ($doctorId) {
+                    $query->where('doctor_id', $doctorId);
+                }),
+            $filters,
+            ['diagnosis', 'status', 'diagnosed_at'],
+            ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]
+        );
     }
 
-    public function getByPatient(int $patientId): Collection
+    public function getByPatient(int $patientId, array $filters = []): LengthAwarePaginator
     {
-        return Diagnosis::with('visit.appointment')
-            ->whereHas('visit', function ($query) use ($patientId) {
-                $query->where('patient_id', $patientId);
-            })
-            ->get();
+        return $this->paginateList(
+            Diagnosis::with('visit.appointment')
+                ->whereHas('visit', function ($query) use ($patientId) {
+                    $query->where('patient_id', $patientId);
+                }),
+            $filters,
+            ['diagnosis', 'status', 'diagnosed_at'],
+            ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]
+        );
     }
 
     public function find(int $id): Diagnosis

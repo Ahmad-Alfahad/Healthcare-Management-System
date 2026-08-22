@@ -8,6 +8,7 @@ use App\Http\Requests\StoreLabStaffRequest;
 use App\Http\Requests\UpdateLabStaffRequest;
 use App\Services\LabStaffService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class LabStaffController extends Controller
@@ -20,10 +21,11 @@ class LabStaffController extends Controller
     }
 
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', LabStaff::class);
-        $staff = $this->labStaffService->getAllStaff(request()->user());
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $staff = $this->labStaffService->getAllStaff(request()->user(), $filters);
         return response()->json([
             'success' => true,
             'data'    => $staff

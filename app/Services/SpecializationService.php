@@ -16,9 +16,9 @@ class SpecializationService
         $this->specializationRepository = $specializationRepository;
     }
 
-    public function getAllSpecializations(): Collection
+    public function getAllSpecializations(array $filters = [])
     {
-        return $this->specializationRepository->all();
+        return $this->specializationRepository->all($filters);
     }
 
     public function getSpecializationById(int $id): Specialization

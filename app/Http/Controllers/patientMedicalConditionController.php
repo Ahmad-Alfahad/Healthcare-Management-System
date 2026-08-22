@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\PatientMedicalCondition;
 use App\Services\PatientMedicalConditionService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,12 +21,12 @@ class PatientMedicalConditionController extends Controller
         $this->patientMedicalConditionService = $patientMedicalConditionService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', PatientMedicalCondition::class);
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
         $patient_medical_conditions = $this->patientMedicalConditionService
-            ->getAll()
-            ->filter(fn(PatientMedicalCondition $condition): bool => Gate::allows('view', $condition));
+            ->getAll($filters);
 
         return response()->json(['success' => true, 'data' => $patient_medical_conditions], Response::HTTP_OK);
     }

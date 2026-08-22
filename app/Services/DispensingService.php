@@ -8,7 +8,7 @@ use App\Models\PrescriptionItem;
 use App\Repositories\DispensingRepository;
 use App\Repositories\PrescriptionItemRepository;
 use App\Repositories\PrescriptionRepository;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 
@@ -29,9 +29,9 @@ class DispensingService
         $this->prescriptionRepository = $prescriptionRepository;
     }
 
-    public function getAllDispensings(User $user): Collection
+    public function getAllDispensings(User $user, array $filters = []): LengthAwarePaginator
     {
-        return $this->dispensingRepository->all($user);
+        return $this->dispensingRepository->all($user, $filters);
     }
 
     public function getDispensingById(int $id): Dispensing

@@ -6,7 +6,7 @@ use App\Models\LabResult;
 use App\Models\LabRequestItem;
 use App\Repositories\LabResultRepository;
 use App\Repositories\LabRequestItemRepository;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
 
@@ -21,9 +21,9 @@ class LabResultService
         $this->labRequestItemRepository = $labRequestItemRepository;
     }
 
-    public function getAllLabResults(): Collection
+    public function getAllLabResults(array $filters = []): LengthAwarePaginator
     {
-        return $this->labResultRepository->all();
+        return $this->labResultRepository->all($filters);
     }
 
     public function getLabResultById(int $id): LabResult

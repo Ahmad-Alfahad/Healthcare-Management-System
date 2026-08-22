@@ -8,6 +8,7 @@ use App\Http\Requests\StoreDoctorScheduleRequest;
 use App\Http\Requests\UpdateDoctorScheduleRequest;
 use App\Services\DoctorScheduleService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class DoctorScheduleController extends Controller
@@ -18,11 +19,12 @@ class DoctorScheduleController extends Controller
         $this->doctorScheduleService = $doctorScheduleService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', DoctorSchedule::class);
         $user = request()->user();
-        $doctorSchedules = $this->doctorScheduleService->getAllDoctorSchedules($user);
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'day_of_week' => ['sometimes', 'string']]);
+        $doctorSchedules = $this->doctorScheduleService->getAllDoctorSchedules($user, $filters);
         return response()->json(['success' => true, 'data' => $doctorSchedules], Response::HTTP_OK);
     }
 

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+
 use App\Http\Requests\StoreDepartmentRequest;
 use App\Http\Requests\UpdateDepartmentRequest;
 use App\Models\Department;
@@ -18,10 +20,11 @@ class DepartmentController extends Controller
         $this->departmentService = $departmentService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Department::class);
-        $departments = $this->departmentService->getAllDepartments();
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $departments = $this->departmentService->getAllDepartments($filters);
         return response()->json(['success' => true, 'data' => $departments], Response::HTTP_OK);
     }
 

@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Prescription;
 use App\Models\Visit;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Repositories\PrescriptionRepository;
 use App\Repositories\VisitRepository;
 use App\Models\User;
@@ -22,9 +22,9 @@ class PrescriptionService
         $this->visitRepository = $visitRepository;
     }
 
-    public function getAllPrescriptions(User $user): Collection
+    public function getAllPrescriptions(User $user, array $filters = []): LengthAwarePaginator
     {
-        return $this->prescriptionRepository->all($user);
+        return $this->prescriptionRepository->all($user, $filters);
     }
 
     public function getPrescriptionById(int $id): Prescription

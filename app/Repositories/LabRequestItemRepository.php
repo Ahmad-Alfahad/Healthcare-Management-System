@@ -3,13 +3,16 @@
 namespace App\Repositories;
 
 use App\Models\LabRequestItem;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\ListQuery;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class LabRequestItemRepository
 {
-    public function all(): Collection
+    use ListQuery;
+
+    public function all(array $filters = []): LengthAwarePaginator
     {
-        return LabRequestItem::with(['visit', 'labTest'])->get();
+        return $this->paginateList(LabRequestItem::with(['visit', 'labTest']), $filters, ['status'], ['labTest' => ['name'], 'visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]);
     }
 
     public function find(int $id): LabRequestItem

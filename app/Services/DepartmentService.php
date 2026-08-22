@@ -16,9 +16,9 @@ class DepartmentService
         $this->departmentRepository = $departmentRepository;
     }
 
-    public function getAllDepartments(): Collection
+    public function getAllDepartments(array $filters = [])
     {
-        return $this->departmentRepository->all();
+        return $this->departmentRepository->all($filters);
     }
 
     public function getDepartmentById(int $id): Department

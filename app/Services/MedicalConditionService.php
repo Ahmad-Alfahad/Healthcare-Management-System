@@ -16,9 +16,9 @@ class MedicalConditionService
         $this->medicalconditionRepository = $medicalconditionRepository;
     }
 
-    public function getAllMedicalCondition(): Collection
+    public function getAllMedicalCondition(array $filters = [])
     {
-        return $this->medicalconditionRepository->all();
+        return $this->medicalconditionRepository->all($filters);
     }
 
     public function getMedicalConditionById(int $id): MedicalCondition

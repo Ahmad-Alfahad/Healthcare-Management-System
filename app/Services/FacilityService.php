@@ -19,20 +19,35 @@ class FacilityService
         $this->facilityRepository = $facilityRepository;
     }
 
-    public function getAllFacilities(User $user): Collection
+    public function getAllFacilities(User $user, array $filters = [])
     {
         if ($user->isManager()) {
             $facility = $user->facility();
 
-            return $facility ? new Collection([$facility]) : new Collection();
+            if (!$facility) {
+                $filters['id'] = -1;
+            } else {
+                $filters['id'] = $facility->id;
+            }
         }
 
-        return $this->facilityRepository->all();
+        return $this->facilityRepository->all($filters);
     }
 
     public function getFacilityById(int $id): ?Facility
     {
         return $this->facilityRepository->find($id);
+    }
+
+    public function getFacilityStaff(
+        int $facilityId,
+        ?string $search = null,
+        int $page = 1,
+        int $perPage = 10
+    ): array {
+        $this->facilityRepository->find($facilityId);
+
+        return $this->facilityRepository->staff($facilityId, $search, $page, $perPage);
     }
 
     public function createFacility(array $data): Facility

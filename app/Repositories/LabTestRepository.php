@@ -3,13 +3,16 @@
 namespace App\Repositories;
 
 use App\Models\LabTest;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\ListQuery;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class LabTestRepository
 {
-    public function all(): Collection
+    use ListQuery;
+
+    public function all(array $filters = []): LengthAwarePaginator
     {
-        return LabTest::all();
+        return $this->paginateList(LabTest::query(), $filters, ['name', 'description', 'status']);
     }
 
     public function find(int $id): LabTest

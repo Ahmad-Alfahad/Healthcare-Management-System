@@ -8,6 +8,7 @@ use App\Http\Requests\AvailableSlotsRequest;
 use App\Http\Requests\ChangeAppointmentStatusRequest;
 use App\Services\AppointmentService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Models\Appointment;
 use App\Models\Doctor;
@@ -23,12 +24,12 @@ class AppointmentController extends Controller
         $this->appointmentService = $appointmentService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Appointment::class);
 
-        $appointments = $this->appointmentService
-            ->getAllAppointments(request()->user());
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string'], 'from' => ['sometimes', 'date'], 'to' => ['sometimes', 'date', 'after_or_equal:from']]);
+        $appointments = $this->appointmentService->getAllAppointments(request()->user(), $filters);
 
         return response()->json([
             'success' => true,

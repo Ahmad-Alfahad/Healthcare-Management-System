@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+
 use App\Models\LabTest;
 use App\Http\Requests\StoreLab_testRequest;
 use App\Http\Requests\UpdateLab_testRequest;
@@ -18,10 +20,11 @@ class LabTestController extends Controller
         $this->labTestService = $labTestService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', LabTest::class);
-        $tests = $this->labTestService->getAllTests();
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $tests = $this->labTestService->getAllTests($filters);
         return response()->json([
             'success' => true,
             'data'    => $tests

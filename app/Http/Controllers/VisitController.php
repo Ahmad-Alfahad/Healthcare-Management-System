@@ -6,6 +6,7 @@ use App\Http\Requests\StoreVisitRequest;
 use App\Http\Requests\UpdateVisitRequest;
 use App\Http\Requests\ChangeVisitStatusRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\VisitService;
 use App\Models\Appointment;
@@ -22,10 +23,11 @@ class VisitController extends Controller
         $this->visitService = $visitService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Visit::class);
-        $visits = $this->visitService->getAllVisits(request()->user());
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string'], 'from' => ['sometimes', 'date'], 'to' => ['sometimes', 'date', 'after_or_equal:from']]);
+        $visits = $this->visitService->getAllVisits(request()->user(), $filters);
         return response()->json(['success' => true, 'data' => $visits], Response::HTTP_OK);
     }
 

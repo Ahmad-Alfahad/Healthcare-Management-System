@@ -21,15 +21,15 @@ class LabStaffService
         $this->facilityRepository = $facilityRepository;
     }
 
-    public function getAllStaff(User $user): Collection
+    public function getAllStaff(User $user, array $filters = [])
     {
         if ($user->isManager()) {
             return $user->facility()
-                ? $this->labStaffRepository->getByFacility($user->facility()->id)
-                : new Collection();
+                ? $this->labStaffRepository->getByFacility($user->facility()->id, $filters)
+                : $this->labStaffRepository->getByFacility(-1, $filters);
         }
 
-        return $this->labStaffRepository->all();
+        return $this->labStaffRepository->all($filters);
     }
 
     public function getStaffById(int $id): LabStaff

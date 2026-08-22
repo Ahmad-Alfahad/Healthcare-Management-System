@@ -4,19 +4,21 @@ namespace App\Repositories;
 
 use App\Models\Pharmacist;
 use Illuminate\Database\Eloquent\Collection;
+use App\Support\ListQuery;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PharmacistRepository
 {
-    public function all(): Collection
+    use ListQuery;
+
+    public function all(array $filters = []): LengthAwarePaginator
     {
-        return Pharmacist::with(['profile', 'facility'])->get();
+        return $this->paginateList(Pharmacist::with(['profile', 'facility']), $filters, ['license_number'], ['profile' => ['full_name'], 'facility' => ['name']], ['facility_id' => 'facility_id']);
     }
 
-    public function getByFacility(int $facilityId): Collection
+    public function getByFacility(int $facilityId, array $filters = []): LengthAwarePaginator
     {
-        return Pharmacist::with(['profile', 'facility'])
-            ->where('facility_id', $facilityId)
-            ->get();
+        return $this->paginateList(Pharmacist::with(['profile', 'facility'])->where('facility_id', $facilityId), $filters, ['license_number'], ['profile' => ['full_name'], 'facility' => ['name']]);
     }
 
     public function find(int $id): Pharmacist

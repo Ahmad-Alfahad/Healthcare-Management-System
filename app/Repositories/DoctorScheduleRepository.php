@@ -3,15 +3,19 @@
 namespace App\Repositories;
 
 use App\Models\DoctorSchedule;
+use App\Support\ListQuery;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DoctorScheduleRepository
 {
-    public function all(): Collection
+    use ListQuery;
+
+    public function all(array $filters = []): LengthAwarePaginator
     {
-        return DoctorSchedule::with([
+        return $this->paginateList(DoctorSchedule::with([
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility'
-        ])->get();
+        ]), $filters, ['day_of_week', 'start_time', 'end_time'], ['doctor.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name']]);
     }
 
     public function find(int $id): DoctorSchedule

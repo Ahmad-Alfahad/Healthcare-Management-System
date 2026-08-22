@@ -9,6 +9,7 @@ use App\Models\LabResult;
 use App\Models\LabStaff;
 use App\Services\LabResultService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,11 +23,12 @@ class LabResultController extends Controller
         $this->labResultService = $labResultService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', LabResult::class);
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string']]);
         $results = $this->labResultService
-            ->getAllLabResults()
+            ->getAllLabResults($filters)
             ->filter(fn(LabResult $result): bool => Gate::allows('view', $result));
 
         return response()->json([

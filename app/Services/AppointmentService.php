@@ -24,10 +24,10 @@ class AppointmentService
         $this->doctorScheduleRepository = $doctorScheduleRepository;
     }
 
-    public function getAllAppointments(User $user): Collection
+    public function getAllAppointments(User $user, array $filters = [])
     {
         if ($user->isAdmin()) {
-            return $this->appointmentRepository->get();
+            return $this->appointmentRepository->get($filters);
         }
 
         if ($user->isManager()) {
@@ -38,7 +38,7 @@ class AppointmentService
             }
 
             return $this->appointmentRepository
-                ->getByFacility($facility->id);
+                ->getByFacility($facility->id, $filters);
         }
 
         if ($user->isDoctor()) {
@@ -49,7 +49,7 @@ class AppointmentService
             }
 
             return $this->appointmentRepository
-                ->getByDoctor($doctor->id);
+                ->getByDoctor($doctor->id, $filters);
         }
 
         if ($user->isPatient()) {
@@ -60,7 +60,7 @@ class AppointmentService
             }
 
             return $this->appointmentRepository
-                ->getByPatient($patient->id);
+                ->getByPatient($patient->id, $filters);
         }
 
         return new Collection();

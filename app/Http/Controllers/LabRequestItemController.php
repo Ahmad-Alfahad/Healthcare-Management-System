@@ -8,6 +8,7 @@ use App\Models\LabRequestItem;
 use App\Models\Visit;
 use App\Services\LabRequestItemService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,11 +21,12 @@ class LabRequestItemController extends Controller
         $this->labRequestItemService = $labRequestItemService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', LabRequestItem::class);
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
         $items = $this->labRequestItemService
-            ->getAllLabRequestItems()
+            ->getAllLabRequestItems($filters)
             ->filter(fn(LabRequestItem $item): bool => $this->authorizeForItem($item));
 
         return response()->json([

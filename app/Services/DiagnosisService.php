@@ -21,17 +21,17 @@ class DiagnosisService
         $this->visitRepository = $visitRepository;
     }
 
-    public function getAllDiagnoses(User $user): Collection
+    public function getAllDiagnoses(User $user, array $filters = [])
     {
         if ($user->isAdmin()) {
-            return $this->diagnosisRepository->all();
+            return $this->diagnosisRepository->all($filters);
         }
 
         if ($user->isManager()) {
             $facility = $user->facility();
 
             return $facility
-                ? $this->diagnosisRepository->getByFacility($facility->id)
+                ? $this->diagnosisRepository->getByFacility($facility->id, $filters)
                 : new Collection();
         }
 
@@ -39,7 +39,7 @@ class DiagnosisService
             $doctor = $user->doctor;
 
             return $doctor
-                ? $this->diagnosisRepository->getByDoctor($doctor->id)
+                ? $this->diagnosisRepository->getByDoctor($doctor->id, $filters)
                 : new Collection();
         }
 
@@ -47,7 +47,7 @@ class DiagnosisService
             $patient = $user->patient;
 
             return $patient
-                ? $this->diagnosisRepository->getByPatient($patient->id)
+                ? $this->diagnosisRepository->getByPatient($patient->id, $filters)
                 : new Collection();
         }
 

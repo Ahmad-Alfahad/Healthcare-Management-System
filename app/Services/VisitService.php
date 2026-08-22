@@ -21,17 +21,17 @@ class VisitService
         $this->appointmentRepository = $appointmentRepository;
     }
 
-    public function getAllVisits(User $user): Collection
+    public function getAllVisits(User $user, array $filters = [])
     {
         if ($user->isAdmin()) {
-            return $this->visitRepository->all();
+            return $this->visitRepository->all($filters);
         }
 
         if ($user->isManager()) {
             $facility = $user->facility();
 
             return $facility
-                ? $this->visitRepository->getByFacility($facility->id)
+                ? $this->visitRepository->getByFacility($facility->id, $filters)
                 : new Collection();
         }
 
@@ -39,7 +39,7 @@ class VisitService
             $doctor = $user->doctor;
 
             return $doctor
-                ? $this->visitRepository->getByDoctor($doctor->id)
+                ? $this->visitRepository->getByDoctor($doctor->id, $filters)
                 : new Collection();
         }
 
@@ -47,7 +47,7 @@ class VisitService
             $patient = $user->patient;
 
             return $patient
-                ? $this->visitRepository->getByPatient($patient->id)
+                ? $this->visitRepository->getByPatient($patient->id, $filters)
                 : new Collection();
         }
 

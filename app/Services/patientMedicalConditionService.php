@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\PatientMedicalCondition;
 use App\Repositories\PatientMedicalConditionRepository;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 
@@ -17,9 +17,9 @@ class PatientMedicalConditionService
         $this->repository = $repository;
     }
 
-    public function getAll(): Collection
+    public function getAll(array $filters = []): LengthAwarePaginator
     {
-        return $this->repository->all();
+        return $this->repository->all($filters);
     }
 
     public function getById(int $id): ?PatientMedicalCondition

@@ -4,22 +4,21 @@ namespace App\Repositories;
 
 use App\Models\Patient;
 use Illuminate\Database\Eloquent\Collection;
+use App\Support\ListQuery;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PatientRepository
 {
-    public function get(): Collection
+    use ListQuery;
+
+    public function get(array $filters = []): LengthAwarePaginator
     {
-        return Patient::with('profile')->get();
+        return $this->paginateList(Patient::with('profile'), $filters, [], ['profile' => ['full_name']]);
     }
 
-    public function getByFacility(int $facilityId): Collection
+    public function getByFacility(int $facilityId, array $filters = []): LengthAwarePaginator
     {
-        return Patient::with('profile')
-            ->whereHas(
-                'appointments.doctor.facilityDepartmentSpecialization.facilityDepartment',
-                fn($query) => $query->where('facility_id', $facilityId)
-            )
-            ->get();
+        return $this->paginateList(Patient::with('profile')->whereHas('appointments.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($query) => $query->where('facility_id', $facilityId)), $filters, [], ['profile' => ['full_name']]);
     }
 
     public function find(int $id): Patient

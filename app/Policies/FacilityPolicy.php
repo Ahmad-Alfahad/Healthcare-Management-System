@@ -18,6 +18,11 @@ class FacilityPolicy
         return true;
     }
 
+    public function viewStaff(User $user, Facility $facility): bool
+    {
+        return !$user->isManager() || $user->managesFacility($facility);
+    }
+
     public function create(User $user): bool
     {
         return $user->isAdmin();

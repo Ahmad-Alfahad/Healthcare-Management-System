@@ -8,6 +8,7 @@ use App\Http\Requests\StorePharmacistRequest;
 use App\Http\Requests\UpdatePharmacistRequest;
 use App\Services\PharmacistService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class PharmacistController extends Controller
@@ -19,10 +20,11 @@ class PharmacistController extends Controller
         $this->pharmacistService = $pharmacistService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Pharmacist::class);
-        $pharmacists = $this->pharmacistService->getAllPharmacists(request()->user());
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $pharmacists = $this->pharmacistService->getAllPharmacists(request()->user(), $filters);
         return response()->json(['success' => true, 'data' => $pharmacists], Response::HTTP_OK);
     }
 

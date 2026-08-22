@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateDiagnosisRequest;
 use App\Models\Visit;
 use App\Services\DiagnosisService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 
@@ -20,10 +21,11 @@ class DiagnosisController extends Controller
         $this->diagnosisService = $diagnosisService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Diagnosis::class);
-        $diagnoses = $this->diagnosisService->getAllDiagnoses(request()->user());
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string'], 'from' => ['sometimes', 'date'], 'to' => ['sometimes', 'date', 'after_or_equal:from']]);
+        $diagnoses = $this->diagnosisService->getAllDiagnoses(request()->user(), $filters);
 
         return response()->json(['success' => true, 'data' => $diagnoses], Response::HTTP_OK);
     }

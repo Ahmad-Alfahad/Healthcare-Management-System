@@ -8,6 +8,7 @@ use App\Http\Requests\UpdatePatientRequest;
 use App\Models\Patient;
 use App\Services\PatientService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class PatientController extends Controller
@@ -19,10 +20,11 @@ class PatientController extends Controller
         $this->patientService = $patientService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Patient::class);
-        $patients = $this->patientService->getAllPatients(request()->user());
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $patients = $this->patientService->getAllPatients(request()->user(), $filters);
         return response()->json(['message' => 'Patients retrieved successfully', 'data' => $patients], Response::HTTP_OK);
     }
 

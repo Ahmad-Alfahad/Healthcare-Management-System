@@ -21,15 +21,15 @@ class PharmacistService
         $this->facilityRepository = $facilityRepository;
     }
 
-    public function getAllPharmacists(User $user): Collection
+    public function getAllPharmacists(User $user, array $filters = [])
     {
         if ($user->isManager()) {
             return $user->facility()
-                ? $this->pharmacistRepository->getByFacility($user->facility()->id)
-                : new Collection();
+                ? $this->pharmacistRepository->getByFacility($user->facility()->id, $filters)
+                : $this->pharmacistRepository->getByFacility(-1, $filters);
         }
 
-        return $this->pharmacistRepository->all();
+        return $this->pharmacistRepository->all($filters);
     }
 
     public function getPharmacistById(int $id): Pharmacist

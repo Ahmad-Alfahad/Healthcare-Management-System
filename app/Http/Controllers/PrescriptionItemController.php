@@ -8,6 +8,7 @@ use App\Http\Requests\StorePrescriptionItemRequest;
 use App\Http\Requests\UpdatePrescriptionItemRequest;
 use App\Services\PrescriptionItemService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class PrescriptionItemController extends Controller
@@ -19,10 +20,11 @@ class PrescriptionItemController extends Controller
         $this->prescriptionItemService = $prescriptionItemService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', PrescriptionItem::class);
-        $items = $this->prescriptionItemService->getAllPrescriptionItems(request()->user());
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $items = $this->prescriptionItemService->getAllPrescriptionItems($request->user(), $filters);
         return response()->json(['success' => true, 'data' => $items], Response::HTTP_OK);
     }
 

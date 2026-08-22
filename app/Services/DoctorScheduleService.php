@@ -16,10 +16,10 @@ class DoctorScheduleService
         $this->doctorscheduleRepository = $doctorscheduleRepository;
     }
 
-    public function getAllDoctorSchedules(User $user): Collection
+    public function getAllDoctorSchedules(User $user, array $filters = [])
     {
         if ($user->isAdmin()) {
-            return $this->doctorscheduleRepository->all();
+            return $this->doctorscheduleRepository->all($filters);
         }
 
         if ($user->isManager()) {

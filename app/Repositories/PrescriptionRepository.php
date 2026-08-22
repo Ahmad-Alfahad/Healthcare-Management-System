@@ -4,17 +4,20 @@ namespace App\Repositories;
 
 use App\Models\Prescription;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\ListQuery;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PrescriptionRepository
 {
-    public function all(?User $user = null): Collection
+    use ListQuery;
+
+    public function all(?User $user = null, array $filters = []): LengthAwarePaginator
     {
         $query = Prescription::with('visit');
         if ($user?->isManager()) {
             $query->whereHas('visit.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $user->facility()?->id));
         }
-        return $query->get();
+        return $this->paginateList($query, $filters, ['status'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]);
     }
 
     public function find(int $id): Prescription

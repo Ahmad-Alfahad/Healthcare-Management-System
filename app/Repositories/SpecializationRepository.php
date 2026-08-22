@@ -3,13 +3,16 @@
 namespace App\Repositories;
 
 use App\Models\Specialization;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\ListQuery;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class SpecializationRepository
 {
-    public function all(): Collection
+    use ListQuery;
+
+    public function all(array $filters = []): LengthAwarePaginator
     {
-        return Specialization::all();
+        return $this->paginateList(Specialization::query(), $filters, ['name', 'description', 'status']);
     }
 
     public function find(int $id): Specialization

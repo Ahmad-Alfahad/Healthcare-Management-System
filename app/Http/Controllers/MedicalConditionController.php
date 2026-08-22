@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+
 use App\Http\Requests\StoreMedicalConditionRequest;
 use App\Http\Requests\UpdateMedicalConditionRequest;
 use App\Models\MedicalCondition;
@@ -12,16 +14,17 @@ use Symfony\Component\HttpFoundation\Response;
 class MedicalConditionController extends Controller
 {
 
-    protected $medicalConditionService;
+    protected MedicalConditionService $medicalConditionService;
 
     public function __construct(MedicalConditionService $medicalConditionService)
     {
         $this->medicalConditionService = $medicalConditionService;
     }
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', MedicalCondition::class);
-        $medical_conditions = $this->medicalConditionService->getAllMedicalCondition();
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $medical_conditions = $this->medicalConditionService->getAllMedicalCondition($filters);
         return response()->json(['success' => true, 'data' => $medical_conditions], Response::HTTP_OK);
     }
 

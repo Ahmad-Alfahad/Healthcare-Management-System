@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\LabRequestItem;
 use App\Models\Visit;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Repositories\LabRequestItemRepository;
 use App\Repositories\VisitRepository;
 use Illuminate\Validation\ValidationException;
@@ -20,9 +20,9 @@ class LabRequestItemService
         $this->visitRepository = $visitRepository;
     }
 
-    public function getAllLabRequestItems(): Collection
+    public function getAllLabRequestItems(array $filters = []): LengthAwarePaginator
     {
-        return $this->labRequestItemRepository->all();
+        return $this->labRequestItemRepository->all($filters);
     }
 
     public function getLabRequestItemById(int $id): LabRequestItem
