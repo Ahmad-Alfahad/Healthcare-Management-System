@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId("lab_test_id")->constrained();
             $table->dateTime("requested_at");
             $table->string("notes");
+            $table->enum("status", ["pending", "completed", "processing", "cancelled"])->default("pending");
             $table->timestamps();
         });
     }

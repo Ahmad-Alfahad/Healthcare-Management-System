@@ -63,7 +63,7 @@ class LabRequestItemPolicy
 
         return $user->isLabStaff()
             && $facility !== null
-            && $user->facility()?->id === $facility->id;
+            && in_array($facility->id, $user->accessibleFacilityIds(), true);
     }
 
     private function canManageVisit(User $user, ?Visit $visit): bool

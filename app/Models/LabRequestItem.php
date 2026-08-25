@@ -13,7 +13,8 @@ class LabRequestItem extends Model
         "visit_id",
         "lab_test_id",
         "requested_at",
-        "notes"
+        "notes",
+        "status"
     ];
 
     public function visit()

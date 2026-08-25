@@ -75,6 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Laboratory records
     Route::apiResource('lab-tests', LabTestController::class);
+    Route::patch('lab-request-items/{id}/start', [LabRequestItemController::class, 'start']);
     Route::apiResource('lab-request-items', LabRequestItemController::class);
     Route::apiResource('lab-results', LabResultController::class);
 

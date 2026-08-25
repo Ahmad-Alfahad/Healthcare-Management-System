@@ -93,7 +93,7 @@ class LabResultPolicy
 
         return $user->isLabStaff()
             && $facility !== null
-            && $user->facility()?->id === $facility->id;
+            && in_array($facility->id, $user->accessibleFacilityIds(), true);
     }
 
     private function staffCanAccessRequest(

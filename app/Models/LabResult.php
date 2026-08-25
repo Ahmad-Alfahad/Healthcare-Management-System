@@ -13,7 +13,6 @@ class LabResult extends Model
         "lab_request_item_id",
         "lab_staff_id",
         "notes",
-        "status",
         "value",
         "unit",
         "reference_range",

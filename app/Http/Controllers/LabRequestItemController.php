@@ -24,7 +24,7 @@ class LabRequestItemController extends Controller
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', LabRequestItem::class);
-        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string', 'in:pending,processing,completed,cancelled']]);
         $items = $this->labRequestItemService
             ->getAllLabRequestItems($filters)
             ->filter(fn(LabRequestItem $item): bool => $this->authorizeForItem($item));
@@ -65,6 +65,19 @@ class LabRequestItemController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Lab request item updated successfully.'
+        ], Response::HTTP_OK);
+    }
+
+    public function start(int $id): JsonResponse
+    {
+        $item = $this->labRequestItemService->getLabRequestItemById($id);
+        $this->authorize('update', $item);
+        $item = $this->labRequestItemService->startLabRequest($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab request item started successfully.',
+            'data' => $item
         ], Response::HTTP_OK);
     }
 

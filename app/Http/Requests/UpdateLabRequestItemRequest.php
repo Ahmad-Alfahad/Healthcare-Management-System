@@ -23,13 +23,13 @@ class UpdateLabRequestItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "notes" => ["nullable", "string" , "max:255"]
+            "notes" => ["nullable", "string", "max:255"]
         ];
     }
 
     public function messages(): array
     {
-        return [     
+        return [
             "notes.string" => "Notes must be a string.",
             "notes.max" => "Notes may not be greater than 255 characters."
         ];

@@ -26,7 +26,7 @@ class LabResultController extends Controller
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', LabResult::class);
-        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string']]);
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
         $results = $this->labResultService
             ->getAllLabResults($filters)
             ->filter(fn(LabResult $result): bool => Gate::allows('view', $result));

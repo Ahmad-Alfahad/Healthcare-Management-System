@@ -6,6 +6,7 @@ use App\Models\LabResult;
 use App\Models\LabRequestItem;
 use App\Repositories\LabResultRepository;
 use App\Repositories\LabRequestItemRepository;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
@@ -47,15 +48,18 @@ class LabResultService
             $labRequest
         );
 
-        $data['status'] = 'pending';
-
         $data['unit'] = $labRequest->labTest->unit;
 
         $data['reference_range'] = $labRequest->labTest->range_low . ' - ' . $labRequest->labTest->range_high;
 
-        $data['completed_at'] = null;
+        $data['completed_at'] = now();
 
-        return $this->labResultRepository->create($data);
+        return DB::transaction(function () use ($data, $labRequest): LabResult {
+            $result = $this->labResultRepository->create($data);
+            $this->labRequestItemRepository->updateStatus($labRequest->id, 'completed');
+
+            return $result;
+        });
     }
 
     public function updateLabResult(int $id, array $data): bool
@@ -66,22 +70,6 @@ class LabResultService
             $labResult
         );
 
-        if (isset($data['status'])) {
-
-            $this->validateStatusTransition(
-                $labResult->status,
-                $data['status']
-            );
-        }
-        $this->validateCompletedResult(
-            $data
-        );
-        if (
-            ($data['status'] ?? null)
-            === 'completed'
-        ) {
-            $data['completed_at'] = now();
-        }
         return $this->labResultRepository->update($id, $data);
     }
 
@@ -121,48 +109,11 @@ class LabResultService
                 ]
             ]);
         }
-    }
 
-    private function validateStatusTransition(string $currentStatus, string $newStatus): void
-    {
-        $allowedTransitions = [
-            'pending' => [
-                'processing',
-                'cancelled'
-            ],
-
-            'processing' => [
-                'completed'
-            ],
-
-            'completed' => [],
-
-            'cancelled' => [],
-        ];
-
-        if (
-            !in_array(
-                $newStatus,
-                $allowedTransitions[$currentStatus]
-            )
-        ) {
+        if ($request->status !== 'processing') {
             throw ValidationException::withMessages([
-                'status' => [
-                    "Invalid status transition from {$currentStatus} to {$newStatus}."
-                ]
-            ]);
-        }
-    }
-
-    private function validateCompletedResult(array $data): void
-    {
-        if (
-            ($data['status'] ?? null) === 'completed'
-            && empty($data['value'])
-        ) {
-            throw ValidationException::withMessages([
-                'value' => [
-                    'Result value is required before completion.'
+                'lab_request_item_id' => [
+                    'A lab result can only be recorded for a request that is processing.'
                 ]
             ]);
         }
@@ -172,7 +123,7 @@ class LabResultService
     {
         if (
             in_array(
-                $labResult->status,
+                $labResult->labRequestItem->status,
                 ['completed', 'cancelled']
             )
         ) {
@@ -188,7 +139,7 @@ class LabResultService
     {
         if (
             in_array(
-                $labResult->status,
+                $labResult->labRequestItem->status,
                 ['completed', 'cancelled']
             )
         ) {

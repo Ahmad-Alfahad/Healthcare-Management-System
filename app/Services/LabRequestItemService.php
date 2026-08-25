@@ -43,10 +43,28 @@ class LabRequestItemService
         );
 
         $data['requested_at'] = now();
+        $data['status'] = 'pending';
 
         return $this->labRequestItemRepository->create(
             $data
         );
+    }
+
+    public function startLabRequest(int $id): LabRequestItem
+    {
+        $labRequestItem = $this->labRequestItemRepository->find($id);
+
+        if ($labRequestItem->status !== 'pending') {
+            throw ValidationException::withMessages([
+                'status' => [
+                    "A lab request can only be started while it is pending."
+                ]
+            ]);
+        }
+
+        $this->labRequestItemRepository->updateStatus($id, 'processing');
+
+        return $this->labRequestItemRepository->find($id);
     }
 
     public function updateLabRequestItem(int $id, array $data): bool

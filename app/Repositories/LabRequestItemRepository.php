@@ -31,6 +31,11 @@ class LabRequestItemRepository
         return $labRequestItem->update($data);
     }
 
+    public function updateStatus(int $id, string $status): bool
+    {
+        return LabRequestItem::whereKey($id)->update(['status' => $status]) > 0;
+    }
+
     public function delete(int $id): bool
     {
         $labRequestItem = LabRequestItem::findOrFail($id);

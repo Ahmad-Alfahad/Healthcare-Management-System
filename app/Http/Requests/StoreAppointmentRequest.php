@@ -15,6 +15,23 @@ class StoreAppointmentRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $user = $this->user();
+
+        if ($user?->isPatient()) {
+            $this->merge([
+                'patient_id' => $user->patient?->id,
+            ]);
+        }
+
+        if ($user?->isDoctor()) {
+            $this->merge([
+                'doctor_id' => $user->doctor?->id,
+            ]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -24,11 +41,11 @@ class StoreAppointmentRequest extends FormRequest
     {
         return [
             'patient_id' =>
-                [
-                    'required',
-                    'integer',
-                    'exists:patients,id'
-                ],
+            [
+                'required',
+                'integer',
+                'exists:patients,id'
+            ],
 
             'doctor_id' => [
                 'required',
@@ -73,9 +90,9 @@ class StoreAppointmentRequest extends FormRequest
 
             'scheduled_date.required' => 'scheduled_date  is required.',
             'scheduled_date.date' => 'scheduled_date must be a valid date.',
-            
+
             'status.in' => 'Invalid appointment status.',
-             
+
             'start_time.required' => 'start_time  is required.',
             'start_time.date_format' => 'start_time must be a valid time.',
 

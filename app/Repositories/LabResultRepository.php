@@ -17,7 +17,7 @@ class LabResultRepository
             'labRequestItem.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
             'labStaff.profile',
             'labStaff.facility',
-        ]), $filters, ['value', 'unit', 'status'], ['labRequestItem.labTest' => ['name'], 'labRequestItem.visit.patient.profile' => ['full_name'], 'labStaff.profile' => ['full_name']]);
+        ]), $filters, ['value', 'unit'], ['labRequestItem.labTest' => ['name'], 'labRequestItem.visit.patient.profile' => ['full_name'], 'labStaff.profile' => ['full_name']]);
     }
 
     public function find(int $id): LabResult

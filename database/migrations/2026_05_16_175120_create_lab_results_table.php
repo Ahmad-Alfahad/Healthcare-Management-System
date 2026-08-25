@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId("lab_request_item_id")->constrained();
             $table->foreignId("lab_staff_id")->constrained()->references('id')->on('lab_staff');
             $table->string("notes")->nullable();
-            $table->enum("status" , ["pending" , "completed" , "processing" , "cancelled"])->default("pending");
             $table->decimal("value", 10, 2);
             $table->string("unit");
             $table->string("reference_range");
