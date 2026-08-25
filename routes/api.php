@@ -68,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('visits', VisitController::class);
     Route::patch('visits/{id}/status', [VisitController::class, 'changeStatus']);
     Route::apiResource('diagnoses', DiagnosisController::class);
+    Route::get('prescriptions/{prescription}/items', [PrescriptionItemController::class, 'byPrescription']);
     Route::apiResource('prescriptions', PrescriptionController::class);
     Route::patch('prescriptions/{id}/cancel', [PrescriptionController::class, 'cancel']);
     Route::apiResource('prescription-items', PrescriptionItemController::class);
