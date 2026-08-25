@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PrescriptionItemController extends Controller
 {
-    protected $prescriptionItemService;
+    protected PrescriptionItemService $prescriptionItemService;
 
     public function __construct(PrescriptionItemService $prescriptionItemService)
     {
@@ -23,7 +23,16 @@ class PrescriptionItemController extends Controller
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', PrescriptionItem::class);
-        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $filters = $request->validate([
+            'search' => ['sometimes', 'string', 'max:255'],
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'prescription_id' => ['required', 'integer', 'exists:prescriptions,id'],
+        ]);
+
+        $prescription = Prescription::findOrFail($filters['prescription_id']);
+        $this->authorize('view', $prescription);
+
         $items = $this->prescriptionItemService->getAllPrescriptionItems($request->user(), $filters);
         return response()->json(['success' => true, 'data' => $items], Response::HTTP_OK);
     }
@@ -44,7 +53,18 @@ class PrescriptionItemController extends Controller
     {
         $item = $this->prescriptionItemService->getPrescriptionItemById($id);
         $this->authorize('view', $item);
+
         return response()->json(['success' => true, 'data' => $item], Response::HTTP_OK);
+    }
+
+    public function byPrescription(Prescription $prescription): JsonResponse
+    {
+        $this->authorize('view', $prescription);
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->prescriptionItemService->getItemsByPrescriptionId($prescription->id),
+        ], Response::HTTP_OK);
     }
 
     public function update(UpdatePrescriptionItemRequest $request, int $id): JsonResponse

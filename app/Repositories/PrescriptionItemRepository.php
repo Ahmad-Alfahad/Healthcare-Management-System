@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\PrescriptionItem;
 use App\Models\User;
 use App\Support\ListQuery;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class PrescriptionItemRepository
@@ -14,6 +15,11 @@ class PrescriptionItemRepository
     public function all(?User $user = null, array $filters = []): LengthAwarePaginator
     {
         $query = PrescriptionItem::with('prescription');
+
+        if (isset($filters['prescription_id'])) {
+            $query->where('prescription_id', $filters['prescription_id']);
+        }
+
         if ($user?->isManager()) {
             $query->whereHas('prescription.visit.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $user->facility()?->id));
         }
@@ -23,6 +29,13 @@ class PrescriptionItemRepository
     public function find(int $id): PrescriptionItem
     {
         return PrescriptionItem::with('prescription')->findOrFail($id);
+    }
+
+    public function getByPrescription(int $prescriptionId): Collection
+    {
+        return PrescriptionItem::where('prescription_id', $prescriptionId)
+            ->orderBy('id')
+            ->get();
     }
 
     public function create(array $data): PrescriptionItem

@@ -7,6 +7,7 @@ use App\Models\Prescription;
 use App\Repositories\PrescriptionItemRepository;
 use App\Repositories\PrescriptionRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 
@@ -29,6 +30,11 @@ class PrescriptionItemService
     public function getPrescriptionItemById(int $id): PrescriptionItem
     {
         return $this->prescriptionItemRepository->find($id);
+    }
+
+    public function getItemsByPrescriptionId(int $prescriptionId): Collection
+    {
+        return $this->prescriptionItemRepository->getByPrescription($prescriptionId);
     }
 
     public function createPrescriptionItem(array $data): PrescriptionItem

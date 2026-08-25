@@ -3,23 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Http\Requests\AuditLogIndexRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuditLogController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(AuditLogIndexRequest $request): JsonResponse
     {
-        $filters = $request->validate([
-            'table_name' => ['sometimes', 'string', 'max:255'],
-            'action' => ['sometimes', 'in:create,update,delete'],
-            'user_id' => ['sometimes', 'integer', 'exists:users,id'],
-            'record_id' => ['sometimes', 'integer'],
-            'from' => ['sometimes', 'date'],
-            'to' => ['sometimes', 'date', 'after_or_equal:from'],
-            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
-        ]);
+        $filters = $request->validated();
 
         $auditLogs = AuditLog::query()
             ->with('user:id,name,email')
