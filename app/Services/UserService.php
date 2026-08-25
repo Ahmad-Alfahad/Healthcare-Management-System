@@ -106,7 +106,7 @@ class UserService
     {
         $user = $this->userRepository->getAuthenticatedUser($user->id);
 
-        return [
+        $data = [
             'id'        => $user->id,
             'name'      => $user->name,
             'email'     => $user->email,
@@ -114,6 +114,24 @@ class UserService
             'roles'     => $user->getRoleNames(),
             'profile'   => $user->profile,
         ];
+
+        if ($user->isPatient()) {
+            $data['patient'] = $user->patient;
+        }
+
+        if ($user->isDoctor()) {
+            $data['doctor'] = $user->doctor;
+        }
+
+        if ($user->isPharmacist()) {
+            $data['pharmacist'] = $user->pharmacist;
+        }
+
+        if ($user->isLabStaff()) {
+            $data['labStaff'] = $user->labStaff;
+        }
+
+        return $data;
     }
 
     public function logout(User $user): array

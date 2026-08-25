@@ -29,6 +29,12 @@ class UserRepository
 
     public function getAuthenticatedUser(int $id): User
     {
-        return User::with('profile')->findOrFail($id);
+        return User::with([
+            'profile',
+            'patient',
+            'doctor',
+            'pharmacist',
+            'labStaff',
+        ])->findOrFail($id);
     }
 }
