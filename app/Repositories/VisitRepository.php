@@ -12,13 +12,13 @@ class VisitRepository
 
     public function all(array $filters = []): LengthAwarePaginator
     {
-        return $this->paginateList(Visit::with(['appointment', 'doctor', 'patient']), $filters, ['status', 'visited_at'], ['patient.profile' => ['full_name'], 'doctor.profile' => ['full_name']]);
+        return $this->paginateList(Visit::with(['appointment', 'doctor.profile', 'patient.profile']), $filters, ['status', 'visited_at'], ['patient.profile' => ['full_name'], 'doctor.profile' => ['full_name']]);
     }
 
     public function getByFacility(int $facilityId, array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(
-            Visit::with(['appointment', 'doctor', 'patient'])
+            Visit::with(['appointment', 'doctor.profile', 'patient.profile'])
                 ->whereHas(
                     'doctor.facilityDepartmentSpecialization.facilityDepartment',
                     function ($query) use ($facilityId) {
@@ -34,7 +34,7 @@ class VisitRepository
     public function getByDoctor(int $doctorId, array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(
-            Visit::with(['appointment', 'doctor', 'patient'])
+            Visit::with(['appointment', 'doctor.profile', 'patient.profile'])
                 ->where('doctor_id', $doctorId),
             $filters,
             ['status', 'visited_at'],
@@ -45,7 +45,7 @@ class VisitRepository
     public function getByPatient(int $patientId, array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(
-            Visit::with(['appointment', 'doctor', 'patient'])
+            Visit::with(['appointment', 'doctor.profile', 'patient.profile'])
                 ->where('patient_id', $patientId),
             $filters,
             ['status', 'visited_at'],
@@ -55,7 +55,7 @@ class VisitRepository
 
     public function find(int $id): Visit
     {
-        return Visit::with(['appointment', 'doctor', 'patient'])->findOrFail($id);
+        return Visit::with(['appointment', 'doctor.profile', 'patient.profile'])->findOrFail($id);
     }
 
     public function create(array $data): Visit

@@ -16,7 +16,8 @@ class AppointmentRepository
     public function get(array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(Appointment::with([
-            'patient',
+            'patient.profile',
+            'doctor.profile',
             'doctor.facilityDepartmentSpecialization.specialization',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
@@ -27,7 +28,8 @@ class AppointmentRepository
     {
         return $this->paginateList(
             Appointment::with([
-                'patient',
+                'patient.profile',
+                'doctor.profile',
                 'doctor.facilityDepartmentSpecialization.specialization',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
@@ -48,7 +50,8 @@ class AppointmentRepository
     {
         return $this->paginateList(
             Appointment::with([
-                'patient',
+                'patient.profile',
+                'doctor.profile',
                 'doctor.facilityDepartmentSpecialization.specialization',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
@@ -64,7 +67,8 @@ class AppointmentRepository
     {
         return $this->paginateList(
             Appointment::with([
-                'patient',
+                'patient.profile',
+                'doctor.profile',
                 'doctor.facilityDepartmentSpecialization.specialization',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
@@ -79,7 +83,8 @@ class AppointmentRepository
     public function find(int $id): Appointment
     {
         return Appointment::with([
-            'patient',
+            'patient.profile',
+            'doctor.profile',
             'doctor.facilityDepartmentSpecialization.specialization',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.department',

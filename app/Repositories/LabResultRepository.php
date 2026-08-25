@@ -13,7 +13,9 @@ class LabResultRepository
     public function all(array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(LabResult::with([
+            'labRequestItem.labTest',
             'labRequestItem.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
+            'labStaff.profile',
             'labStaff.facility',
         ]), $filters, ['value', 'unit', 'status'], ['labRequestItem.labTest' => ['name'], 'labRequestItem.visit.patient.profile' => ['full_name'], 'labStaff.profile' => ['full_name']]);
     }
@@ -21,7 +23,9 @@ class LabResultRepository
     public function find(int $id): LabResult
     {
         return LabResult::with([
+            'labRequestItem.labTest',
             'labRequestItem.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
+            'labStaff.profile',
             'labStaff.facility',
         ])->findOrFail($id);
     }

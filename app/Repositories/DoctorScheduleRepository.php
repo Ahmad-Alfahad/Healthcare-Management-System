@@ -14,6 +14,7 @@ class DoctorScheduleRepository
     public function all(array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(DoctorSchedule::with([
+            'doctor.profile',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility'
         ]), $filters, ['day_of_week', 'start_time', 'end_time'], ['doctor.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name']]);
     }
@@ -21,6 +22,7 @@ class DoctorScheduleRepository
     public function find(int $id): DoctorSchedule
     {
         return DoctorSchedule::with([
+            'doctor.profile',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility'
         ])->findOrFail($id);
     }

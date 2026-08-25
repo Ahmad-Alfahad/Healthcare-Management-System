@@ -13,7 +13,7 @@ class DispensingRepository
 
     public function all(?User $user = null, array $filters = []): LengthAwarePaginator
     {
-        $query = Dispensing::with(['prescriptionItem', 'pharmacist']);
+        $query = Dispensing::with(['prescriptionItem', 'pharmacist' , 'pharmacist.profile']);
         if ($user?->isManager()) {
             $query->whereHas('prescriptionItem.prescription.visit.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $user->facility()?->id));
         }
@@ -22,7 +22,7 @@ class DispensingRepository
 
     public function find(int $id): Dispensing
     {
-        return Dispensing::with(['prescriptionItem', 'pharmacist'])->findOrFail($id);
+        return Dispensing::with(['prescriptionItem', 'pharmacist', 'pharmacist.profile'])->findOrFail($id);
     }
 
     public function create(array $data): Dispensing
