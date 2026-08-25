@@ -165,6 +165,16 @@ class User extends Authenticatable
         return null;
     }
 
+    public function accessibleFacilityIds(): array
+    {
+        $facility = $this->facility();
+
+        return array_values(array_unique(array_filter([
+            $facility?->id,
+            $facility?->parent_id,
+        ])));
+    }
+
     public function managesFacility(Facility $facility): bool
     {
         return $this->hasRole('manager')

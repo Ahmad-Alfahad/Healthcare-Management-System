@@ -13,10 +13,47 @@ class DispensingRepository
 
     public function all(?User $user = null, array $filters = []): LengthAwarePaginator
     {
-        $query = Dispensing::with(['prescriptionItem', 'pharmacist' , 'pharmacist.profile']);
-        if ($user?->isManager()) {
-            $query->whereHas('prescriptionItem.prescription.visit.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $user->facility()?->id));
+        $query = Dispensing::with([
+            'prescriptionItem.prescription.visit.patient.profile',
+            'prescriptionItem.prescription.visit.doctor.profile',
+            'pharmacist',
+            'pharmacist.profile',
+        ]);
+
+        if ($user?->isAdmin()) {
+            return $this->paginateList($query, $filters, ['quantity_dispensed', 'dispensed_at'], ['prescriptionItem' => ['medication_name'], 'pharmacist.profile' => ['full_name']]);
         }
+
+        if ($user?->isDoctor()) {
+            $query->whereHas(
+                'prescriptionItem.prescription.visit',
+                fn($visitQuery) => $visitQuery->where('doctor_id', $user->doctor?->id)
+            );
+        } elseif ($user?->isPatient()) {
+            $query->whereHas(
+                'prescriptionItem.prescription.visit',
+                fn($visitQuery) => $visitQuery->where('patient_id', $user->patient?->id)
+            );
+        } elseif ($user?->isManager()) {
+            $query->whereHas(
+                'prescriptionItem.prescription.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
+                fn($facilityDepartmentQuery) => $facilityDepartmentQuery->where(
+                    'facility_id',
+                    $user->facility()?->id
+                )
+            );
+        } elseif ($user?->isPharmacist()) {
+            $query->whereHas(
+                'prescriptionItem.prescription.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
+                fn($facilityDepartmentQuery) => $facilityDepartmentQuery->whereIn(
+                    'facility_id',
+                    $user->accessibleFacilityIds()
+                )
+            );
+        } else {
+            $query->whereRaw('1 = 0');
+        }
+
         return $this->paginateList($query, $filters, ['quantity_dispensed', 'dispensed_at'], ['prescriptionItem' => ['medication_name'], 'pharmacist.profile' => ['full_name']]);
     }
 

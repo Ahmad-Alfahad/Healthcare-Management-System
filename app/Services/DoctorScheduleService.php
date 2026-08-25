@@ -34,6 +34,18 @@ class DoctorScheduleService
             );
         }
 
+        if ($user->isDoctor() && $user->doctor) {
+            return $this->doctorscheduleRepository->getByDoctor(
+                $user->doctor->id
+            );
+        }
+
+        if ($user->isPatient() && isset($filters['doctor_id'])) {
+            return $this->doctorscheduleRepository->getByDoctor(
+                $filters['doctor_id']
+            );
+        }
+
         return new Collection();
     }
 

@@ -13,10 +13,46 @@ class PrescriptionRepository
 
     public function all(?User $user = null, array $filters = []): LengthAwarePaginator
     {
-        $query = Prescription::with('visit');
-        if ($user?->isManager()) {
-            $query->whereHas('visit.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $user->facility()?->id));
+        $query = Prescription::with([
+            'visit',
+            'visit.patient.profile',
+            'visit.doctor.profile',
+        ]);
+
+        if ($user?->isAdmin()) {
+            return $this->paginateList($query, $filters, ['status'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]);
         }
+
+        if ($user?->isDoctor()) {
+            $query->whereHas(
+                'visit',
+                fn($visitQuery) => $visitQuery->where('doctor_id', $user->doctor?->id)
+            );
+        } elseif ($user?->isPatient()) {
+            $query->whereHas(
+                'visit',
+                fn($visitQuery) => $visitQuery->where('patient_id', $user->patient?->id)
+            );
+        } elseif ($user?->isManager()) {
+            $query->whereHas(
+                'visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
+                fn($facilityDepartmentQuery) => $facilityDepartmentQuery->where(
+                    'facility_id',
+                    $user->facility()?->id
+                )
+            );
+        } elseif ($user?->isPharmacist()) {
+            $query->whereHas(
+                'visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
+                fn($facilityDepartmentQuery) => $facilityDepartmentQuery->whereIn(
+                    'facility_id',
+                    $user->accessibleFacilityIds()
+                )
+            );
+        } else {
+            $query->whereRaw('1 = 0');
+        }
+
         return $this->paginateList($query, $filters, ['status'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]);
     }
 

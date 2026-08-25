@@ -64,4 +64,15 @@ class DoctorScheduleRepository
             )
             ->get();
     }
+
+    public function getByDoctor(int $doctorId): Collection
+    {
+        return DoctorSchedule::with([
+            'doctor.profile',
+            'doctor.facilityDepartmentSpecialization.facilityDepartment.facility'
+        ])
+            ->where('doctor_id', $doctorId)
+            ->orderBy('day_of_week')
+            ->get();
+    }
 }

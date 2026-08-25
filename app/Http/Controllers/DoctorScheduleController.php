@@ -23,7 +23,13 @@ class DoctorScheduleController extends Controller
     {
         $this->authorize('viewAny', DoctorSchedule::class);
         $user = request()->user();
-        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'day_of_week' => ['sometimes', 'string']]);
+        $filters = $request->validate([
+            'search' => ['sometimes', 'string', 'max:255'],
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'day_of_week' => ['sometimes', 'string'],
+            'doctor_id' => ['sometimes', 'integer', 'exists:doctors,id'],
+        ]);
         $doctorSchedules = $this->doctorScheduleService->getAllDoctorSchedules($user, $filters);
         return response()->json(['success' => true, 'data' => $doctorSchedules], Response::HTTP_OK);
     }
@@ -58,9 +64,6 @@ class DoctorScheduleController extends Controller
         $this->authorize('view', $doctorSchedule);
         return response()->json(['success' => true, 'data' => $doctorSchedule], Response::HTTP_OK);
     }
-
-
-
 
     public function update(UpdateDoctorScheduleRequest $request,  int $id): JsonResponse
     {

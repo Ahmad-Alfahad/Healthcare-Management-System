@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\User;
+use Carbon\Carbon;
 
 class AppointmentPolicy
 {
@@ -45,9 +46,9 @@ class AppointmentPolicy
     }
 
     /**
-     * Only admin and patient can create appointments.
-     *
-     * The patient must create an appointment for himself.
+     * Admin can create appointments for any patient and doctor.
+     * Patients can create appointments for themselves.
+     * Doctors can create appointments for any patient using their own doctor account.
      */
     public function create(
         User $user,
@@ -60,6 +61,10 @@ class AppointmentPolicy
 
         if ($user->isPatient()) {
             return $user->patient?->id === $patient->id;
+        }
+
+        if ($user->isDoctor()) {
+            return $user->doctor?->id === $doctor->id;
         }
 
         return false;
@@ -97,11 +102,12 @@ class AppointmentPolicy
      * Manager of the doctor's facility
      * Doctor who owns the appointment
      *
-     * Patient cannot change appointment status.
+     * Patients can only cancel their own appointment before its start time.
      */
     public function changeStatus(
         User $user,
-        Appointment $appointment
+        Appointment $appointment,
+        string $newStatus
     ): bool {
         if ($user->isAdmin()) {
             return true;
@@ -113,6 +119,12 @@ class AppointmentPolicy
 
         if ($user->isManager()) {
             return $this->managerOwnsAppointment($user, $appointment);
+        }
+
+        if ($user->isPatient()) {
+            return $newStatus === 'cancelled'
+                && $user->patient?->id === $appointment->patient_id
+                && Carbon::parse($appointment->scheduled_date . ' ' . $appointment->start_time)->isFuture();
         }
 
         return false;

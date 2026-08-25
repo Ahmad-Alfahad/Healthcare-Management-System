@@ -54,7 +54,7 @@ class PrescriptionPolicy
         }
 
         return $user->isPharmacist()
-            && $this->userOwnsVisitFacility($user, $prescription->visit);
+            && $this->userCanAccessVisitFacility($user, $prescription->visit);
     }
 
     private function canAccessVisit(User $user, Visit $visit): bool
@@ -76,7 +76,7 @@ class PrescriptionPolicy
         }
 
         return $user->isPharmacist()
-            && $this->userOwnsVisitFacility($user, $visit);
+            && $this->userCanAccessVisitFacility($user, $visit);
     }
 
     private function canManageVisit(User $user, Visit $visit): bool
@@ -101,7 +101,7 @@ class PrescriptionPolicy
             && $user->managesFacility($facility);
     }
 
-    private function userOwnsVisitFacility(User $user, Visit $visit): bool
+    private function userCanAccessVisitFacility(User $user, Visit $visit): bool
     {
         $facility = $visit->appointment
             ?->doctor
@@ -110,6 +110,6 @@ class PrescriptionPolicy
             ?->facility;
 
         return $facility !== null
-            && $user->facility()?->id === $facility->id;
+            && in_array($facility->id, $user->accessibleFacilityIds(), true);
     }
 }

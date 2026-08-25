@@ -117,14 +117,15 @@ class AppointmentController extends Controller
     public function changeStatus(ChangeAppointmentStatusRequest $request, int $appointment): JsonResponse
     {
         $appointmentModel = $this->appointmentService->getAppointment($appointment);
-        $this->authorize('changeStatus', $appointmentModel);
+        $status = $request->validated()['status'];
+        $this->authorize('changeStatus', [$appointmentModel, $status]);
 
         return response()->json([
             'success' => true,
             'data' => $this->appointmentService
                 ->changeStatus(
                     $appointment,
-                    $request->status
+                    $status
                 )
         ], Response::HTTP_OK);
     }

@@ -11,13 +11,18 @@ class DoctorSchedulePolicy
 
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isAdmin()
+            || $user->isManager()
+            || $user->isDoctor()
+            || $user->isPatient();
     }
-
 
     public function view(User $user, DoctorSchedule $doctorSchedule): bool
     {
-        return true;
+        return $user->isAdmin()
+            || $user->isManager()
+            || $user->isPatient()
+            || ($user->isDoctor() && $user->doctor?->id === $doctorSchedule->doctor_id);
     }
 
 
