@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RolePermissionController extends Controller
 {
-    protected $service;
+    protected RolePermissionService $service;
 
     public function __construct(RolePermissionService $service)
     {
@@ -28,7 +28,6 @@ class RolePermissionController extends Controller
             'data'    => [
                 'users'       => $accessData['users'],
                 'roles'       => $accessData['roles'],
-                'permissions' => $accessData['permissions'],
             ]
         ], Response::HTTP_OK); // 200
     }
@@ -45,8 +44,17 @@ class RolePermissionController extends Controller
                 'user_id'     => $updatedUser->id,
                 'name'        => $updatedUser->name,
                 'roles'       => $updatedUser->roles->pluck('name'),
-                'permissions' => $updatedUser->permissions->pluck('name'),
             ]
+        ], Response::HTTP_OK);
+    }
+
+    public function getRoles()
+    {
+        $roles = $this->service->getRolesList();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $roles
         ], Response::HTTP_OK);
     }
 }

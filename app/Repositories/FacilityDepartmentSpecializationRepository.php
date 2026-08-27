@@ -10,7 +10,11 @@ class FacilityDepartmentSpecializationRepository
 {
     public function all(?User $user = null): Collection
     {
-        $query = FacilityDepartmentSpecialization::with(['specialization', 'facilityDepartment']);
+        $query = FacilityDepartmentSpecialization::with([
+            'specialization',
+            'facilityDepartment.facility',
+            'facilityDepartment.department',
+        ]);
         if ($user?->isManager()) {
             $query->whereHas('facilityDepartment', fn($q) => $q->where('facility_id', $user->facility()?->id));
         }
@@ -19,7 +23,11 @@ class FacilityDepartmentSpecializationRepository
 
     public function find(int $id): FacilityDepartmentSpecialization
     {
-        return FacilityDepartmentSpecialization::with(['specialization', 'facilityDepartment'])->findOrFail($id);
+        return FacilityDepartmentSpecialization::with([
+            'specialization',
+            'facilityDepartment.facility',
+            'facilityDepartment.department',
+        ])->findOrFail($id);
     }
 
     public function create(array $data): FacilityDepartmentSpecialization

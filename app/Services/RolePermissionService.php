@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class RolePermissionService
 {
-    protected $repository;
+    protected RolePermissionRepository $repository;
 
     public function __construct(RolePermissionRepository $repository)
     {
@@ -18,9 +18,8 @@ class RolePermissionService
     public function getAccessData()
     {
         return [
-            'users'       => $this->repository->getUserWithRolesAndPermissions(),
-            'roles'       => $this->repository->getRole(),
-            'permissions' => $this->repository->getPermission(),
+            'users'       => $this->repository->getUserWithRoles(),
+            'roles'       => $this->repository->getRoles(),
         ];
     }
 
@@ -28,10 +27,12 @@ class RolePermissionService
     {
         return DB::transaction(function () use ($user, $data) {
             $this->repository->syncRole($data, $user);
-            $this->repository->syncPermission($data, $user);
-
-            // إعادة شحن العلاقات للتأكد من إرجاع البيانات المحدثة للـ Controller
-            return $user->load(['roles', 'permissions']);
+            return $user->load(['roles']);
         });
+    }
+
+    public function getRolesList()
+    {
+        return $this->repository->getRoles()->pluck('name', 'id');
     }
 }
