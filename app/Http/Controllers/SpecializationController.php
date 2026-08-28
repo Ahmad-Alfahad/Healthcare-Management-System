@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SpecializationController extends Controller
 {
-    protected $specializationService;
+    protected SpecializationService $specializationService;
 
     public function __construct(SpecializationService $specializationService)
     {
@@ -65,6 +65,17 @@ class SpecializationController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Specialization deleted successfully.'
+        ], Response::HTTP_OK);
+    }
+
+    public function getByFacility(int $facilityId): JsonResponse
+    {
+        $specializations = $this->specializationService
+            ->getByFacility($facilityId);
+
+        return response()->json([
+            'success' => true,
+            'data' => $specializations
         ], Response::HTTP_OK);
     }
 }

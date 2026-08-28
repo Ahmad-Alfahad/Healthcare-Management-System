@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Models\Specialization;
 use App\Support\ListQuery;
 use Illuminate\Pagination\LengthAwarePaginator;
-
+use Illuminate\Database\Eloquent\Collection;
 class SpecializationRepository
 {
     use ListQuery;
@@ -57,5 +57,15 @@ class SpecializationRepository
                 $id
             )
             ->exists();
+    }
+
+    public function getByFacility(int $facilityId): Collection
+    {
+        return Specialization::whereHas(
+            'facilityDepartmentSpecializations.facilityDepartment',
+            function ($query) use ($facilityId) {
+                $query->where('facility_id', $facilityId);
+            }
+        )->get();
     }
 }

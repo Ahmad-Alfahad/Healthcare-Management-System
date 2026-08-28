@@ -8,25 +8,32 @@ use Spatie\Permission\Models\Role;
 class RolePermissionRepository
 {
 
-    public function getUserWithRoles()
+    public function getUsersWithRoles(?string $role = null, ?string $search = null)
     {
-        return User::with(['roles'])
-
+        return User::with(['roles' , 'profile'])
+            ->when($role, function ($query) use ($role) {
+                $query->whereHas('roles', function ($q) use ($role) {
+                    $q->where('name', $role);
+                });
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
             ->latest()
             ->paginate(10);
     }
 
-    public function getRoles()
+ public function getRoles()
     {
-        return Role::all();
+        return Role::select('id', 'name')->get();
     }
 
-    public function syncRole(array $data, User $user)
+    public function syncRoles(array $roles, User $user)
     {
-        $user->syncRoles($data['roles'] ?? []);
-
+        $user->syncRoles($roles);
         return $user;
     }
-
-
 }

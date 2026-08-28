@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Repositories\RolePermissionRepository;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class RolePermissionService
 {
@@ -15,20 +14,18 @@ class RolePermissionService
         $this->repository = $repository;
     }
 
-    public function getAccessData()
+    public function getAccessData(?string $role = null, ?string $search = null)
     {
         return [
-            'users'       => $this->repository->getUserWithRoles(),
-            'roles'       => $this->repository->getRoles(),
+            'users' => $this->repository->getUsersWithRoles($role, $search),
+            'roles' => $this->repository->getRoles(),
         ];
     }
 
-    public function syncUserAccess(User $user, array $data)
+    public function syncUserRoles(User $user, array $roles)
     {
-        return DB::transaction(function () use ($user, $data) {
-            $this->repository->syncRole($data, $user);
-            return $user->load(['roles']);
-        });
+        $this->repository->syncRoles($roles, $user);
+        return $user->load('roles');
     }
 
     public function getRolesList()

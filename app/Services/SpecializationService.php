@@ -75,4 +75,10 @@ class SpecializationService
             ]);
         }
     }
+
+    public function getByFacility(int $facilityId): Collection
+    {
+        return $this->specializationRepository
+            ->getByFacility($facilityId);
+    }
 }

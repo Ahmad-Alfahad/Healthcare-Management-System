@@ -7,6 +7,7 @@ use App\Http\Requests\RolePermissionRequest;
 use App\Models\User;
 use App\Services\RolePermissionService;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\Request;
 
 class RolePermissionController extends Controller
 {
@@ -17,33 +18,34 @@ class RolePermissionController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', User::class);
-        $accessData = $this->service->getAccessData();
+
+        $selectedRole = $request->query('role');
+        $searchTerm   = $request->query('search'); 
+        $accessData = $this->service->getAccessData($selectedRole, $searchTerm);
 
         return response()->json([
             'success' => true,
-            'message' => 'Access control data retrieved successfully.',
-            'data'    => [
-                'users'       => $accessData['users'],
-                'roles'       => $accessData['roles'],
-            ]
-        ], Response::HTTP_OK); // 200
+            'message' => 'Users and roles data retrieved successfully.',
+            'data'    => $accessData
+        ], Response::HTTP_OK);
     }
 
     public function syncUserAccess(RolePermissionRequest $request, User $user)
     {
         $this->authorize('managePermissions', $user);
-        $updatedUser = $this->service->syncUserAccess($user, $request->validated());
+
+        $updatedUser = $this->service->syncUserRoles($user, $request->validated('roles', []));
 
         return response()->json([
             'success' => true,
-            'message' => "Access privileges synced successfully for user: {$updatedUser->name}.",
+            'message' => "Roles updated successfully for user: {$updatedUser->name}.",
             'data'    => [
-                'user_id'     => $updatedUser->id,
-                'name'        => $updatedUser->name,
-                'roles'       => $updatedUser->roles->pluck('name'),
+                'user_id' => $updatedUser->id,
+                'name'    => $updatedUser->name,
+                'roles'   => $updatedUser->roles->pluck('name'),
             ]
         ], Response::HTTP_OK);
     }
