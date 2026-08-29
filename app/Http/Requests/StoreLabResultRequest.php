@@ -24,7 +24,6 @@ class StoreLabResultRequest extends FormRequest
     {
         return [
             "lab_request_item_id" => ["required", "integer", "exists:lab_request_items,id"],
-            "lab_staff_id" => ["required", "integer", "exists:lab_staff,id"],
             "value" => ["required", "numeric", "between:0,9999.99"],
             "access_token" => ["nullable", "string", "max:255"],
             "notes" => ["nullable", "string"],

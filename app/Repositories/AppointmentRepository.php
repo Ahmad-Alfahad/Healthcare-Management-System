@@ -125,6 +125,7 @@ class AppointmentRepository
             'doctor.profile',
         ])
             ->where('status', 'confirmed')
+            ->whereDate('scheduled_date', '>=', today())
             ->orderBy('scheduled_date')
             ->orderBy('start_time')
             ->get();

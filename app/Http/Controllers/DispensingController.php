@@ -33,7 +33,7 @@ class DispensingController extends Controller
         $data = $request->validated();
         $user = $request->user();
         $item = PrescriptionItem::with('prescription.visit')->findOrFail($data['prescription_item_id']);
-        $pharmacist = $request->user()->pharmacist;
+       // $pharmacist = $request->user()->pharmacist;
         $this->authorize('create', [Dispensing::class, $item, $user->pharmacist]);
         $dispensing = $this->dispensingService->createDispensing($data , $user);
         return response()->json([

@@ -4,11 +4,13 @@ namespace App\Services;
 
 use App\Models\LabResult;
 use App\Models\LabRequestItem;
+use App\Models\User;
 use App\Repositories\LabResultRepository;
 use App\Repositories\LabRequestItemRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
+
 
 
 class LabResultService
@@ -32,8 +34,24 @@ class LabResultService
         return $this->labResultRepository->find($id);
     }
 
-    public function createLabResult(array $data): LabResult
+    public function createLabResult(array $data, User $user): LabResult
     {
+        if (!$user->isLabStaff()) {
+            throw ValidationException::withMessages([
+                'lab_staff' => [
+                    'Authenticated user is not laboratory staff.'
+                ]
+            ]);
+        }
+
+        $labStaff = $user->labStaff;
+        if (!$labStaff) {
+            throw ValidationException::withMessages([
+                'lab_staff' => [
+                    'Authenticated user is not assigned to a laboratory staff record.'
+                ]
+            ]);
+        }
         $labRequest =
             $this->labRequestItemRepository
             ->find(
@@ -53,7 +71,7 @@ class LabResultService
         $data['reference_range'] = $labRequest->labTest->range_low . ' - ' . $labRequest->labTest->range_high;
 
         $data['completed_at'] = now();
-
+        $data['lab_staff_id'] = $labStaff->id;
         return DB::transaction(function () use ($data, $labRequest): LabResult {
             $result = $this->labResultRepository->create($data);
             $this->labRequestItemRepository->updateStatus($labRequest->id, 'completed');

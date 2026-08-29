@@ -26,12 +26,11 @@ class LabResultPolicy
     public function create(
         User $user,
         LabRequestItem $labRequestItem,
-        LabStaff $labStaff
     ): bool {
         if ($user->isAdmin()) {
             return true;
         }
-
+        $labStaff = $user->labStaff;
         return $user->isLabStaff()
             && $user->labStaff?->id === $labStaff->id
             && $this->staffCanAccessRequest($labStaff, $labRequestItem);

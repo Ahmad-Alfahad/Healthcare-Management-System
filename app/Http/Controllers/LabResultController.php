@@ -41,10 +41,10 @@ class LabResultController extends Controller
     {
         $data = $request->validated();
         $labRequestItem = LabRequestItem::findOrFail($data['lab_request_item_id']);
-        $labStaff = LabStaff::findOrFail($data['lab_staff_id']);
-        $this->authorize('create', [LabResult::class, $labRequestItem, $labStaff]);
+      
+        $this->authorize('create', [LabResult::class, $labRequestItem]);
 
-        $result = $this->labResultService->createLabResult($data);
+        $result = $this->labResultService->createLabResult($data , $request->user());
         return response()->json([
             'success' => true,
             'message' => 'Lab result created successfully.',
