@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('facilities/{facility}/departments', [FacilityController::class, 'addDepartment']);
     Route::delete('facilities/departments/{facilityDepartment}', [FacilityController::class, 'removeDepartment']);
     Route::apiResource('facility-dept-specs', FacilityDepartmentSpecializationController::class);
+    Route::get('facilities/{facility}/specializations',[SpecializationController::class, 'getByFacility']);
     Route::apiResource('doctors', DoctorController::class);
     Route::apiResource('labstaff', LabStaffController::class);
     Route::apiResource('pharmacists', PharmacistController::class);
@@ -62,6 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('patients', PatientController::class);
     Route::apiResource('appointments', AppointmentController::class);
     Route::get('available-slots', [AppointmentController::class, 'availableSlots']);
+    Route::get('appointments-confirmed',[AppointmentController::class, 'confirmed']);
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'changeStatus']);
 
     // Clinical records

@@ -129,4 +129,13 @@ class AppointmentController extends Controller
                 )
         ], Response::HTTP_OK);
     }
+
+    public function confirmed(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $this->appointmentService
+                ->getConfirmedAppointments()
+        ], Response::HTTP_OK);
+    }
 }

@@ -117,4 +117,16 @@ class AppointmentRepository
             ->whereIn('status', ['pending', 'confirmed'])
             ->get();
     }
+
+    public function getConfirmed(): Collection
+    {
+        return Appointment::with([
+            'patient.profile',
+            'doctor.profile',
+        ])
+            ->where('status', 'confirmed')
+            ->orderBy('scheduled_date')
+            ->orderBy('start_time')
+            ->get();
+    }
 }

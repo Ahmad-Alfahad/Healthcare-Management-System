@@ -98,6 +98,11 @@ class AppointmentService
         return $this->appointmentRepository->delete($id);
     }
 
+    public function getConfirmedAppointments(): Collection
+    {
+        return $this->appointmentRepository->getConfirmed();
+    }
+
     private function validateAppointmentDate(string $scheduleDate): void
     {
         $currentDate = now()->startOfDay();
