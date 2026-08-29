@@ -31,9 +31,11 @@ class DispensingController extends Controller
     public function store(StoreDispensingRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $item = PrescriptionItem::findOrFail($data['prescription_item_id']);
-        $this->authorize('create', [Dispensing::class, $item, $data['pharmacist_id']]);
-        $dispensing = $this->dispensingService->createDispensing($data);
+        $user = $request->user();
+        $item = PrescriptionItem::with('prescription.visit')->findOrFail($data['prescription_item_id']);
+        $pharmacist = $request->user()->pharmacist;
+        $this->authorize('create', [Dispensing::class, $item, $user->pharmacist]);
+        $dispensing = $this->dispensingService->createDispensing($data , $user);
         return response()->json([
             'success' => true,
             'message' => 'Dispensing record created successfully.',

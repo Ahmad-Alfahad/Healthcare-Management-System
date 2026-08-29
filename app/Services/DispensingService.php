@@ -11,7 +11,7 @@ use App\Repositories\PrescriptionRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
-
+use Illuminate\Support\Facades\DB;
 
 class DispensingService
 {
@@ -39,25 +39,30 @@ class DispensingService
         return $this->dispensingRepository->find($id);
     }
 
-    public function createDispensing(array $data): Dispensing
+public function createDispensing(array $data, User $user): Dispensing
     {
-        $item = $this->prescriptionItemRepository
-            ->find($data['prescription_item_id']);
-        $prescription = $this->prescriptionRepository
-            ->find($item->prescription_id);
-        $this->validatePrescriptionAllowsDispensing(
-            $prescription
-        );
-        $this->validateDispensedQuantity(
-            $item,
-            $data['quantity_dispensed']
-        );
-        $dispensing = $this->dispensingRepository
-            ->create($data);
-        $this->updatePrescriptionStatusAfterDispensing(
-            $prescription->id
-        );
-        return $dispensing;
+        return DB::transaction(function () use ($data, $user) {
+           
+            $data['pharmacist_id'] = $user->pharmacist?->id;
+            $data['dispensed_at']  = $data['dispensed_at'] ?? now();
+            if (!$data['pharmacist_id'] && !$user->isAdmin()) {
+                throw ValidationException::withMessages([
+                    'pharmacist_id' => ['User is not associated with a valid pharmacist profile.']
+                ]);
+            }
+
+            $item = $this->prescriptionItemRepository->find($data['prescription_item_id']);
+            $prescription = $this->prescriptionRepository->find($item->prescription_id);
+
+            $this->validatePrescriptionAllowsDispensing($prescription);
+            $this->validateDispensedQuantity($item, $data['quantity_dispensed']);
+
+            $dispensing = $this->dispensingRepository->create($data);
+
+            $this->updatePrescriptionStatusAfterDispensing($prescription->id);
+
+            return $dispensing;
+        });
     }
 
     public function updateDispensing(int $id, array $data): bool

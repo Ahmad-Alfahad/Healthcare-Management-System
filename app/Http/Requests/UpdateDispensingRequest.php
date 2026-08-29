@@ -24,9 +24,10 @@ class UpdateDispensingRequest extends FormRequest
     {
         return [
             'prescription_item_id' => ['sometimes', 'integer', 'exists:prescription_items,id'],
-            'pharmacist_id' => ['sometimes', 'integer', 'exists:pharmacists,id'],
             'quantity_dispensed' => ['sometimes', 'integer', 'min:1'],
-            'dispensed_at' => ['sometimes', 'date'],
+            // Preserve the original audit trail even when an administrator corrects a record.
+            'pharmacist_id' => ['prohibited'],
+            'dispensed_at' => ['prohibited'],
         ];
     }
 
@@ -36,13 +37,12 @@ class UpdateDispensingRequest extends FormRequest
             'prescription_item_id.exists' => 'The selected prescription item does not exist.',
             'prescription_item_id.integer' => 'The prescription item ID must be an integer.',
 
-            'pharmacist_id.exists' => 'The selected pharmacist does not exist.',
-            'pharmacist_id.integer' => 'The pharmacist ID must be an integer.',
+            'pharmacist_id.prohibited' => 'The pharmacist cannot be changed after dispensing.',
 
             'quantity_dispensed.integer' => 'The quantity dispensed must be an integer.',
             'quantity_dispensed.min' => 'The quantity dispensed must be at least 1.',
             
-            'dispensed_at.date' => 'The dispensed at field must be a valid date and time.',
+            'dispensed_at.prohibited' => 'The dispensing date cannot be changed after dispensing.',
         ];
     }
 }

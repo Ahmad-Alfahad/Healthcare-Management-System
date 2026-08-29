@@ -63,16 +63,16 @@ class PrescriptionPolicy
             return true;
         }
 
+        if ($user->isManager()) {
+            return $this->managerOwnsVisit($user, $visit);
+        }
+
         if ($user->isDoctor()) {
             return $user->doctor?->id === $visit->doctor_id;
         }
 
         if ($user->isPatient()) {
             return $user->patient?->id === $visit->patient_id;
-        }
-
-        if ($user->isManager()) {
-            return $this->managerOwnsVisit($user, $visit);
         }
 
         return $user->isPharmacist()
