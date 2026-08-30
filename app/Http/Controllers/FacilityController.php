@@ -133,4 +133,14 @@ class FacilityController extends Controller
             'message' => 'Department removed from facility successfully'
         ], 200);
     }
+
+    public function manager(Facility $facility): JsonResponse
+    {
+        $manager = $this->facilityService->getManager($facility);
+
+        return response()->json([
+            'success' => true,
+            'data' => $manager,
+        ], 200);
+    }
 }

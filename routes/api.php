@@ -54,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('facilities/departments/{facilityDepartment}', [FacilityController::class, 'removeDepartment']);
     Route::apiResource('facility-dept-specs', FacilityDepartmentSpecializationController::class);
     Route::get('facilities/{facility}/specializations',[SpecializationController::class, 'getByFacility']);
+    Route::get('facilities/{facility}/manager',[FacilityController::class, 'manager']);
     Route::apiResource('doctors', DoctorController::class);
     Route::apiResource('labstaff', LabStaffController::class);
     Route::apiResource('pharmacists', PharmacistController::class);

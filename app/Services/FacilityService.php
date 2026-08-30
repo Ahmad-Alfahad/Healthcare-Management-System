@@ -7,7 +7,9 @@ use App\Models\Department;
 use App\Models\Facility;
 use App\Models\FacilityDepartment;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use App\Models\Doctor;
+use App\Models\Pharmacist;
+use App\Models\LabStaff;
 use Illuminate\Validation\ValidationException;
 
 class FacilityService
@@ -119,7 +121,81 @@ class FacilityService
 
         return $this->facilityRepository->delete($id);
     }
+    public function getManager(Facility $facility): ?User
+    {
+        // البحث في المنشأة نفسها
+        $manager = $this->findManagerInFacility($facility);
 
+        if ($manager) {
+            return $manager;
+        }
+
+        // إذا كانت Child → ابحث في Parent
+        if ($facility->parent_id) {
+            $manager = $this->findManagerInFacility($facility->parent);
+
+            if ($manager) {
+                return $manager;
+            }
+        }
+
+        // إذا كانت Parent → ابحث في Children
+        foreach ($facility->childrens as $child) {
+            $manager = $this->findManagerInFacility($child);
+
+            if ($manager) {
+                return $manager;
+            }
+        }
+
+        return null;
+    }
+
+    private function findManagerInFacility(Facility $facility): ?User
+    {
+        // Doctor
+        $doctorManager = Doctor::whereHas('profile.user', function ($query) {
+            $query->role('manager');
+        })
+            ->whereHas(
+                'facilityDepartmentSpecialization.facilityDepartment',
+                function ($query) use ($facility) {
+                    $query->where('facility_id', $facility->id);
+                }
+            )
+            ->with('profile.user')
+            ->first();
+
+        if ($doctorManager) {
+            return $doctorManager->profile->user;
+        }
+
+        // Pharmacist
+        $pharmacistManager = Pharmacist::where('facility_id', $facility->id)
+            ->whereHas('profile.user', function ($query) {
+                $query->role('manager');
+            })
+            ->with('profile.user')
+            ->first();
+
+        if ($pharmacistManager) {
+            return $pharmacistManager->profile->user;
+        }
+
+        // Lab Staff
+        $labStaffManager = LabStaff::where('facility_id', $facility->id)
+            ->whereHas('profile.user', function ($query) {
+                $query->role('manager');
+            })
+            ->with('profile.user')
+            ->first();
+
+        if ($labStaffManager) {
+            return $labStaffManager->profile->user;
+        }
+
+        return null;
+    }
     private function validateParentFacility(?Facility $parent): void
     {
         if (!$parent) {
