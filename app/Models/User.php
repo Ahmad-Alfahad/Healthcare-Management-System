@@ -6,6 +6,8 @@ use App\Models\Doctor;
 use App\Models\Profile;
 use App\Models\Patient;
 use App\Models\Facility;
+use App\Models\Pharmacist;
+use App\Models\LabStaff;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -62,6 +64,57 @@ class User extends Authenticatable
         return $this->hasOne(Profile::class);
     }
 
+    public function employee(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Employee::class,
+            Profile::class,
+            'user_id',
+            'profile_id',
+            'id',
+            'id'
+        );
+    }
+
+    public function getDoctorAttribute(): ?Doctor
+    {
+        if ($this->relationLoaded('doctor')) {
+            return $this->getRelation('doctor');
+        }
+
+        return $this->employee?->doctor;
+    }
+
+    public function getPharmacistAttribute(): ?Pharmacist
+    {
+        if ($this->relationLoaded('pharmacist')) {
+            return $this->getRelation('pharmacist');
+        }
+
+        return $this->employee?->pharmacist;
+    }
+
+    public function getLabStaffAttribute(): ?LabStaff
+    {
+        if ($this->relationLoaded('labStaff')) {
+            return $this->getRelation('labStaff');
+        }
+
+        return $this->employee?->labStaff;
+    }
+
+    public function patient(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Patient::class,
+            Profile::class,
+            'user_id',
+            'profile_id',
+            'id',
+            'id'
+        );
+    }
+
     public function isAdmin(): bool
     {
         return $this->hasRole('admin');
@@ -109,87 +162,26 @@ class User extends Authenticatable
         ]);
     }
 
-    public function doctor(): HasOneThrough
-    {
-        return $this->hasOneThrough(
-            Doctor::class,
-            Profile::class,
-            'user_id',
-            'profile_id',
-            'id',
-            'id'
-        );
-    }
-
-    public function pharmacist(): HasOneThrough
-    {
-        return $this->hasOneThrough(
-            Pharmacist::class,
-            Profile::class,
-            'user_id',
-            'profile_id',
-            'id',
-            'id'
-        );
-    }
-
-    public function labStaff(): HasOneThrough
-    {
-        return $this->hasOneThrough(
-            LabStaff::class,
-            Profile::class,
-            'user_id',
-            'profile_id',
-            'id',
-            'id'
-        );
-    }
 
     public function facility(): ?Facility
     {
-        if ($this->doctor) {
-            return $this->doctor
-                ->facilityDepartmentSpecialization
-                ?->facilityDepartment
-                ?->facility;
-        }
-
-        if ($this->pharmacist) {
-            return $this->pharmacist->facility;
-        }
-
-        if ($this->labStaff) {
-            return $this->labStaff->facility;
-        }
-
-        return null;
+        return $this->employee?->facility;
     }
 
     public function accessibleFacilityIds(): array
     {
         $facility = $this->facility();
 
-        return array_values(array_unique(array_filter([
-            $facility?->id,
-            $facility?->parent_id,
-        ])));
+        if (!$facility) {
+            return [];
+        }
+
+        return $facility->familyIds();
     }
 
     public function managesFacility(Facility $facility): bool
     {
         return $this->hasRole('manager')
-            && $this->facility()?->id === $facility->id;
-    }
-
-    public function patient(): HasOneThrough
-    {
-        return $this->hasOneThrough(
-            Patient::class,
-            Profile::class,
-            'user_id',
-            'profile_id',
-            'id',
-            'id'
-        );
+            && in_array($facility->id, $this->accessibleFacilityIds(), true);
     }
 }

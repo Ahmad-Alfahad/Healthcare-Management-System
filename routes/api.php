@@ -5,6 +5,7 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FacilityController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\LabStaffController;
 use App\Http\Controllers\PharmacistController;
 use App\Http\Controllers\SpecializationController;
@@ -48,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Facilities and medical staff
     Route::apiResource('facilities', FacilityController::class);
+    Route::apiResource('employees', EmployeeController::class);
     Route::get('facilities/{facility}/staff', [FacilityController::class, 'staff']);
     Route::get('facilities/{facility}/departments', [FacilityController::class, 'departments']);
     Route::post('facilities/{facility}/departments', [FacilityController::class, 'addDepartment']);
@@ -63,12 +65,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // Patients and appointments
     Route::apiResource('patients', PatientController::class);
     Route::apiResource('appointments', AppointmentController::class);
+    Route::post('appointments/{appointment}/start-visit', [VisitController::class, 'startVisit']);
     Route::get('available-slots', [AppointmentController::class, 'availableSlots']);
     Route::get('appointments-confirmed',[AppointmentController::class, 'confirmed']);
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'changeStatus']);
 
     // Clinical records
     Route::apiResource('visits', VisitController::class);
+    Route::patch('visits/{visit}/complete', [VisitController::class, 'completeVisit']);
     Route::patch('visits/{id}/status', [VisitController::class, 'changeStatus']);
     Route::apiResource('diagnoses', DiagnosisController::class);
     Route::get('prescriptions/{prescription}/items', [PrescriptionItemController::class, 'byPrescription']);
