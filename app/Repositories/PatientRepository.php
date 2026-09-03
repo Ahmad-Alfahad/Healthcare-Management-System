@@ -16,9 +16,9 @@ class PatientRepository
         return $this->paginateList(Patient::with('profile'), $filters, [], ['profile' => ['full_name']]);
     }
 
-    public function getByFacility(int $facilityId, array $filters = []): LengthAwarePaginator
+    public function getByFacility(array $facilityIds, array $filters = []): LengthAwarePaginator
     {
-        return $this->paginateList(Patient::with('profile')->whereHas('appointments.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($query) => $query->where('facility_id', $facilityId)), $filters, [], ['profile' => ['full_name']]);
+        return $this->paginateList(Patient::with('profile')->whereHas('appointments.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($query) => $query->whereIn('facility_id', $facilityIds)), $filters, [], ['profile' => ['full_name']]);
     }
 
     public function find(int $id): Patient

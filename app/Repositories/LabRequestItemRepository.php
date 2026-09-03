@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\LabRequestItem;
+use App\Models\User;
 use App\Support\ListQuery;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -10,9 +11,27 @@ class LabRequestItemRepository
 {
     use ListQuery;
 
-    public function all(array $filters = []): LengthAwarePaginator
+    public function all(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
-        return $this->paginateList(LabRequestItem::with(['visit', 'labTest']), $filters, ['status'], ['labTest' => ['name'], 'visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]);
+        $query = LabRequestItem::with(['visit', 'labTest']);
+
+        if ($user !== null && !$user->isAdmin()) {
+            if ($user->isDoctor()) {
+                $query->whereHas('visit', fn ($visitQuery) => $visitQuery->where('doctor_id', $user->doctor?->id));
+            } elseif ($user->isPatient()) {
+                $query->whereHas('visit', fn ($visitQuery) => $visitQuery->where('patient_id', $user->patient?->id));
+            } elseif ($user->isManager() || $user->isLabStaff()) {
+                $facilityIds = $user->accessibleFacilityIds();
+                $query->whereHas(
+                    'visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
+                    fn ($facilityQuery) => $facilityQuery->whereIn('facility_id', $facilityIds)
+                );
+            } else {
+                $query->whereKey(-1);
+            }
+        }
+
+        return $this->paginateList($query, $filters, ['status'], ['labTest' => ['name'], 'visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]);
     }
 
     public function find(int $id): LabRequestItem

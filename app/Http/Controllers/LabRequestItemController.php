@@ -26,7 +26,7 @@ class LabRequestItemController extends Controller
         $this->authorize('viewAny', LabRequestItem::class);
         $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string', 'in:pending,processing,completed,cancelled']]);
         $items = $this->labRequestItemService
-            ->getAllLabRequestItems($filters)
+            ->getAllLabRequestItems($filters, $request->user())
             ->filter(fn(LabRequestItem $item): bool => $this->authorizeForItem($item));
 
         return response()->json([

@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Models\Dispensing;
-use App\Models\Pharmacist;
 use App\Models\PrescriptionItem;
 use App\Models\User;
 
@@ -39,7 +38,7 @@ class DispensingPolicy
             && $currentPharmacist !== null
             && $currentPharmacist->is_active !== false
             && $user->pharmacist?->id === $currentPharmacist->id
-            && $this->pharmacistCanAccessItem($currentPharmacist, $item);
+            && $this->userCanAccessItemFacility($user, $item);
     }
 
     public function update(User $user, Dispensing $dispensing): bool
@@ -60,10 +59,7 @@ class DispensingPolicy
 
         return $user->isPharmacist()
             && $user->pharmacist?->id === $dispensing->pharmacist_id
-            && $this->pharmacistCanAccessItem(
-                $user->pharmacist,
-                $dispensing->prescriptionItem
-            );
+            && $this->userCanAccessItemFacility($user, $dispensing->prescriptionItem);
     }
 
     private function canAccessItem(User $user, ?PrescriptionItem $item): bool
@@ -105,18 +101,17 @@ class DispensingPolicy
             && in_array($facility->id, $user->accessibleFacilityIds(), true);
     }
 
-    private function pharmacistCanAccessItem(
-        Pharmacist $pharmacist,
-        PrescriptionItem $item
-    ): bool {
-        $prescription = $item->prescription;
-        if ($prescription === null || $prescription->visit === null) {
+    private function userCanAccessItemFacility(User $user, ?PrescriptionItem $item): bool
+    {
+        if ($item === null) {
             return false;
         }
 
-        $facility = $this->visitFacility($prescription->visit);
+        $prescription = $item->prescription;
+        $facility = $this->visitFacility($prescription?->visit);
 
-        return $facility !== null && $pharmacist->facility_id === $facility->id;
+        return $facility !== null
+            && in_array($facility->id, $user->accessibleFacilityIds(), true);
     }
 
     private function visitFacility($visit)

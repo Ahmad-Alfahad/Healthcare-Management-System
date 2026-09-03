@@ -4,12 +4,12 @@ namespace App\Services;
 
 use App\Models\LabResult;
 use App\Models\LabRequestItem;
-use App\Models\User;
 use App\Repositories\LabResultRepository;
 use App\Repositories\LabRequestItemRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
 
 
 
@@ -24,9 +24,9 @@ class LabResultService
         $this->labRequestItemRepository = $labRequestItemRepository;
     }
 
-    public function getAllLabResults(array $filters = []): LengthAwarePaginator
+    public function getAllLabResults(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
-        return $this->labResultRepository->all($filters);
+        return $this->labResultRepository->all($filters, $user);
     }
 
     public function getLabResultById(int $id): LabResult

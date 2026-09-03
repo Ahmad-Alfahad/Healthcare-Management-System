@@ -16,19 +16,20 @@ class Doctor extends Model
 
     protected $fillable = [
         'facility_department_specialization_id',
-        'profile_id',
+        'employee_id',
         'qualification',
         'years_of_experience',
         'biography',
         'achievements',
-        'languages',
-        'is_active'
     ];
     protected $casts = [
         'years_of_experience' => 'integer',
-        'languages' => 'array',
-        'is_active' => 'boolean',
     ];
+
+    public function getIsActiveAttribute(): bool
+    {
+        return (bool) $this->employee?->is_active;
+    }
 
     public function facilityDepartmentSpecialization(): BelongsTo
     {
@@ -38,9 +39,19 @@ class Doctor extends Model
         );
     }
 
-    public function profile(): BelongsTo
+    public function employee(): BelongsTo
     {
-        return $this->belongsTo(Profile::class);
+        return $this->belongsTo(Employee::class);
+    }
+
+    public function getProfileAttribute(): ?Profile
+    {
+        return $this->employee?->profile;
+    }
+
+    public function getFacilityAttribute(): ?Facility
+    {
+        return $this->employee?->facility;
     }
 
     public function appointments(): HasMany

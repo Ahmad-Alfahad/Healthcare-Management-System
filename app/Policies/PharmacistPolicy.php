@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Pharmacist;
+use App\Models\Facility;
 use App\Models\User;
 
 class PharmacistPolicy
@@ -14,21 +15,26 @@ class PharmacistPolicy
 
     public function view(User $user, Pharmacist $pharmacist): bool
     {
-        return $user->isManagement() || $user->id === $pharmacist->user_id;
+        return $user->isAdmin()
+            || ($user->isManager() && $user->managesFacility($pharmacist->employee->facility))
+            || $user->id === $pharmacist->employee->profile->user_id;
     }
 
-    public function create(User $user): bool
+    public function create(User $user, Facility $facility): bool
     {
-        return $user->isManagement();
+        return $user->isAdmin()
+            || ($user->isManager() && $user->managesFacility($facility));
     }
 
     public function update(User $user, Pharmacist $pharmacist): bool
     {
-        return $user->isManagement();
+        return $user->isAdmin()
+            || ($user->isManager() && $user->managesFacility($pharmacist->employee->facility));
     }
 
     public function delete(User $user, Pharmacist $pharmacist): bool
     {
-        return false;
+        return $user->isAdmin()
+            || ($user->isManager() && $user->managesFacility($pharmacist->employee->facility));
     }
 }

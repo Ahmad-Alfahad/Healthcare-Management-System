@@ -17,32 +17,32 @@ class AppointmentRepository
     {
         return $this->paginateList(Appointment::with([
             'patient.profile',
-            'doctor.profile',
+            'doctor.employee.profile',
             'doctor.facilityDepartmentSpecialization.specialization',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
-        ]), $filters, ['status', 'reason', 'scheduled_date'], ['patient.profile' => ['full_name'], 'doctor.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.specialization' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.department' => ['name']]);
+        ]), $filters, ['status', 'reason', 'scheduled_date'], ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.specialization' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.department' => ['name']]);
     }
 
-    public function getByFacility(int $facilityId, array $filters = []): LengthAwarePaginator
+    public function getByFacility(array $facilityIds, array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(
             Appointment::with([
                 'patient.profile',
-                'doctor.profile',
+                'doctor.employee.profile',
                 'doctor.facilityDepartmentSpecialization.specialization',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
             ])
                 ->whereHas(
                     'doctor.facilityDepartmentSpecialization.facilityDepartment',
-                    function ($query) use ($facilityId) {
-                        $query->where('facility_id', $facilityId);
+                    function ($query) use ($facilityIds) {
+                        $query->whereIn('facility_id', $facilityIds);
                     }
                 ),
             $filters,
             ['status', 'reason', 'scheduled_date'],
-            ['patient.profile' => ['full_name'], 'doctor.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.specialization' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.department' => ['name']]
+            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.specialization' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.department' => ['name']]
         );
     }
 
@@ -51,7 +51,7 @@ class AppointmentRepository
         return $this->paginateList(
             Appointment::with([
                 'patient.profile',
-                'doctor.profile',
+                'doctor.employee.profile',
                 'doctor.facilityDepartmentSpecialization.specialization',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
@@ -59,7 +59,7 @@ class AppointmentRepository
                 ->where('doctor_id', $doctorId),
             $filters,
             ['status', 'reason', 'scheduled_date'],
-            ['patient.profile' => ['full_name'], 'doctor.profile' => ['full_name']]
+            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name']]
         );
     }
 
@@ -68,7 +68,7 @@ class AppointmentRepository
         return $this->paginateList(
             Appointment::with([
                 'patient.profile',
-                'doctor.profile',
+                'doctor.employee.profile',
                 'doctor.facilityDepartmentSpecialization.specialization',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
                 'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
@@ -76,7 +76,7 @@ class AppointmentRepository
                 ->where('patient_id', $patientId),
             $filters,
             ['status', 'reason', 'scheduled_date'],
-            ['patient.profile' => ['full_name'], 'doctor.profile' => ['full_name']]
+            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name']]
         );
     }
 
@@ -84,7 +84,7 @@ class AppointmentRepository
     {
         return Appointment::with([
             'patient.profile',
-            'doctor.profile',
+            'doctor.employee.profile',
             'doctor.facilityDepartmentSpecialization.specialization',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
@@ -118,16 +118,32 @@ class AppointmentRepository
             ->get();
     }
 
-    public function getConfirmed(): Collection
+    public function getConfirmed(?array $facilityIds = null, ?int $doctorId = null, ?int $patientId = null): Collection
     {
-        return Appointment::with([
+        $query = Appointment::with([
             'patient.profile',
-            'doctor.profile',
+            'doctor.employee.profile',
         ])
             ->where('status', 'confirmed')
             ->whereDate('scheduled_date', '>=', today())
             ->orderBy('scheduled_date')
-            ->orderBy('start_time')
-            ->get();
+            ->orderBy('start_time');
+
+        if ($facilityIds !== null) {
+            $query->whereHas(
+                'doctor.facilityDepartmentSpecialization.facilityDepartment',
+                fn ($facilityQuery) => $facilityQuery->whereIn('facility_id', $facilityIds)
+            );
+        }
+
+        if ($doctorId !== null) {
+            $query->where('doctor_id', $doctorId);
+        }
+
+        if ($patientId !== null) {
+            $query->where('patient_id', $patientId);
+        }
+
+        return $query->get();
     }
 }

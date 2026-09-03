@@ -14,15 +14,15 @@ class DoctorScheduleRepository
     public function all(array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(DoctorSchedule::with([
-            'doctor.profile',
+            'doctor.employee.profile',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility'
-        ]), $filters, ['day_of_week', 'start_time', 'end_time'], ['doctor.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name']]);
+        ]), $filters, ['day_of_week', 'start_time', 'end_time'], ['doctor.employee.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name']]);
     }
 
     public function find(int $id): DoctorSchedule
     {
         return DoctorSchedule::with([
-            'doctor.profile',
+            'doctor.employee.profile',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility'
         ])->findOrFail($id);
     }
@@ -51,15 +51,15 @@ class DoctorScheduleRepository
             ->first();
     }
 
-    public function getByFacility(int $facilityId): Collection
+    public function getByFacility(array $facilityIds): Collection
     {
         return DoctorSchedule::with([
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility'
         ])
             ->whereHas(
                 'doctor.facilityDepartmentSpecialization.facilityDepartment',
-                function ($query) use ($facilityId) {
-                    $query->where('facility_id', $facilityId);
+                function ($query) use ($facilityIds) {
+                    $query->whereIn('facility_id', $facilityIds);
                 }
             )
             ->get();
@@ -68,7 +68,7 @@ class DoctorScheduleRepository
     public function getByDoctor(int $doctorId): Collection
     {
         return DoctorSchedule::with([
-            'doctor.profile',
+            'doctor.employee.profile',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility'
         ])
             ->where('doctor_id', $doctorId)

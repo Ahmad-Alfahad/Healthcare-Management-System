@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Facility;
+use App\Models\Employee;
 use Illuminate\Support\ServiceProvider;
 use App\Policies\UserPolicy;
 use App\Policies\ProfilePolicy;
@@ -12,6 +13,7 @@ use App\Models\User;
 use App\Models\Profile;
 use App\Models\Patient;
 use App\Policies\FacilityPolicy;
+use App\Policies\EmployeePolicy;
 use App\Policies\AppointmentPolicy;
 use App\Models\Appointment;
 use App\Policies\VisitPolicy;
@@ -61,6 +63,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Profile::class, ProfilePolicy::class);
         Gate::policy(Patient::class, PatientPolicy::class);
         Gate::policy(Facility::class, FacilityPolicy::class);
+        Gate::policy(Employee::class, EmployeePolicy::class);
         Gate::policy(Appointment::class, AppointmentPolicy::class);
         Gate::policy(Visit::class, VisitPolicy::class);
         Gate::policy(Diagnosis::class, DiagnosisPolicy::class);

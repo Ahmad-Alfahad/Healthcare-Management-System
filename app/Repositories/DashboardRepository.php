@@ -22,14 +22,14 @@ class DashboardRepository
         [$from, $to] = $this->periodBounds($period);
 
         if ($user->isAdmin()) {
-            return $this->managementSummary(null, $from, $to);
+            return $this->managementSummary(Facility::pluck('id')->all(), $from, $to);
         }
 
         if ($user->isManager()) {
-            $facilityId = $user->facility()?->id;
+            $facilityIds = $user->accessibleFacilityIds();
 
-            return $facilityId
-                ? $this->managementSummary($facilityId, $from, $to)
+            return $facilityIds
+                ? $this->managementSummary($facilityIds, $from, $to)
                 : $this->emptySummary();
         }
 
@@ -56,7 +56,7 @@ class DashboardRepository
                 'pending_prescriptions' => Prescription::whereIn('status', ['pending', 'partial'])
                     ->whereHas(
                         'visit.doctor.facilityDepartmentSpecialization.facilityDepartment',
-                        fn(Builder $query) => $query->where('facility_id', $user->facility()?->id)
+                        fn(Builder $query) => $query->whereIn('facility_id', $user->accessibleFacilityIds())
                     )
                     ->count(),
             ];
@@ -88,39 +88,37 @@ class DashboardRepository
         ];
     }
 
-    private function managementSummary(?int $facilityId, ?Carbon $from, ?Carbon $to): array
+    private function managementSummary(array $facilityIds, ?Carbon $from, ?Carbon $to): array
     {
         $facilityQuery = Facility::query();
 
-        if ($facilityId) {
-            $facilityQuery->whereKey($facilityId);
-        }
+        $facilityQuery->whereIn('id', $facilityIds);
 
         $appointmentQuery = Appointment::query()->whereHas(
             'doctor.facilityDepartmentSpecialization.facilityDepartment',
-            fn(Builder $query) => $facilityId
-                ? $query->where('facility_id', $facilityId)
-                : $query
+            fn(Builder $query) => $query->whereIn('facility_id', $facilityIds)
         );
         $visitQuery = Visit::query()->whereHas(
             'doctor.facilityDepartmentSpecialization.facilityDepartment',
-            fn(Builder $query) => $facilityId
-                ? $query->where('facility_id', $facilityId)
-                : $query
+            fn(Builder $query) => $query->whereIn('facility_id', $facilityIds)
         );
 
         return [
             'facilities' => $facilityQuery->count(),
-            'doctors' => $this->doctorQuery($facilityId)->where('is_active', true)->count(),
+            'doctors' => $this->doctorQuery($facilityIds)
+                ->whereHas('employee', fn(Builder $query) => $query->where('is_active', true))
+                ->count(),
             'pharmacists' => Pharmacist::query()
-                ->when($facilityId, fn(Builder $query) => $query->where('facility_id', $facilityId))
-                ->where('is_active', true)
+                ->whereHas('employee', fn(Builder $query) => $query
+                    ->whereIn('facility_id', $facilityIds)
+                    ->where('is_active', true))
                 ->count(),
             'lab_staff' => LabStaff::query()
-                ->when($facilityId, fn(Builder $query) => $query->where('facility_id', $facilityId))
-                ->where('is_active', true)
+                ->whereHas('employee', fn(Builder $query) => $query
+                    ->whereIn('facility_id', $facilityIds)
+                    ->where('is_active', true))
                 ->count(),
-            'patients' => $this->patientQuery($facilityId)->count(),
+            'patients' => $this->patientQuery($facilityIds)->count(),
             ...$this->appointmentSummary($appointmentQuery, $visitQuery, $from, $to),
         ];
     }
@@ -149,26 +147,20 @@ class DashboardRepository
         ];
     }
 
-    private function doctorQuery(?int $facilityId = null): Builder
+    private function doctorQuery(array $facilityIds): Builder
     {
         return Doctor::query()
-            ->when(
-                $facilityId,
-                fn(Builder $query) => $query->whereHas(
-                    'facilityDepartmentSpecialization.facilityDepartment',
-                    fn(Builder $facilityQuery) => $facilityQuery->where('facility_id', $facilityId)
-                )
+            ->whereHas(
+                'facilityDepartmentSpecialization.facilityDepartment',
+                fn(Builder $facilityQuery) => $facilityQuery->whereIn('facility_id', $facilityIds)
             );
     }
 
-    private function patientQuery(?int $facilityId = null): Builder
+    private function patientQuery(array $facilityIds): Builder
     {
-        return Patient::query()->when(
-            $facilityId,
-            fn(Builder $query) => $query->whereHas(
-                'appointments.doctor.facilityDepartmentSpecialization.facilityDepartment',
-                fn(Builder $facilityQuery) => $facilityQuery->where('facility_id', $facilityId)
-            )
+        return Patient::query()->whereHas(
+            'appointments.doctor.facilityDepartmentSpecialization.facilityDepartment',
+            fn(Builder $facilityQuery) => $facilityQuery->whereIn('facility_id', $facilityIds)
         );
     }
 

@@ -136,6 +136,7 @@ class FacilityController extends Controller
 
     public function manager(Facility $facility): JsonResponse
     {
+        $this->authorize('viewStaff', $facility);
         $manager = $this->facilityService->getManager($facility);
 
         return response()->json([

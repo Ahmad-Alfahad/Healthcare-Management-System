@@ -38,7 +38,7 @@ class AppointmentService
             }
 
             return $this->appointmentRepository
-                ->getByFacility($facility->id, $filters);
+                ->getByFacility($user->accessibleFacilityIds(), $filters);
         }
 
         if ($user->isDoctor()) {
@@ -98,9 +98,25 @@ class AppointmentService
         return $this->appointmentRepository->delete($id);
     }
 
-    public function getConfirmedAppointments(): Collection
+    public function getConfirmedAppointments(User $user): Collection
     {
-        return $this->appointmentRepository->getConfirmed();
+        if ($user->isAdmin()) {
+            return $this->appointmentRepository->getConfirmed();
+        }
+
+        if ($user->isManager()) {
+            return $this->appointmentRepository->getConfirmed($user->accessibleFacilityIds());
+        }
+
+        if ($user->isDoctor()) {
+            return $this->appointmentRepository->getConfirmed(null, $user->doctor?->id);
+        }
+
+        if ($user->isPatient()) {
+            return $this->appointmentRepository->getConfirmed(null, null, $user->patient?->id);
+        }
+
+        return new Collection();
     }
 
     private function validateAppointmentDate(string $scheduleDate): void

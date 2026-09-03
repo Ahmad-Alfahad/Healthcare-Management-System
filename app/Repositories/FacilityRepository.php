@@ -17,7 +17,7 @@ class FacilityRepository
 
     public function all(array $filters = []): LengthAwarePaginator
     {
-        return $this->paginateList(Facility::with(['parent', 'childrens']), $filters, ['name', 'facility_type', 'description', 'status'], [], ['id' => 'id']);
+        return $this->paginateList(Facility::with(['parent', 'childrens']), $filters, ['name', 'facility_type'], [], ['id' => 'id']);
     }
 
     public function find(int $id): ?Facility
@@ -32,16 +32,16 @@ class FacilityRepository
         return [
             'doctors' => $this->doctorStaffQuery($facilityId, $search)
                 ->with([
-                    "profile:{$profileFields}",
+                    "employee.profile:{$profileFields}",
                     'facilityDepartmentSpecialization.specialization:id,name',
                     'facilityDepartmentSpecialization.facilityDepartment.department:id,name',
                 ])
                 ->paginate($perPage, ['*'], 'page', $page),
             'pharmacists' => $this->simpleStaffQuery(Pharmacist::query(), $facilityId, $search)
-                ->with("profile:{$profileFields}")
+                ->with(                "employee.profile:{$profileFields}")
                 ->paginate($perPage, ['*'], 'page', $page),
             'lab_staff' => $this->simpleStaffQuery(LabStaff::query(), $facilityId, $search)
-                ->with("profile:{$profileFields}")
+                ->with(                "employee.profile:{$profileFields}")
                 ->paginate($perPage, ['*'], 'page', $page),
         ];
     }
@@ -49,7 +49,7 @@ class FacilityRepository
     private function doctorStaffQuery(int $facilityId, ?string $search): Builder
     {
         $query = Doctor::query()
-            ->where('is_active', true)
+            ->whereHas('employee', fn(Builder $employee) => $employee->where('is_active', true))
             ->whereHas(
                 'facilityDepartmentSpecialization.facilityDepartment',
                 fn(Builder $builder) => $builder->where('facility_id', $facilityId)
@@ -57,7 +57,7 @@ class FacilityRepository
 
         if ($search) {
             $query->where(function (Builder $builder) use ($search) {
-                $builder->whereHas('profile', fn(Builder $profile) => $profile->where('full_name', 'like', "%{$search}%"))
+                $builder->whereHas('employee.profile', fn(Builder $profile) => $profile->where('full_name', 'like', "%{$search}%"))
                     ->orWhereHas('facilityDepartmentSpecialization.specialization', fn(Builder $specialization) => $specialization->where('name', 'like', "%{$search}%"))
                     ->orWhereHas('facilityDepartmentSpecialization.facilityDepartment.department', fn(Builder $department) => $department->where('name', 'like', "%{$search}%"));
             });
@@ -68,11 +68,14 @@ class FacilityRepository
 
     private function simpleStaffQuery(Builder $query, int $facilityId, ?string $search): Builder
     {
-        $query->where('facility_id', $facilityId)->where('is_active', true);
+        $query->whereHas('employee', function (Builder $employee) use ($facilityId) {
+            $employee->where('facility_id', $facilityId)
+                ->where('is_active', true);
+        });
 
         if ($search) {
             $query->whereHas(
-                'profile',
+                'employee.profile',
                 fn(Builder $profile) => $profile->where('full_name', 'like', "%{$search}%")
             );
         }

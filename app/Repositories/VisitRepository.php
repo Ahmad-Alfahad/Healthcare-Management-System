@@ -12,50 +12,50 @@ class VisitRepository
 
     public function all(array $filters = []): LengthAwarePaginator
     {
-        return $this->paginateList(Visit::with(['appointment', 'doctor.profile', 'patient.profile']), $filters, ['status', 'visited_at'], ['patient.profile' => ['full_name'], 'doctor.profile' => ['full_name']]);
+        return $this->paginateList(Visit::with(['appointment', 'doctor.employee.profile', 'patient.profile']), $filters, ['status', 'visited_at'], ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name']]);
     }
 
-    public function getByFacility(int $facilityId, array $filters = []): LengthAwarePaginator
+    public function getByFacility(array $facilityIds, array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(
-            Visit::with(['appointment', 'doctor.profile', 'patient.profile'])
+            Visit::with(['appointment', 'doctor.employee.profile', 'patient.profile'])
                 ->whereHas(
                     'doctor.facilityDepartmentSpecialization.facilityDepartment',
-                    function ($query) use ($facilityId) {
-                        $query->where('facility_id', $facilityId);
+                    function ($query) use ($facilityIds) {
+                        $query->whereIn('facility_id', $facilityIds);
                     }
                 ),
             $filters,
             ['status', 'visited_at'],
-            ['patient.profile' => ['full_name'], 'doctor.profile' => ['full_name']]
+            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name']]
         );
     }
 
     public function getByDoctor(int $doctorId, array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(
-            Visit::with(['appointment', 'doctor.profile', 'patient.profile'])
+            Visit::with(['appointment', 'doctor.employee.profile', 'patient.profile'])
                 ->where('doctor_id', $doctorId),
             $filters,
             ['status', 'visited_at'],
-            ['patient.profile' => ['full_name'], 'doctor.profile' => ['full_name']]
+            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name']]
         );
     }
 
     public function getByPatient(int $patientId, array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(
-            Visit::with(['appointment', 'doctor.profile', 'patient.profile'])
+            Visit::with(['appointment', 'doctor.employee.profile', 'patient.profile'])
                 ->where('patient_id', $patientId),
             $filters,
             ['status', 'visited_at'],
-            ['patient.profile' => ['full_name'], 'doctor.profile' => ['full_name']]
+            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name']]
         );
     }
 
     public function find(int $id): Visit
     {
-        return Visit::with(['appointment', 'doctor.profile', 'patient.profile'])->findOrFail($id);
+        return Visit::with(['appointment', 'doctor.employee.profile', 'patient.profile'])->findOrFail($id);
     }
 
     public function create(array $data): Visit

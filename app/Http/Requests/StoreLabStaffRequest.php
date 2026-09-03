@@ -14,8 +14,7 @@ class StoreLabStaffRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'facility_id'         => 'required|exists:facilities,id',
-            'profile_id'          => 'required|exists:profiles,id|unique:lab_staff,profile_id',
+            'employee_id'         => 'required|exists:employees,id|unique:lab_staff,employee_id',
             'specialization'      => 'required|string|max:255',
             'degree'              => 'required|string|max:255',
             'years_of_experience' => 'required|integer|min:0|max:60',
@@ -27,8 +26,9 @@ class StoreLabStaffRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'facility_id.required'    => 'The assigned medical facility is required.',
-            'profile_id.unique'       => 'This profile is already assigned to a lab staff member.',
+            'employee_id.required'    => 'The lab staff employee link is required.',
+            'employee_id.exists'      => 'The selected employee does not exist in our records.',
+            'employee_id.unique'      => 'This employee is already assigned to a lab staff member.',
             'specialization.required' => 'The lab technical specialization field is required.',
             'degree.required'         => 'The academic degree field is required.',
         ];

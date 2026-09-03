@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Repositories\PharmacistRepository;
-use App\Repositories\FacilityRepository;
-use App\Models\Pharmacist;
+use App\Models\Employee;
 use App\Models\Facility;
+use App\Models\Pharmacist;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
@@ -13,22 +13,30 @@ use Illuminate\Validation\ValidationException;
 class PharmacistService
 {
     protected PharmacistRepository $pharmacistRepository;
-    protected FacilityRepository $facilityRepository;
 
-    public function __construct(PharmacistRepository $pharmacistRepository, FacilityRepository $facilityRepository)
+    public function __construct(PharmacistRepository $pharmacistRepository)
     {
         $this->pharmacistRepository = $pharmacistRepository;
-        $this->facilityRepository = $facilityRepository;
     }
 
     public function getAllPharmacists(User $user, array $filters = [])
     {
-        if ($user->isManager()) {
-            return $user->facility()
-                ? $this->pharmacistRepository->getByFacility($user->facility()->id, $filters)
-                : $this->pharmacistRepository->getByFacility(-1, $filters);
+        if ($user->isAdmin()) {
+            return $this->pharmacistRepository->all($filters);
         }
 
+        if ($user->isManager()) {
+            $facility = $user->facility();
+
+            if (!$facility) {
+                return new Collection();
+            }
+
+            return $this->pharmacistRepository->getByFacility(
+                $user->accessibleFacilityIds(),
+                $filters
+            );
+        }
         return $this->pharmacistRepository->all($filters);
     }
 
@@ -39,55 +47,56 @@ class PharmacistService
 
     public function createPharmacist(array $data): Pharmacist
     {
-        $facility =
-            $this->facilityRepository
-            ->find(
-                $data['facility_id']
-            );
-        $this->validateProfileNotAssigned(
-            $data['profile_id']
+        $employee = Employee::findOrFail(
+            $data['employee_id']
+        );
+        $this->validateEmployee($employee);
+
+        $this->validateEmployeeNotAssigned(
+            $data['employee_id']
         );
 
-        $this->validateFacilityIsActive(
-            $facility
-        );
         $this->validateFacilityType(
-            $facility
+            $employee->facility
         );
-        return $this->pharmacistRepository->create($data);
+        $employee->update(array_intersect_key($data, array_flip(['is_active'])));
+
+        return $this->pharmacistRepository->create(
+            array_diff_key($data, array_flip(['is_active']))
+        );
     }
 
     public function updatePharmacist(int $id, array $data): bool
     {
-        $pharmacist =
-            $this->pharmacistRepository
-            ->find($id);
-        if (
-            isset($data['profile_id'])
-        ) {
+        $pharmacist = $this->pharmacistRepository->find($id);
+        $employee = $pharmacist->employee;
 
-            $this->validateProfileNotAssigned(
-                $data['profile_id'],
+        if (isset($data['employee_id'])) {
+            $employee = Employee::findOrFail(
+                $data['employee_id']
+            );
+
+            $this->validateEmployee($employee);
+
+            $this->validateEmployeeNotAssigned(
+                $data['employee_id'],
                 $id
+            );
+
+            $this->validateFacilityType(
+                $employee->facility
             );
         }
 
-        $facilityId =
-            $data['facility_id']
-            ?? $pharmacist->facility_id;
+        $employeeData = array_intersect_key($data, array_flip(['is_active']));
+        if ($employeeData !== []) {
+            $employee->update($employeeData);
+        }
 
-        $facility =
-            $this->facilityRepository
-            ->find($facilityId);
-
-        $this->validateFacilityIsActive(
-            $facility
+        return $this->pharmacistRepository->update(
+            $id,
+            array_diff_key($data, array_flip(['is_active']))
         );
-
-        $this->validateFacilityType(
-            $facility
-        );
-        return $this->pharmacistRepository->update($id, $data);
     }
 
     public function deletePharmacist(int $id): bool
@@ -95,54 +104,62 @@ class PharmacistService
         return $this->pharmacistRepository->delete($id);
     }
 
-    private function validateProfileNotAssigned(int $profileId, ?int $ignoreId = null): void
-    {
+    private function validateEmployee(
+        Employee $employee
+    ): void {
+        if (!$employee->is_active) {
+            throw ValidationException::withMessages([
+                'employee_id' => [
+                    'Employee is inactive.'
+                ]
+            ]);
+        }
+
+        if (!$employee->facility) {
+            throw ValidationException::withMessages([
+                'employee_id' => [
+                    'Employee is not assigned to a facility.'
+                ]
+            ]);
+        }
+
+        if (!$employee->facility->is_active) {
+            throw ValidationException::withMessages([
+                'employee_id' => [
+                    'Employee facility is inactive.'
+                ]
+            ]);
+        }
+    }
+
+    private function validateEmployeeNotAssigned(
+        int $employeeId,
+        ?int $ignoreId = null
+    ): void {
         $query = Pharmacist::where(
-            'profile_id',
-            $profileId
+            'employee_id',
+            $employeeId
         );
 
-        if ($ignoreId) {
-            $query->where(
-                'id',
-                '!=',
-                $ignoreId
-            );
+        if ($ignoreId !== null) {
+            $query->where('id', '!=', $ignoreId);
         }
 
         if ($query->exists()) {
-
             throw ValidationException::withMessages([
-                'profile_id' => [
-                    'Profile already assigned to a pharmacist.'
+                'employee_id' => [
+                    'Employee is already assigned to another pharmacist.'
                 ]
             ]);
         }
     }
 
-
-    private function validateFacilityIsActive(
+    private function validateFacilityType(
         Facility $facility
     ): void {
-        if (!$facility->is_active) {
-
+        if ($facility->facility_type !== 'pharmacy') {
             throw ValidationException::withMessages([
-                'facility_id' => [
-                    'Facility is inactive.'
-                ]
-            ]);
-        }
-    }
-
-    private function validateFacilityType(Facility $facility): void
-    {
-        if (
-            $facility->facility_type
-            !== 'pharmacy'
-        ) {
-
-            throw ValidationException::withMessages([
-                'facility_id' => [
+                'employee_id' => [
                     'Pharmacist must belong to a pharmacy.'
                 ]
             ]);

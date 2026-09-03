@@ -17,7 +17,7 @@ class AuditLogController extends Controller
         $auditLogs = AuditLog::query()
             ->with('user:id,name,email')
             ->when($request->user()->isManager(), function ($query) use ($request): void {
-                $query->where('facility_id', $request->user()->facility()?->id);
+                $query->whereIn('facility_id', $request->user()->accessibleFacilityIds());
             })
             ->when($filters['table_name'] ?? null, fn($query, $value) => $query->where('table_name', $value))
             ->when($filters['action'] ?? null, fn($query, $value) => $query->where('action', $value))

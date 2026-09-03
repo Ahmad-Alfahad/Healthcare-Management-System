@@ -17,11 +17,10 @@ class UpdatePharmacistRequest extends FormRequest
         $pharmacistId = $this->route('pharmacist'); 
 
         return [
-            'facility_id'         => 'sometimes|exists:facilities,id',
-            'profile_id'          => [
+            'employee_id'         => [
                 'sometimes',
-                'exists:profiles,id',
-                Rule::unique('pharmacists', 'profile_id')->ignore($pharmacistId, 'id'),
+                'exists:employees,id',
+                Rule::unique('pharmacists', 'employee_id')->ignore($pharmacistId, 'id'),
             ],
             'degree'              => 'sometimes|string|max:255',
             'years_of_experience' => 'sometimes|integer|min:0|max:60',
@@ -38,7 +37,9 @@ class UpdatePharmacistRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'profile_id.unique'      => 'This profile is already assigned to a pharmacist.',
+            'employee_id.required'   => 'The pharmacist employee is required for updating.',
+            'employee_id.exists'     => 'The selected employee does not exist in our records.',
+            'employee_id.unique'     => 'This employee is already assigned to another pharmacist.',
             'license_number.unique'  => 'This pharmacy license number is already registered.',
         ];
     }

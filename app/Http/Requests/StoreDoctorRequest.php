@@ -15,12 +15,13 @@ class StoreDoctorRequest extends FormRequest
     {
        return [
         'facility_department_specialization_id' => 'required|exists:facility_department_specialization,id',
-        'profile_id'            => 'required|exists:profiles,id|unique:doctors,profile_id',
+        'employee_id'           => 'required|exists:employees,id|unique:doctors,employee_id',
         'qualification'         => 'required|string|max:255',
         'years_of_experience'   => 'required|integer|min:0',
         'biography'             => 'nullable|string|max:2000',
         'achievements'          => 'nullable|string|max:2000',
         'languages'             => 'nullable|array',
+        'is_active'             => 'sometimes|boolean',
     ];
     }
 
@@ -29,9 +30,9 @@ class StoreDoctorRequest extends FormRequest
         return [
             'facility_department_specialization_id.required' => 'The facility, department, and specialization assignment is required.',
             'facility_department_specialization_id.exists'   => 'The selected work configuration combination does not exist.',
-            'profile_id.required' => 'The doctor profile link is required.',
-            'profile_id.exists'   => 'The selected profile does not exist in our records.',
-            'profile_id.unique'   => 'This profile is already assigned to an existing doctor account.',
+            'employee_id.required' => 'The doctor employee link is required.',
+            'employee_id.exists'   => 'The selected employee does not exist in our records.',
+            'employee_id.unique'   => 'This employee is already assigned to an existing doctor account.',
             'qualification.required' => 'The doctor qualification is required.',
             'qualification.string'   => 'The doctor qualification must be a valid string.',
             'qualification.max'      => 'The doctor qualification must not exceed 255 characters.',
@@ -40,10 +41,11 @@ class StoreDoctorRequest extends FormRequest
             'years_of_experience.min'      => 'The years of experience must be at least 0.',
             'biography.string' => 'The biography must be a valid string.',
             'biography.max'    => 'The biography must not exceed 2000 characters.',
-            'achievements.string' => 'The achievements must be a valid string.',    
+            'achievements.string' => 'The achievements must be a valid string.',
             'achievements.max'    => 'The achievements must not exceed 2000 characters.',
             'languages.array' => 'The languages must be a valid array.',
-                
+            'is_active.boolean' => 'The active status must be true or false.',
+                 
         ];
     }
 }

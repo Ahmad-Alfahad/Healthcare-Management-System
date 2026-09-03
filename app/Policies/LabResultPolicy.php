@@ -101,7 +101,8 @@ class LabResultPolicy
     ): bool {
         $facility = $this->visitFacility($labRequestItem->visit);
 
-        return $facility !== null && $labStaff->facility_id === $facility->id;
+        return $facility !== null
+            && in_array($facility->id, $labStaff->employee?->facility?->familyIds() ?? [], true);
     }
 
     private function visitFacility($visit)

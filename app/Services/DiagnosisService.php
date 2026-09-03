@@ -31,7 +31,7 @@ class DiagnosisService
             $facility = $user->facility();
 
             return $facility
-                ? $this->diagnosisRepository->getByFacility($facility->id, $filters)
+                ? $this->diagnosisRepository->getByFacility($user->accessibleFacilityIds(), $filters)
                 : new Collection();
         }
 

@@ -17,28 +17,35 @@ class LabStaff extends Model
     protected $table = 'lab_staff';
 
     protected $fillable = [
-        'facility_id',
-        'profile_id',
+        'employee_id',
         'specialization',
         'degree',
         'years_of_experience',
         'license_number',
-        'is_active'
     ];
 
     protected $casts = [
         'years_of_experience' => 'integer',
-        'is_active'           => 'boolean',
     ];
 
-    public function facility(): BelongsTo
+    public function getIsActiveAttribute(): bool
     {
-        return $this->belongsTo(Facility::class);
+        return $this->employee?->is_active ?? true;
     }
 
-    public function profile(): BelongsTo
+    public function employee(): BelongsTo
     {
-        return $this->belongsTo(Profile::class);
+        return $this->belongsTo(Employee::class);
+    }
+
+    public function getProfileAttribute(): ?Profile
+    {
+        return $this->employee?->profile;
+    }
+
+    public function getFacilityAttribute(): ?Facility
+    {
+        return $this->employee?->facility;
     }
 
     public function labResults(): HasMany

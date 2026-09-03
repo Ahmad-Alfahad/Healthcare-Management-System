@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\LabStaff;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -24,12 +23,10 @@ class UpdateLabStaffRequest extends FormRequest
 
 
         return [
-            'facility_id' => 'sometimes|exists:facilities,id',
-
-            'profile_id'  => [
+            'employee_id'  => [
                 'sometimes',
-                'exists:profiles,id',
-                Rule::unique('lab_staff', 'profile_id')->ignore($labStaffId, 'id'),
+                'exists:employees,id',
+                Rule::unique('lab_staff', 'employee_id')->ignore($labStaffId, 'id'),
             ],
 
             'specialization'      => 'sometimes|string|max:255',
@@ -50,8 +47,9 @@ class UpdateLabStaffRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'facility_id.required'    => 'The assigned medical facility is required.',
-            'profile_id.unique'       => 'This profile is already assigned to a lab staff member.',
+            'employee_id.required'    => 'The lab staff employee is required for updating.',
+            'employee_id.exists'      => 'The selected employee does not exist in our records.',
+            'employee_id.unique'      => 'This employee is already assigned to another lab staff member.',
             'specialization.required' => 'The lab technical specialization field is required.',
             'degree.required'         => 'The academic degree field is required.',
         ];

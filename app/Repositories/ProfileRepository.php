@@ -12,12 +12,10 @@ class ProfileRepository
         $query = Profile::with('user.roles');
 
         if ($user?->isManager()) {
-            $facilityId = $user->facility()?->id;
-            $query->where(function ($query) use ($facilityId): void {
-                $query->whereHas('doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $facilityId))
-                    ->orWhereHas('pharmacist', fn($q) => $q->where('facility_id', $facilityId))
-                    ->orWhereHas('labStaff', fn($q) => $q->where('facility_id', $facilityId))
-                    ->orWhereHas('patient.appointments.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $facilityId));
+            $facilityIds = $user->accessibleFacilityIds();
+            $query->where(function ($query) use ($facilityIds): void {
+                $query->whereHas('employee', fn($q) => $q->whereIn('facility_id', $facilityIds))
+                    ->orWhereHas('patient.appointments.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->whereIn('facility_id', $facilityIds));
             });
         }
 

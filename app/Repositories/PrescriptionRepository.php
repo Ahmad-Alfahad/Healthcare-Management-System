@@ -16,11 +16,11 @@ class PrescriptionRepository
         $query = Prescription::with([
             'visit',
             'visit.patient.profile',
-            'visit.doctor.profile',
+            'visit.doctor.employee.profile',
         ]);
 
         if ($user?->isAdmin()) {
-            return $this->paginateList($query, $filters, ['status'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]);
+            return $this->paginateList($query, $filters, ['status'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]);
         }
 
         if ($user?->isDoctor()) {
@@ -36,9 +36,9 @@ class PrescriptionRepository
         } elseif ($user?->isManager()) {
             $query->whereHas(
                 'visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
-                fn($facilityDepartmentQuery) => $facilityDepartmentQuery->where(
+                fn($facilityDepartmentQuery) => $facilityDepartmentQuery->whereIn(
                     'facility_id',
-                    $user->facility()?->id
+                    $user->accessibleFacilityIds()
                 )
             );
         } elseif ($user?->isPharmacist()) {
@@ -53,7 +53,7 @@ class PrescriptionRepository
             $query->whereRaw('1 = 0');
         }
 
-        return $this->paginateList($query, $filters, ['status'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]);
+        return $this->paginateList($query, $filters, ['status'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]);
     }
 
     public function find(int $id): Prescription

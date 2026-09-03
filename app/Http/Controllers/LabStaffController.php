@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LabStaff;
-use App\Models\Facility;
+use App\Models\Employee;
 use App\Http\Requests\StoreLabStaffRequest;
 use App\Http\Requests\UpdateLabStaffRequest;
 use App\Services\LabStaffService;
@@ -36,7 +36,7 @@ class LabStaffController extends Controller
     public function store(StoreLabStaffRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $facility = Facility::findOrFail($data['facility_id']);
+        $facility = Employee::findOrFail($data['employee_id'])->facility;
         $this->authorize('create', [LabStaff::class, $facility]);
         $staff = $this->labStaffService->createStaff($data);
         return response()->json([
@@ -62,8 +62,9 @@ class LabStaffController extends Controller
         $staff = $this->labStaffService->getStaffById($id);
         $data = $request->validated();
         $this->authorize('update', $staff);
-        if (request()->user()->isManager() && isset($data['facility_id'])) {
-            abort_unless(request()->user()->managesFacility(Facility::findOrFail($data['facility_id'])), 403);
+        if (request()->user()->isManager() && isset($data['employee_id'])) {
+            $facility = Employee::findOrFail($data['employee_id'])->facility;
+            abort_unless($facility && request()->user()->managesFacility($facility), 403);
         }
         $this->labStaffService->updateStaff($id, $data);
         return response()->json([

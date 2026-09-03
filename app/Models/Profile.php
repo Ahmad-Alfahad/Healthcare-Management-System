@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\Concerns\Auditable;
@@ -10,7 +11,7 @@ use App\Models\User;
 
 class Profile extends Model
 {
-    use Auditable;
+    use Auditable, HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -37,21 +38,13 @@ class Profile extends Model
     {
         return $this->hasOne(Patient::class);
     }
-    public function doctor(): HasOne
+    public function employee(): HasOne
     {
-        return $this->hasOne(Doctor::class);
-    }
-    public function pharmacist(): HasOne
-    {
-        return $this->hasOne(Pharmacist::class);
-    }
-    public function labStaff(): HasOne
-    {
-        return $this->hasOne(LabStaff::class);
+        return $this->hasOne(Employee::class);
     }
 
     public function belongsToUser(User $user): bool
     {
         return $this->user_id === $user->id;
-    }
+    }   
 }

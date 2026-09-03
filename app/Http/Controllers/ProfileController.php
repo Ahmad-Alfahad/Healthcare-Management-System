@@ -35,7 +35,7 @@ class ProfileController extends Controller
     {
         $this->authorize('create', Profile::class);
         $profile = $this->profileService->createProfile($request->validated());
-        $profile->load(['user.roles', 'patient', 'doctor', 'pharmacist', 'labStaff']);
+        $profile->load(['user.roles', 'patient', 'employee.doctor', 'employee.pharmacist', 'employee.labStaff']);
 
         return response()->json([
             'success' => true,

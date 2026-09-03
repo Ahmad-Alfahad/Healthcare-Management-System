@@ -45,6 +45,18 @@ class VisitController extends Controller
         ], Response::HTTP_CREATED);
     }
 
+    public function startVisit(Appointment $appointment): JsonResponse
+    {
+        $this->authorize('create', [Visit::class, $appointment]);
+        $visit = $this->visitService->startVisit($appointment->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Visit started successfully.',
+            'data' => $visit,
+        ], Response::HTTP_CREATED);
+    }
+
     public function show(int $id): JsonResponse
     {
         $visit = $this->visitService->getVisitById($id);
@@ -87,5 +99,17 @@ class VisitController extends Controller
             'success' => true,
             'message' => 'Visit status updated successfully.'
         ]);
+    }
+
+    public function completeVisit(Visit $visit): JsonResponse
+    {
+        $this->authorize('changeStatus', $visit);
+        $completedVisit = $this->visitService->completeVisit($visit->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Visit completed successfully.',
+            'data' => $completedVisit,
+        ], Response::HTTP_OK);
     }
 }

@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('pharmacists', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("facility_id")->constrained()->onDelete('cascade');
-            $table->foreignId("profile_id")->unique()->constrained()->onDelete('cascade');
-            
+            $table->foreignId("employee_id")->references("id")->on("employees")
+            ->unique()
+            ->constrained()->onDelete('cascade');
             $table->string("degree"); 
             $table->unsignedTinyInteger("years_of_experience")->default(0); 
             $table->string("license_number")->nullable()->unique(); 
-            $table->boolean("is_active")->default(true); 
             
             $table->timestamps();
         });

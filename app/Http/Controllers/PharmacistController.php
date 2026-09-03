@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pharmacist;
-use App\Models\Facility;
+use App\Models\Employee;
 use App\Http\Requests\StorePharmacistRequest;
 use App\Http\Requests\UpdatePharmacistRequest;
 use App\Services\PharmacistService;
@@ -32,7 +32,7 @@ class PharmacistController extends Controller
     public function store(StorePharmacistRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $facility = Facility::findOrFail($data['facility_id']);
+        $facility = Employee::findOrFail($data['employee_id'])->facility;
         $this->authorize('create', [Pharmacist::class, $facility]);
         $pharmacist = $this->pharmacistService->createPharmacist($data);
         return response()->json([
@@ -58,8 +58,9 @@ class PharmacistController extends Controller
         $pharmacist = $this->pharmacistService->getPharmacistById($id);
         $data = $request->validated();
         $this->authorize('update', $pharmacist);
-        if (request()->user()->isManager() && isset($data['facility_id'])) {
-            abort_unless(request()->user()->managesFacility(Facility::findOrFail($data['facility_id'])), 403);
+        if (request()->user()->isManager() && isset($data['employee_id'])) {
+            $facility = Employee::findOrFail($data['employee_id'])->facility;
+            abort_unless($facility && request()->user()->managesFacility($facility), 403);
         }
         $this->pharmacistService->updatePharmacist($id, $data);
         return response()->json([

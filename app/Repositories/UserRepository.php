@@ -32,9 +32,9 @@ class UserRepository
         return User::with([
             'profile',
             'patient',
-            'doctor',
-            'pharmacist',
-            'labStaff',
+            'employee.doctor',
+            'employee.pharmacist',
+            'employee.labStaff',
         ])->findOrFail($id);
     }
 }

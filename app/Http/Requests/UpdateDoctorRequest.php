@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateDoctorRequest extends FormRequest
 {
@@ -17,7 +18,11 @@ class UpdateDoctorRequest extends FormRequest
 
         return [
             'facility_department_specialization_id' => 'sometimes|exists:facility_department_specialization,id',
-            'profile_id' => "sometimes|exists:profiles,id|unique:doctors,profile_id,{$doctorId}",
+            'employee_id' => [
+                'sometimes',
+                'exists:employees,id',
+                Rule::unique('doctors', 'employee_id')->ignore($doctorId, 'id'),
+            ],
             'qualification'         => 'sometimes|string|max:255',
             'years_of_experience'   => 'sometimes|integer|min:0',
             'biography'             => 'nullable|string|max:2000',
@@ -32,9 +37,9 @@ class UpdateDoctorRequest extends FormRequest
     {
         return [
             'facility_department_specialization_id.required' => 'The work assignment configuration is required for updating.',
-            'profile_id.required' => 'The doctor profile is required for updating.',
-            'profile_id.exists'   => 'The selected profile does not exist in our records.',
-            'profile_id.unique'   => 'This profile is already assigned to another doctor account.',
+            'employee_id.required' => 'The doctor employee is required for updating.',
+            'employee_id.exists'   => 'The selected employee does not exist in our records.',
+            'employee_id.unique'   => 'This employee is already assigned to another doctor account.',
             'qualification.required' => 'The doctor qualification is required for updating.',
             'qualification.string'   => 'The doctor qualification must be a valid string.',
             'qualification.max'      => 'The doctor qualification must not exceed 255 characters.',

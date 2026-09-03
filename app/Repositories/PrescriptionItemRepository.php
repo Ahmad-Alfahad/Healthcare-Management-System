@@ -21,7 +21,7 @@ class PrescriptionItemRepository
         }
 
         if ($user?->isManager()) {
-            $query->whereHas('prescription.visit.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->where('facility_id', $user->facility()?->id));
+            $query->whereHas('prescription.visit.doctor.facilityDepartmentSpecialization.facilityDepartment', fn($q) => $q->whereIn('facility_id', $user->accessibleFacilityIds()));
         }
         return $this->paginateList($query, $filters, ['medication_name', 'dosage', 'status']);
     }

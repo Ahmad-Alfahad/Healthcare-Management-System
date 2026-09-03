@@ -30,7 +30,7 @@ class DoctorScheduleService
             }
 
             return $this->doctorscheduleRepository->getByFacility(
-                $facility->id
+                $user->accessibleFacilityIds()
             );
         }
 

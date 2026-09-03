@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\LabResult;
+use App\Models\User;
 use App\Support\ListQuery;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -10,14 +11,31 @@ class LabResultRepository
 {
     use ListQuery;
 
-    public function all(array $filters = []): LengthAwarePaginator
+    public function all(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
-        return $this->paginateList(LabResult::with([
+        $query = LabResult::with([
             'labRequestItem.labTest',
             'labRequestItem.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
-            'labStaff.profile',
+            'labStaff.employee.profile',
             'labStaff.facility',
-        ]), $filters, ['value', 'unit'], ['labRequestItem.labTest' => ['name'], 'labRequestItem.visit.patient.profile' => ['full_name'], 'labStaff.profile' => ['full_name']]);
+        ]);
+
+        if ($user !== null && !$user->isAdmin()) {
+            if ($user->isDoctor()) {
+                $query->whereHas('labRequestItem.visit', fn ($visitQuery) => $visitQuery->where('doctor_id', $user->doctor?->id));
+            } elseif ($user->isPatient()) {
+                $query->whereHas('labRequestItem.visit', fn ($visitQuery) => $visitQuery->where('patient_id', $user->patient?->id));
+            } elseif ($user->isManager() || $user->isLabStaff()) {
+                $query->whereHas(
+                    'labRequestItem.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
+                    fn ($facilityQuery) => $facilityQuery->whereIn('facility_id', $user->accessibleFacilityIds())
+                );
+            } else {
+                $query->whereKey(-1);
+            }
+        }
+
+        return $this->paginateList($query, $filters, ['value', 'unit'], ['labRequestItem.labTest' => ['name'], 'labRequestItem.visit.patient.profile' => ['full_name'], 'labStaff.employee.profile' => ['full_name']]);
     }
 
     public function find(int $id): LabResult
@@ -25,7 +43,7 @@ class LabResultRepository
         return LabResult::with([
             'labRequestItem.labTest',
             'labRequestItem.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
-            'labStaff.profile',
+            'labStaff.employee.profile',
             'labStaff.facility',
         ])->findOrFail($id);
     }

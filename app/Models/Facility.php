@@ -39,4 +39,29 @@ class Facility extends Model
     {
         return $this->hasMany(FacilityDepartment::class, 'facility_id');
     }
+
+    public function employees(): HasMany
+    {
+        return $this->hasMany(Employee::class, 'facility_id');
+    }
+
+    public function facility(): ?Facility
+    {
+        return $this;
+    }
+
+    public function familyIds(): array
+    {
+        if (!$this->exists) {
+            return [$this->id];
+        }
+
+        $rootId = $this->parent_id ?? $this->id;
+
+        return static::query()
+            ->where('id', $rootId)
+            ->orWhere('parent_id', $rootId)
+            ->pluck('id')
+            ->all();
+    }
 }

@@ -8,6 +8,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\Repositories\LabRequestItemRepository;
 use App\Repositories\VisitRepository;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
 
 class LabRequestItemService
 {
@@ -20,9 +21,9 @@ class LabRequestItemService
         $this->visitRepository = $visitRepository;
     }
 
-    public function getAllLabRequestItems(array $filters = []): LengthAwarePaginator
+    public function getAllLabRequestItems(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
-        return $this->labRequestItemRepository->all($filters);
+        return $this->labRequestItemRepository->all($filters, $user);
     }
 
     public function getLabRequestItemById(int $id): LabRequestItem

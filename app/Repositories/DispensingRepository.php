@@ -15,13 +15,12 @@ class DispensingRepository
     {
         $query = Dispensing::with([
             'prescriptionItem.prescription.visit.patient.profile',
-            'prescriptionItem.prescription.visit.doctor.profile',
-            'pharmacist',
-            'pharmacist.profile',
+            'prescriptionItem.prescription.visit.doctor.employee.profile',
+            'pharmacist.employee.profile',
         ]);
 
         if ($user?->isAdmin()) {
-            return $this->paginateList($query, $filters, ['quantity_dispensed', 'dispensed_at'], ['prescriptionItem' => ['medication_name'], 'pharmacist.profile' => ['full_name']]);
+            return $this->paginateList($query, $filters, ['quantity_dispensed', 'dispensed_at'], ['prescriptionItem' => ['medication_name'], 'pharmacist.employee.profile' => ['full_name']]);
         }
 
         if ($user?->isDoctor()) {
@@ -37,9 +36,9 @@ class DispensingRepository
         } elseif ($user?->isManager()) {
             $query->whereHas(
                 'prescriptionItem.prescription.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
-                fn($facilityDepartmentQuery) => $facilityDepartmentQuery->where(
+                fn($facilityDepartmentQuery) => $facilityDepartmentQuery->whereIn(
                     'facility_id',
-                    $user->facility()?->id
+                    $user->accessibleFacilityIds()
                 )
             );
         } elseif ($user?->isPharmacist()) {
@@ -54,12 +53,12 @@ class DispensingRepository
             $query->whereRaw('1 = 0');
         }
 
-        return $this->paginateList($query, $filters, ['quantity_dispensed', 'dispensed_at'], ['prescriptionItem' => ['medication_name'], 'pharmacist.profile' => ['full_name']]);
+        return $this->paginateList($query, $filters, ['quantity_dispensed', 'dispensed_at'], ['prescriptionItem' => ['medication_name'], 'pharmacist.employee.profile' => ['full_name']]);
     }
 
     public function find(int $id): Dispensing
     {
-        return Dispensing::with(['prescriptionItem', 'pharmacist', 'pharmacist.profile'])->findOrFail($id);
+        return Dispensing::with(['prescriptionItem', 'pharmacist.employee.profile'])->findOrFail($id);
     }
 
     public function create(array $data): Dispensing

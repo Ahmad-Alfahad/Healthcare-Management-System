@@ -12,22 +12,22 @@ class DiagnosisRepository
 
     public function all(array $filters = []): LengthAwarePaginator
     {
-        return $this->paginateList(Diagnosis::with('visit.appointment'), $filters, ['diagnosis', 'status', 'diagnosed_at'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]);
+        return $this->paginateList(Diagnosis::with('visit.appointment'), $filters, ['diagnosis', 'status', 'diagnosed_at'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]);
     }
 
-    public function getByFacility(int $facilityId, array $filters = []): LengthAwarePaginator
+    public function getByFacility(array $facilityIds, array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(
             Diagnosis::with('visit.appointment')
                 ->whereHas(
                     'visit.doctor.facilityDepartmentSpecialization.facilityDepartment',
-                    function ($query) use ($facilityId) {
-                        $query->where('facility_id', $facilityId);
+                    function ($query) use ($facilityIds) {
+                        $query->whereIn('facility_id', $facilityIds);
                     }
                 ),
             $filters,
             ['diagnosis', 'status', 'diagnosed_at'],
-            ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]
+            ['visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]
         );
     }
 
@@ -40,7 +40,7 @@ class DiagnosisRepository
                 }),
             $filters,
             ['diagnosis', 'status', 'diagnosed_at'],
-            ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]
+            ['visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]
         );
     }
 
@@ -53,7 +53,7 @@ class DiagnosisRepository
                 }),
             $filters,
             ['diagnosis', 'status', 'diagnosed_at'],
-            ['visit.patient.profile' => ['full_name'], 'visit.doctor.profile' => ['full_name']]
+            ['visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]
         );
     }
 

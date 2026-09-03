@@ -23,8 +23,8 @@ class PatientService
             $facility = $user->facility();
 
             return $facility
-                ? $this->patientRepository->getByFacility($facility->id, $filters)
-                : $this->patientRepository->getByFacility(-1, $filters);
+                ? $this->patientRepository->getByFacility($user->accessibleFacilityIds(), $filters)
+                : $this->patientRepository->getByFacility([], $filters);
         }
 
         return $this->patientRepository->get($filters);

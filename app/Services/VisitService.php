@@ -31,7 +31,7 @@ class VisitService
             $facility = $user->facility();
 
             return $facility
-                ? $this->visitRepository->getByFacility($facility->id, $filters)
+                ? $this->visitRepository->getByFacility($user->accessibleFacilityIds(), $filters)
                 : new Collection();
         }
 
@@ -90,6 +90,11 @@ class VisitService
         $data['visited_at'] = $visitedAt;
 
         return $this->visitRepository->create($data);
+    }
+
+    public function startVisit(int $appointmentId): Visit
+    {
+        return $this->createVisit(['appointment_id' => $appointmentId]);
     }
 
     public function updateVisit(int $id, array $data): bool
@@ -193,6 +198,17 @@ class VisitService
                     'status' => $newStatus
                 ]
             );
+    }
+
+    public function completeVisit(int $visitId): Visit
+    {
+        $visit = $this->visitRepository->find($visitId);
+
+        $this->validateVisitStatusTransition($visit, 'completed');
+
+        $this->visitRepository->update($visitId, ['status' => 'completed']);
+
+        return $this->visitRepository->find($visitId);
     }
 
     private function validateVisitIsEditable(Visit $visit): void

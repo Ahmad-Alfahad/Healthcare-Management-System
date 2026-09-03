@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\LabStaff;
-use Illuminate\Database\Eloquent\Collection;
 use App\Support\ListQuery;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -13,17 +12,40 @@ class LabStaffRepository
 
     public function all(array $filters = []): LengthAwarePaginator
     {
-        return $this->paginateList(LabStaff::with(['profile', 'facility']), $filters, ['license_number'], ['profile' => ['full_name'], 'facility' => ['name']], ['facility_id' => 'facility_id']);
+        $query = LabStaff::with(['employee.profile', 'employee.facility']);
+        $this->applyStatusFilter($query, $filters);
+
+        return $this->paginateList(
+            $query,
+            $filters,
+            ['license_number'],
+            [
+                'employee.profile' => ['full_name'],
+                'employee.facility' => ['name'],
+            ]
+        );
     }
 
-    public function getByFacility(int $facilityId, array $filters = []): LengthAwarePaginator
+    public function getByFacility(array $facilityIds, array $filters = []): LengthAwarePaginator
     {
-        return $this->paginateList(LabStaff::with(['profile', 'facility'])->where('facility_id', $facilityId), $filters, ['license_number'], ['profile' => ['full_name'], 'facility' => ['name']]);
+        $query = LabStaff::with(['employee.profile', 'employee.facility'])
+            ->whereHas('employee', fn($employee) => $employee->whereIn('facility_id', $facilityIds));
+        $this->applyStatusFilter($query, $filters);
+
+        return $this->paginateList(
+            $query,
+            $filters,
+            ['license_number'],
+            [
+                'employee.profile' => ['full_name'],
+                'employee.facility' => ['name'],
+            ]
+        );
     }
 
     public function find(int $id): LabStaff
     {
-        return LabStaff::with(['profile', 'facility'])->findOrFail($id);
+        return LabStaff::with(['employee.profile', 'employee.facility'])->findOrFail($id);
     }
 
     public function create(array $data): LabStaff
@@ -41,5 +63,15 @@ class LabStaffRepository
     {
         $staff = LabStaff::findOrFail($id);
         return $staff->delete();
+    }
+
+    private function applyStatusFilter($query, array $filters): void
+    {
+        if (isset($filters['status']) && $filters['status'] !== '') {
+            $query->whereHas('employee', fn($employee) => $employee->where(
+                'is_active',
+                in_array(strtolower($filters['status']), ['active', '1', 'true'], true)
+            ));
+        }
     }
 }

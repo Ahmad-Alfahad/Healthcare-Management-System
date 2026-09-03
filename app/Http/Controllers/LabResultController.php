@@ -28,7 +28,7 @@ class LabResultController extends Controller
         $this->authorize('viewAny', LabResult::class);
         $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
         $results = $this->labResultService
-            ->getAllLabResults($filters)
+            ->getAllLabResults($filters, $request->user())
             ->filter(fn(LabResult $result): bool => Gate::allows('view', $result));
 
         return response()->json([
