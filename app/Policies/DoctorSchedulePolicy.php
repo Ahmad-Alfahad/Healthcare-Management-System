@@ -34,7 +34,7 @@ class DoctorSchedulePolicy
                     ->facilityDepartmentSpecialization
                     ->facilityDepartment
                     ->facility
-            );
+            ) || ($user->isDoctor() && $user->doctor?->id === $doctor->id);
     }
 
 
@@ -49,7 +49,7 @@ class DoctorSchedulePolicy
                     ->facilityDepartmentSpecialization
                     ->facilityDepartment
                     ->facility
-            );
+            )|| ($user->isDoctor() && $user->doctor?->id === $doctorSchedule->doctor_id);
     }
 
 
@@ -64,6 +64,6 @@ class DoctorSchedulePolicy
                     ->facilityDepartmentSpecialization
                     ->facilityDepartment
                     ->facility
-            );
+            ) || ($user->isDoctor() && $user->doctor?->id === $doctorSchedule->doctor_id);
     }
 }

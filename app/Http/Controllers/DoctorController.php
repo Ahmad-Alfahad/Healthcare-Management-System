@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Doctor;
+use App\Models\Department;
+use App\Models\Facility;
+use App\Models\FacilityDepartment;
 use App\Models\FacilityDepartmentSpecialization;
 use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
@@ -25,9 +28,93 @@ class DoctorController extends Controller
         $user = request()->user();
         $this->authorize('viewAny', Doctor::class);
 
-        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string']]);
+        $filters = $request->validate([
+            'search' => ['sometimes', 'string', 'max:255'],
+            'facility_id' => ['sometimes', 'integer', 'exists:facilities,id'],
+            'department_id' => ['sometimes', 'integer', 'exists:departments,id'],
+            'specialization_id' => ['sometimes', 'integer', 'exists:specializations,id'],
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'status' => ['sometimes', 'string'],
+        ]);
         $doctors = $this->doctorService->getAllDoctors($user, $filters);
         return response()->json(['success' => true, 'data' => $doctors], Response::HTTP_OK);
+    }
+
+    public function facilityDoctors(Request $request, int $facilityId): JsonResponse
+    {
+        Facility::findOrFail($facilityId);
+
+        return $this->scopedDoctorsResponse($request, [
+            'facility_id' => $facilityId,
+        ]);
+    }
+
+    public function departmentDoctors(
+        Request $request,
+        int $facilityId,
+        int $departmentId
+    ): JsonResponse {
+        Facility::findOrFail($facilityId);
+        Department::findOrFail($departmentId);
+
+        FacilityDepartment::where('facility_id', $facilityId)
+            ->where('department_id', $departmentId)
+            ->firstOrFail();
+
+        return $this->scopedDoctorsResponse($request, [
+            'facility_id' => $facilityId,
+            'department_id' => $departmentId,
+        ]);
+    }
+
+    public function specializationDoctors(
+        Request $request,
+        int $facilityId,
+        int $departmentId,
+        int $specializationId
+    ): JsonResponse {
+        Facility::findOrFail($facilityId);
+        Department::findOrFail($departmentId);
+
+        $facilityDepartment = FacilityDepartment::where('facility_id', $facilityId)
+            ->where('department_id', $departmentId)
+            ->firstOrFail();
+
+        FacilityDepartmentSpecialization::where(
+            'facility_department_id',
+            $facilityDepartment->id
+        )
+            ->where('specialization_id', $specializationId)
+            ->firstOrFail();
+
+        return $this->scopedDoctorsResponse($request, [
+            'facility_id' => $facilityId,
+            'department_id' => $departmentId,
+            'specialization_id' => $specializationId,
+        ]);
+    }
+
+    private function scopedDoctorsResponse(
+        Request $request,
+        array $scope
+    ): JsonResponse {
+        $filters = $request->validate([
+            'search' => ['sometimes', 'string', 'max:255'],
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'status' => ['sometimes', 'string'],
+        ]);
+
+        $doctors = $this->doctorService->getAllDoctors(
+            $request->user(),
+            array_merge($filters, $scope)
+        );
+
+        return response()->json([
+            'success' => true,
+            'data' => $doctors,
+        ], Response::HTTP_OK);
     }
 
     public function store(StoreDoctorRequest $request): JsonResponse

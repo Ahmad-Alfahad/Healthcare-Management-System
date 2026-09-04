@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Doctor;
 use App\Support\ListQuery;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class DoctorRepository
@@ -23,7 +24,7 @@ class DoctorRepository
 
     public function all(array $filters = []): LengthAwarePaginator
     {
-        $query = $this->baseQuery();
+        $query = $this->applyLocationFilters($this->baseQuery(), $filters);
         if (isset($filters['status']) && $filters['status'] !== '') {
             $query->whereHas('employee', fn($employee) => $employee->where('is_active', $this->activeStatus($filters['status'])));
         }
@@ -78,6 +79,7 @@ class DoctorRepository
                 $query->whereIn('facility_id', $facilityIds);
             }
         );
+        $query = $this->applyLocationFilters($query, $filters);
         if (isset($filters['status']) && $filters['status'] !== '') {
             $query->whereHas('employee', fn($employee) => $employee->where('is_active', $this->activeStatus($filters['status'])));
         }
@@ -96,6 +98,41 @@ class DoctorRepository
                 'facilityDepartmentSpecialization.facilityDepartment.department' => ['name'],
             ]
         );
+    }
+
+    private function applyLocationFilters(Builder $query, array $filters): Builder
+    {
+        if (isset($filters['facility_id']) && $filters['facility_id'] !== '') {
+            $query->whereHas(
+                'facilityDepartmentSpecialization.facilityDepartment',
+                fn (Builder $facilityDepartment) => $facilityDepartment->where(
+                    'facility_id',
+                    $filters['facility_id']
+                )
+            );
+        }
+
+        if (isset($filters['department_id']) && $filters['department_id'] !== '') {
+            $query->whereHas(
+                'facilityDepartmentSpecialization.facilityDepartment',
+                fn (Builder $facilityDepartment) => $facilityDepartment->where(
+                    'department_id',
+                    $filters['department_id']
+                )
+            );
+        }
+
+        if (isset($filters['specialization_id']) && $filters['specialization_id'] !== '') {
+            $query->whereHas(
+                'facilityDepartmentSpecialization',
+                fn (Builder $assignment) => $assignment->where(
+                    'specialization_id',
+                    $filters['specialization_id']
+                )
+            );
+        }
+
+        return $query;
     }
 
     private function activeStatus(string $status): bool

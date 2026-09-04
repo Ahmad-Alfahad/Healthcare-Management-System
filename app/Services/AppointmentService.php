@@ -73,6 +73,10 @@ class AppointmentService
 
     public function createAppointment(array $data): Appointment
     {
+        $this->validateNoPendingAppointmentForDoctor(
+            $data['patient_id'],
+            $data['doctor_id']
+        );
         $this->validateAppointmentDate($data['scheduled_date']);
         $schedule = $this->validateDoctorSchedule($data['doctor_id'], $data['scheduled_date']);
         $this->validateDoctorAvailability($schedule);
@@ -85,6 +89,21 @@ class AppointmentService
             $data['start_time']
         );
         return $this->appointmentRepository->create($data);
+    }
+
+    private function validateNoPendingAppointmentForDoctor(
+        int $patientId,
+        int $doctorId
+    ): void {
+        if (!$this->appointmentRepository->existsPendingForPatientAndDoctor($patientId, $doctorId)) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'doctor_id' => [
+                'You already have a pending appointment with this doctor.',
+            ],
+        ]);
     }
 
     public function updateAppointment(int $id, array $data): bool

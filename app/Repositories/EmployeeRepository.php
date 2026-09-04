@@ -13,7 +13,7 @@ class EmployeeRepository
     public function all(array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(
-            Employee::with(['profile', 'facility']),
+            Employee::with(['profile.user.roles', 'facility']),
             $filters,
             ['languages'],
             [
@@ -27,7 +27,7 @@ class EmployeeRepository
     public function getByFacility(array $facilityIds, array $filters = []): LengthAwarePaginator
     {
         return $this->paginateList(
-            Employee::with(['profile', 'facility'])
+            Employee::with(['profile.user.roles', 'facility'])
                 ->whereIn('facility_id', $facilityIds),
             $filters,
             ['languages'],

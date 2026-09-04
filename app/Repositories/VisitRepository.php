@@ -55,7 +55,15 @@ class VisitRepository
 
     public function find(int $id): Visit
     {
-        return Visit::with(['appointment', 'doctor.employee.profile', 'patient.profile'])->findOrFail($id);
+        return Visit::with([
+            'appointment',
+            'doctor.employee.profile',
+            'patient.profile',
+            'diagnoses',
+            'prescription.items',
+            'labRequestItems.labTest',
+            'labRequestItems.labResult',
+        ])->findOrFail($id);
     }
 
     public function create(array $data): Visit

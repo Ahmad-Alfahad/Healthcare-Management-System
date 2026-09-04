@@ -96,6 +96,16 @@ class AppointmentRepository
         return Appointment::create($data);
     }
 
+    public function existsPendingForPatientAndDoctor(
+        int $patientId,
+        int $doctorId
+    ): bool {
+        return Appointment::where('patient_id', $patientId)
+            ->where('doctor_id', $doctorId)
+            ->where('status', 'pending')
+            ->exists();
+    }
+
     public function update(int $id, array $data): bool
     {
         $appointment = Appointment::findOrFail($id);

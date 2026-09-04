@@ -57,6 +57,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('facility-dept-specs', FacilityDepartmentSpecializationController::class);
     Route::get('facilities/{facility}/specializations',[SpecializationController::class, 'getByFacility']);
     Route::get('facilities/{facility}/manager',[FacilityController::class, 'manager']);
+    Route::get('facilities/{facilityId}/doctors', [DoctorController::class, 'facilityDoctors']);
+    Route::get('facilities/{facilityId}/departments/{departmentId}/doctors', [DoctorController::class, 'departmentDoctors']);
+    Route::get('facilities/{facilityId}/departments/{departmentId}/specializations/{specializationId}/doctors', [DoctorController::class, 'specializationDoctors']);
     Route::apiResource('doctors', DoctorController::class);
     Route::apiResource('labstaff', LabStaffController::class);
     Route::apiResource('pharmacists', PharmacistController::class);

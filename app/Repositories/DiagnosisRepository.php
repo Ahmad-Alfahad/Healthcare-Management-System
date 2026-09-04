@@ -12,7 +12,7 @@ class DiagnosisRepository
 
     public function all(array $filters = []): LengthAwarePaginator
     {
-        return $this->paginateList(Diagnosis::with('visit.appointment'), $filters, ['diagnosis', 'status', 'diagnosed_at'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]);
+        return $this->paginateList(Diagnosis::with('visit.appointment.doctor' , 'visit.patient'), $filters, ['diagnosis', 'status', 'diagnosed_at'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]);
     }
 
     public function getByFacility(array $facilityIds, array $filters = []): LengthAwarePaginator
