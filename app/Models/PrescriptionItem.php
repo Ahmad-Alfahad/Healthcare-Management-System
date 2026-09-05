@@ -18,6 +18,8 @@ class PrescriptionItem extends Model
         'duration',
     ];
 
+    protected $appends = ['remaining_quantity'];
+
     public function prescription()
     {
         return $this->belongsTo(Prescription::class);
@@ -26,5 +28,13 @@ class PrescriptionItem extends Model
     public function dispensings()
     {
         return $this->hasMany(Dispensing::class);
+    }
+
+    public function getRemainingQuantityAttribute(): int
+    {
+        $prescribedQuantity = (int) $this->quantity_prescribed;
+        $dispensedQuantity = (int) ($this->dispensings_sum_quantity_dispensed ?? $this->dispensings()->sum('quantity_dispensed'));
+
+        return max(0, $prescribedQuantity - $dispensedQuantity);
     }
 }

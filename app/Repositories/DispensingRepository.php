@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Dispensing;
+use App\Models\PrescriptionItem;
 use App\Models\User;
 use App\Support\ListQuery;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -84,5 +85,12 @@ class DispensingRepository
             'prescription_item_id',
             $prescriptionItemId
         )->sum('quantity_dispensed');
+    }
+    public function getQuantityReferencedByPrescriptionItem(int $prescriptionItemId): int
+    {
+        $item = PrescriptionItem::findOrFail($prescriptionItemId);
+        $dispensedQuantity = $this->getTotalDispensedForItem($prescriptionItemId);
+
+        return max(0, $item->quantity_prescribed - $dispensedQuantity);
     }
 }

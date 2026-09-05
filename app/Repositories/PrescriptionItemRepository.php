@@ -14,7 +14,8 @@ class PrescriptionItemRepository
 
     public function all(?User $user = null, array $filters = []): LengthAwarePaginator
     {
-        $query = PrescriptionItem::with('prescription');
+        $query = PrescriptionItem::with('prescription')
+            ->withSum('dispensings', 'quantity_dispensed');
 
         if (isset($filters['prescription_id'])) {
             $query->where('prescription_id', $filters['prescription_id']);
@@ -28,12 +29,15 @@ class PrescriptionItemRepository
 
     public function find(int $id): PrescriptionItem
     {
-        return PrescriptionItem::with('prescription')->findOrFail($id);
+        return PrescriptionItem::with('prescription')
+            ->withSum('dispensings', 'quantity_dispensed')
+            ->findOrFail($id);
     }
 
     public function getByPrescription(int $prescriptionId): Collection
     {
         return PrescriptionItem::where('prescription_id', $prescriptionId)
+            ->withSum('dispensings', 'quantity_dispensed')
             ->orderBy('id')
             ->get();
     }
