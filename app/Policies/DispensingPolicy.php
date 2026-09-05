@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Dispensing;
 use App\Models\PrescriptionItem;
+use App\Models\Pharmacist;
 use App\Models\User;
 
 class DispensingPolicy

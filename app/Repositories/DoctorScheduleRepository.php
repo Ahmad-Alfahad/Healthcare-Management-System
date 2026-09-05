@@ -28,7 +28,7 @@ class DoctorScheduleRepository
     }
 
     public function create(array $data): DoctorSchedule
-    {
+    { 
         return DoctorSchedule::create($data);
     }
 

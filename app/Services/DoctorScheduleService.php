@@ -54,8 +54,10 @@ class DoctorScheduleService
         return $this->doctorscheduleRepository->find($id);
     }
 
-    public function createDoctorSchedule(array $data): DoctorSchedule
+    public function createDoctorSchedule(array $data, User $user): DoctorSchedule
     {
+        $data['user_id'] = $user->id;
+
         return $this->doctorscheduleRepository->create($data);
     }
 

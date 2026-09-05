@@ -88,7 +88,7 @@ class VisitService
         $data['status'] = 'in_progress';
 
         $data['visited_at'] = $visitedAt;
-
+        $appointment->update(['status' => 'completed']);
         return $this->visitRepository->create($data);
     }
 

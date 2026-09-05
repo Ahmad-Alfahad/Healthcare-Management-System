@@ -37,6 +37,8 @@ class DoctorScheduleController extends Controller
 
     public function store(StoreDoctorScheduleRequest $request): JsonResponse
     {
+        $user = $request->user();
+
         $data = $request->validated();
         $doctor = Doctor::with(
             'facilityDepartmentSpecialization.facilityDepartment.facility'
@@ -48,7 +50,7 @@ class DoctorScheduleController extends Controller
         ]);
 
         $doctorSchedule = $this->doctorScheduleService
-            ->createDoctorSchedule($data);
+            ->createDoctorSchedule($data, $user);
 
         return response()->json([
             'success' => true,
