@@ -11,17 +11,25 @@ class LabRequestItemRepository
 {
     use ListQuery;
 
-    public function all(array $filters = [], ?User $user = null): LengthAwarePaginator
-    {
-        $query = LabRequestItem::with(['visit', 'labTest']);
+public function all(array $filters = [], ?User $user = null): LengthAwarePaginator
+{
+    $query = LabRequestItem::with([
+        'labTest:id,name',
+        'visit.patient.profile:id,user_id,full_name',
+        'visit.doctor.employee.profile:id,user_id,full_name'
+    ]);
 
-        if ($user !== null && !$user->isAdmin()) {
-            if ($user->isDoctor()) {
-                $query->whereHas('visit', fn ($visitQuery) => $visitQuery->where('doctor_id', $user->doctor?->id));
-            } elseif ($user->isPatient()) {
-                $query->whereHas('visit', fn ($visitQuery) => $visitQuery->where('patient_id', $user->patient?->id));
-            } elseif ($user->isManager() || $user->isLabStaff()) {
-                $facilityIds = $user->accessibleFacilityIds();
+    if ($user !== null && !$user->isAdmin()) {
+        if ($user->isDoctor() && $user->doctor) {
+            $doctorId = $user->doctor->id;
+            $query->whereHas('visit', fn ($visitQuery) => $visitQuery->where('doctor_id', $doctorId));
+        } elseif ($user->isPatient() && $user->patient) {
+            $patientId = $user->patient->id;
+            $query->whereHas('visit', fn ($visitQuery) => $visitQuery->where('patient_id', $patientId));
+        } elseif ($user->isManager() || $user->isLabStaff()) {
+            $facilityIds = $user->accessibleFacilityIds();
+            
+            if (!empty($facilityIds)) {
                 $query->whereHas(
                     'visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
                     fn ($facilityQuery) => $facilityQuery->whereIn('facility_id', $facilityIds)
@@ -29,10 +37,23 @@ class LabRequestItemRepository
             } else {
                 $query->whereKey(-1);
             }
+        } else {
+            $query->whereKey(-1);
         }
-
-        return $this->paginateList($query, $filters, ['status'], ['labTest' => ['name'], 'visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]);
     }
+
+    return $this->paginateList(
+        $query, 
+        $filters, 
+        ['status'], 
+        [
+            'labTest' => ['name'], 
+            'visit.patient.profile' => ['full_name'], 
+            'visit.doctor.employee.profile' => ['full_name']
+        ],
+        ['status' => 'status']
+    );
+}
 
     public function find(int $id): LabRequestItem
     {

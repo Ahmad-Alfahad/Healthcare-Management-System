@@ -16,8 +16,10 @@ class LabResultRepository
         $query = LabResult::with([
             'labRequestItem.labTest',
             'labRequestItem.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
+            'labRequestItem.visit.appointment.doctor.employee.profile',
+            'labRequestItem.visit.appointment.patient.profile',
             'labStaff.employee.profile',
-            'labStaff.facility',
+            'labStaff.employee.facility',
         ]);
 
         if ($user !== null && !$user->isAdmin()) {
@@ -44,7 +46,7 @@ class LabResultRepository
             'labRequestItem.labTest',
             'labRequestItem.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
             'labStaff.employee.profile',
-            'labStaff.facility',
+            'labStaff.employee.facility',
         ])->findOrFail($id);
     }
 
