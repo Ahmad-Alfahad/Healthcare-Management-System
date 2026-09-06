@@ -81,4 +81,10 @@ class SpecializationService
         return $this->specializationRepository
             ->getByFacility($facilityId);
     }
+
+    public function getByFacilityDepartment(int $facilityId, int $departmentId): Collection
+    {
+        return $this->specializationRepository
+            ->getByFacilityDepartment($facilityId, $departmentId);
+    }
 }

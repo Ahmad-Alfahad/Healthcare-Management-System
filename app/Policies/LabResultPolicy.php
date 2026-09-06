@@ -30,9 +30,11 @@ class LabResultPolicy
         if ($user->isAdmin()) {
             return true;
         }
+
         $labStaff = $user->labStaff;
+
         return $user->isLabStaff()
-            && $user->labStaff?->id === $labStaff->id
+            && $labStaff !== null
             && $this->staffCanAccessRequest($labStaff, $labRequestItem);
     }
 

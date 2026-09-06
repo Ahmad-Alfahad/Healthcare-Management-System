@@ -26,19 +26,19 @@ class DispensingPolicy
     public function create(
         User $user,
         PrescriptionItem $item,
-        ?Pharmacist $pharmacist = null
+        int|Pharmacist|null $pharmacist = null
     ): bool {
         if ($user->isAdmin()) {
             return true;
         }
 
-        // إذا لم يُمرر $pharmacist نستخرج القيمة المربوطة بالمستخدم مباشرة
-        $currentPharmacist = $pharmacist ?? $user->pharmacist;
+        $currentPharmacistId = $pharmacist instanceof Pharmacist
+            ? $pharmacist->id
+            : ($pharmacist ?? $user->pharmacist?->id);
 
         return $user->isPharmacist()
-            && $currentPharmacist !== null
-            && $currentPharmacist->is_active !== false
-            && $user->pharmacist?->id === $currentPharmacist->id
+            && $currentPharmacistId !== null
+            && $currentPharmacistId === $user->pharmacist?->id
             && $this->userCanAccessItemFacility($user, $item);
     }
 

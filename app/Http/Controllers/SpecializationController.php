@@ -78,4 +78,15 @@ class SpecializationController extends Controller
             'data' => $specializations
         ], Response::HTTP_OK);
     }
+
+    public function getByFacilityDepartment(int $facilityId, int $departmentId): JsonResponse
+    {
+        $specializations = $this->specializationService
+            ->getByFacilityDepartment($facilityId, $departmentId);
+
+        return response()->json([
+            'success' => true,
+            'data' => $specializations
+        ], Response::HTTP_OK);
+    }
 }

@@ -82,9 +82,13 @@ class LabRequestItemPolicy
 
         $facility = $this->visitFacility($visit);
 
-        return $user->isManager()
+        if ($user->isManager()) {
+            return $facility !== null && $user->managesFacility($facility);
+        }
+
+        return $user->isLabStaff()
             && $facility !== null
-            && $user->managesFacility($facility);
+            && in_array($facility->id, $user->accessibleFacilityIds(), true);
     }
 
     private function visitFacility(Visit $visit)

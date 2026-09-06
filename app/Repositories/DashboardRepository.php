@@ -6,10 +6,12 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Facility;
 use App\Models\LabStaff;
-use App\Models\LabResult;
 use App\Models\Patient;
 use App\Models\Pharmacist;
 use App\Models\Prescription;
+use App\Models\Dispensing;
+use App\Models\LabRequestItem;
+use App\Models\LabResult;
 use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Database\Eloquent\Builder;
@@ -51,23 +53,42 @@ class DashboardRepository
             );
         }
 
-        if ($user->isPharmacist()) {
-            return [
-                'pending_prescriptions' => Prescription::whereIn('status', ['pending', 'partial'])
-                    ->whereHas(
-                        'visit.doctor.facilityDepartmentSpecialization.facilityDepartment',
-                        fn(Builder $query) => $query->whereIn('facility_id', $user->accessibleFacilityIds())
-                    )
-                    ->count(),
-            ];
-        }
+if ($user->isPharmacist()) {
+    $facilityIds = $user->accessibleFacilityIds();
+
+    $baseQuery = Prescription::query()
+        ->whereHas(
+            'visit.doctor.facilityDepartmentSpecialization.facilityDepartment',
+            fn (Builder $query) =>
+                $query->whereIn('facility_id', $facilityIds)
+        );
+
+    return [
+        'pending_prescriptions' => (clone $baseQuery)
+            ->whereIn('status', ['pending', 'partial'])
+            ->count(),
+
+        'partially_dispensed' => (clone $baseQuery)
+            ->where('status', 'partial')
+            ->count(),
+
+        'completed_prescriptions' => (clone $baseQuery)
+            ->where('status', 'completed')
+            ->count(),
+
+        'dispensed_today' => Dispensing::query()
+            ->whereDate('dispensed_at', today())
+            ->whereHas(
+                'prescriptionItem.prescription.visit.doctor.facilityDepartmentSpecialization.facilityDepartment',
+                fn (Builder $query) =>
+                    $query->whereIn('facility_id', $facilityIds)
+            )
+            ->count(),
+    ];
+}
 
         if ($user->isLabStaff()) {
-            return [
-                'pending_results' => LabResult::where('lab_staff_id', $user->labStaff?->id)
-                    ->whereIn('status', ['pending', 'processing'])
-                    ->count(),
-            ];
+            return $this->labRequestSummary($user->accessibleFacilityIds());
         }
 
         return [];
@@ -146,6 +167,44 @@ class DashboardRepository
                 ->count(),
         ];
     }
+
+   private function labRequestSummary(array $facilityIds): array
+{
+    $query = LabRequestItem::query()
+        ->whereHas(
+            'visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
+            fn (Builder $facilityQuery) =>
+                $facilityQuery->whereIn('facility_id', $facilityIds)
+        );
+
+    $pending = (clone $query)
+        ->where('status', 'pending')
+        ->count();
+
+    $processing = (clone $query)
+        ->where('status', 'processing')
+        ->count();
+
+    $completed = (clone $query)
+        ->where('status', 'completed')
+        ->count();
+
+    $completedToday = LabResult::query()
+        ->whereDate('completed_at', today())
+        ->whereHas(
+            'labRequestItem.visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
+            fn (Builder $facilityQuery) =>
+                $facilityQuery->whereIn('facility_id', $facilityIds)
+        )
+        ->count();
+
+    return [
+        'pending_requests' => $pending,
+        'in_progress_requests' => $processing,
+        'completed_requests' => $completed,
+        'completed_today' => $completedToday,
+    ];
+}
 
     private function doctorQuery(array $facilityIds): Builder
     {

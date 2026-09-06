@@ -9,12 +9,12 @@ class PatientPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isManagement();
+        return $user->isManagement()|| $user->isDoctor() || $user->isPharmacist();
     }
 
     public function view(User $user, Patient $patient): bool
     {
-        if ($user->isManagement()) {
+        if ($user->isManagement()|| $user->isDoctor() || $user->isPharmacist()) {
             return true;
         }
 
@@ -23,7 +23,7 @@ class PatientPolicy
 
     public function create(User $user): bool
     {
-        return $user->isManagement();
+        return $user->isManagement() ;
     }
 
     public function update(User $user, Patient $patient): bool

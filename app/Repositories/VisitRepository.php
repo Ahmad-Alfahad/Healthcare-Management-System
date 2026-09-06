@@ -60,6 +60,7 @@ class VisitRepository
             'doctor.employee.profile',
             'patient.profile',
             'diagnoses',
+            'prescription',
             'prescription.items',
             'labRequestItems.labTest',
             'labRequestItems.labResult',

@@ -68,4 +68,15 @@ class SpecializationRepository
             }
         )->get();
     }
+
+    public function getByFacilityDepartment(int $facilityId, int $departmentId): Collection
+    {
+        return Specialization::whereHas(
+            'facilityDepartmentSpecializations.facilityDepartment',
+            function ($query) use ($facilityId, $departmentId) {
+                $query->where('facility_id', $facilityId)
+                    ->where('department_id', $departmentId);
+            }
+        )->get();
+    }
 }

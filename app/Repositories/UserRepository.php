@@ -32,6 +32,7 @@ class UserRepository
         return User::with([
             'profile',
             'patient',
+            'employee',
             'employee.doctor',
             'employee.pharmacist',
             'employee.labStaff',

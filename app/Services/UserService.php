@@ -113,6 +113,7 @@ class UserService
             'is_active' => $user->is_active,
             'roles'     => $user->getRoleNames(),
             'profile'   => $user->profile,
+            'employee'  => $user->employee,
         ];
 
         if ($user->isPatient()) {
@@ -130,7 +131,6 @@ class UserService
         if ($user->isLabStaff()) {
             $data['labStaff'] = $user->labStaff;
         }
-
         return $data;
     }
 
