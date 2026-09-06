@@ -49,6 +49,7 @@ class DispensingPolicy
 
     public function delete(User $user, Dispensing $dispensing): bool
     {
+        return false;
         return $this->canManageDispensing($user, $dispensing);
     }
 
@@ -57,7 +58,7 @@ class DispensingPolicy
         if ($user->isAdmin()) {
             return true;
         }
-
+       
         return $user->isPharmacist()
             && $user->pharmacist?->id === $dispensing->pharmacist_id
             && $this->userCanAccessItemFacility($user, $dispensing->prescriptionItem);

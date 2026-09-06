@@ -59,7 +59,14 @@ class DispensingRepository
 
     public function find(int $id): Dispensing
     {
-        return Dispensing::with(['prescriptionItem', 'pharmacist.employee.profile'])->findOrFail($id);
+        return Dispensing::with(
+            [
+                'prescriptionItem.prescription.visit.patient.profile',
+                'prescriptionItem.prescription.visit.doctor.employee.profile',
+                'pharmacist.employee.profile',
+               
+            ]
+        )->findOrFail($id);
     }
 
     public function create(array $data): Dispensing

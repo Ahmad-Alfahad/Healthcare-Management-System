@@ -15,8 +15,8 @@ class StorePharmacistRequest extends FormRequest
     {
         return [
             'employee_id'         => 'required|exists:employees,id|unique:pharmacists,employee_id',
-            'degree'              => 'required|string|max:255',
-            'years_of_experience' => 'required|integer|min:0|max:60',
+            'degree'              => 'sometimes|string|max:255|regex:/^[\pL\s]+$/u',
+            'years_of_experience' => 'sometimes|integer|min:0|max:60',
             'license_number'      => 'nullable|string|unique:pharmacists,license_number|max:100',
             'is_active'           => 'sometimes|boolean',
         ];
@@ -30,6 +30,7 @@ class StorePharmacistRequest extends FormRequest
             'employee_id.unique'     => 'This employee is already assigned to a pharmacist.',
             'license_number.unique'  => 'This pharmacy license number is already registered.',
             'is_active.boolean' => 'The active status must be true or false.',
+            'degree.regex' => 'The degree may only contain letters and spaces.',
 
             'years_of_experience.required' => 'The years of experience is required.',
             'years_of_experience.integer'  => 'The years of experience must be a valid integer.',

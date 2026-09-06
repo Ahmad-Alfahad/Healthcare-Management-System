@@ -20,7 +20,14 @@ class PrescriptionRepository
         ]);
 
         if ($user?->isAdmin()) {
-            return $this->paginateList($query, $filters, ['status'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]);
+            return $this->paginateList(
+                $query,
+                 $filters, 
+                 ['status'],
+                  ['visit.patient.profile' => ['full_name'], 
+                  'visit.doctor.employee.profile' => ['full_name']],
+                  ['status' => 'status']
+                  );
         }
 
         if ($user?->isDoctor()) {
@@ -53,7 +60,12 @@ class PrescriptionRepository
             $query->whereRaw('1 = 0');
         }
 
-        return $this->paginateList($query, $filters, ['status'], ['visit.patient.profile' => ['full_name'], 'visit.doctor.employee.profile' => ['full_name']]);
+        return $this->paginateList($query,
+         $filters,
+          ['status'], 
+          ['visit.patient.profile' => ['full_name'],
+           'visit.doctor.employee.profile' => ['full_name']]
+           , ['status' => 'status']);
     }
 
     public function find(int $id): Prescription

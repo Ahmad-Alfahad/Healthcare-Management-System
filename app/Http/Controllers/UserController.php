@@ -26,13 +26,13 @@ class UserController extends Controller
     public function register(Request $request): JsonResponse
     {
         $payload = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|regex:/^[\pL\s]+$/u',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|numeric|digits_between:8,15',
             'gender' => 'nullable|in:male,female',
             'address' => 'nullable|string|max:500',
-            'national_number' => 'nullable|string|max:20|unique:profiles,national_number',
+            'national_number' => 'nullable|string|unique:profiles,national_number|numeric|digits_between:8,15',
             'date_of_birth' => 'nullable|date|before:today',
         ]);
 
