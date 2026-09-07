@@ -73,7 +73,7 @@ if ($user->isPharmacist()) {
             ->count(),
 
         'completed_prescriptions' => (clone $baseQuery)
-            ->where('status', 'completed')
+            ->where('status', 'dispensed')
             ->count(),
 
         'dispensed_today' => Dispensing::query()

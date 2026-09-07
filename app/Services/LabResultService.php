@@ -84,9 +84,9 @@ class LabResultService
     {
         $labResult = $this->labResultRepository->find($id);
 
-        $this->validateResultIsEditable(
-            $labResult
-        );
+        // $this->validateResultIsEditable(
+        //     $labResult
+        // );
 
         return $this->labResultRepository->update($id, $data);
     }
@@ -137,21 +137,21 @@ class LabResultService
         }
     }
 
-    private function validateResultIsEditable(LabResult $labResult): void
-    {
-        if (
-            in_array(
-                $labResult->labRequestItem->status,
-                ['completed', 'cancelled']
-            )
-        ) {
-            throw ValidationException::withMessages([
-                'status' => [
-                    'Completed or cancelled results cannot be modified.'
-                ]
-            ]);
-        }
-    }
+    // private function validateResultIsEditable(LabResult $labResult): void
+    // {
+    //     if (
+    //         in_array(
+    //             $labResult->labRequestItem->status,
+    //             ['completed', 'cancelled']
+    //         )
+    //     ) {
+    //         throw ValidationException::withMessages([
+    //             'status' => [
+    //                 'Completed or cancelled results cannot be modified.'
+    //             ]
+    //         ]);
+    //     }
+    //}
 
     private function validateResultDeletion(LabResult $labResult): void
     {

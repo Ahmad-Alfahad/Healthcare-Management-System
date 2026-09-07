@@ -42,6 +42,8 @@ public function all(array $filters = [], ?User $user = null): LengthAwarePaginat
         }
     }
 
+    //$filters['status'] = $filters['status'] ?? 'pending';
+
     return $this->paginateList(
         $query, 
         $filters, 
