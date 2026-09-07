@@ -26,7 +26,7 @@ class StoreDiagnosisRequest extends FormRequest
             "visit_id" => ["required", "integer", "exists:visits,id"],
             "diagnosis_code" => ["required", "string", "max:50"],
             "description" => ["required", "string"],
-            "diagnosis_type" => ["required", "string", "max:255"],
+            "diagnosis_type" => ["required", "in:primary,secondary"],
             "notes" => ["nullable", "string"]
         ];
     }

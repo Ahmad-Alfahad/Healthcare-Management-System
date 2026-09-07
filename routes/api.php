@@ -98,7 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('profiles', ProfileController::class);
 
     // Administrative access control
-    Route::middleware('role:admin')->group(function () {
+    Route::middleware('role:admin,manager')->group(function () {
         Route::get('roles', [RolePermissionController::class, 'index']);
         Route::get('get-roles', [RolePermissionController::class, 'getRoles']);
         Route::post('roles/sync-role/{user}', [RolePermissionController::class, 'syncUserAccess']);

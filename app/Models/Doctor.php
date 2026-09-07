@@ -14,6 +14,8 @@ class Doctor extends Model
 
     use HasFactory;
 
+    protected $appends = ['is_active'];
+
     protected $fillable = [
         'facility_department_specialization_id',
         'employee_id',

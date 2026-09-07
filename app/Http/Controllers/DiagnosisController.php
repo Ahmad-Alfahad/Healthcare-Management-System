@@ -24,7 +24,7 @@ class DiagnosisController extends Controller
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Diagnosis::class);
-        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string'], 'from' => ['sometimes', 'date'], 'to' => ['sometimes', 'date', 'after_or_equal:from']]);
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'diagnosis_type' => ['sometimes', 'string', 'in:primary,secondary']]);
         $diagnoses = $this->diagnosisService->getAllDiagnoses(request()->user(), $filters);
 
         return response()->json(['success' => true, 'data' => $diagnoses], Response::HTTP_OK);

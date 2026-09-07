@@ -25,7 +25,7 @@ class UpdateDiagnosisRequest extends FormRequest
         return [
             "diagnosis_code" => ["sometimes", "string", "max:50"],
             "description" => ["sometimes", "string"],
-            "diagnosis_type" => ["sometimes", "string", "max:255"],
+            "diagnosis_type" => ["sometimes", "in:primary,secondary"],
             "notes" => ["sometimes", "nullable", "string"]
         ];
     }

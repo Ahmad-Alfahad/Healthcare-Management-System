@@ -24,7 +24,7 @@ class RolePermissionController extends Controller
 
         $selectedRole = $request->query('role');
         $searchTerm   = $request->query('search'); 
-        $accessData = $this->service->getAccessData($selectedRole, $searchTerm);
+        $accessData = $this->service->getAccessData($request->user(), $selectedRole, $searchTerm);
 
         return response()->json([
             'success' => true,
@@ -37,7 +37,7 @@ class RolePermissionController extends Controller
     {
         $this->authorize('managePermissions', $user);
 
-        $updatedUser = $this->service->syncUserRoles($user, $request->validated('roles', []));
+        $updatedUser = $this->service->syncUserRoles($request->user(), $user, $request->validated('roles', []));
 
         return response()->json([
             'success' => true,
@@ -50,9 +50,9 @@ class RolePermissionController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public function getRoles()
+    public function getRoles(Request $request)
     {
-        $roles = $this->service->getRolesList();
+        $roles = $this->service->getRolesList($request->user());
 
         return response()->json([
             'success' => true,

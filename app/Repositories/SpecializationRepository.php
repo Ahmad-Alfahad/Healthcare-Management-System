@@ -37,6 +37,13 @@ class SpecializationRepository
         return $specialization->delete();
     }
 
+    public function hasAssignments(int $id): bool
+    {
+        return Specialization::findOrFail($id)
+            ->facilityDepartmentSpecializations()
+            ->exists();
+    }
+
     public function existsByName(string $name): bool
     {
         return Specialization::where(

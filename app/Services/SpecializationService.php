@@ -42,6 +42,14 @@ class SpecializationService
 
     public function deleteSpecialization(int $id): bool
     {
+        if ($this->specializationRepository->hasAssignments($id)) {
+            throw ValidationException::withMessages([
+                'specialization' => [
+                    'Cannot delete a specialization assigned to one or more facilities.'
+                ]
+            ]);
+        }
+
         return $this->specializationRepository->delete($id);
     }
 

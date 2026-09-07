@@ -21,7 +21,7 @@ class AppointmentRepository
             'doctor.facilityDepartmentSpecialization.specialization',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.facility',
             'doctor.facilityDepartmentSpecialization.facilityDepartment.department',
-        ]), $filters, ['status', 'reason', 'scheduled_date'], ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.specialization' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.department' => ['name']]);
+        ]), $filters, ['reason', 'scheduled_date'], ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.specialization' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.department' => ['name']], ['status' => 'status']);
     }
 
     public function getByFacility(array $facilityIds, array $filters = []): LengthAwarePaginator
@@ -41,8 +41,9 @@ class AppointmentRepository
                     }
                 ),
             $filters,
-            ['status', 'reason', 'scheduled_date'],
-            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.specialization' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.department' => ['name']]
+            ['reason', 'scheduled_date'],
+            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name'], 'doctor.facilityDepartmentSpecialization.specialization' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.facility' => ['name'], 'doctor.facilityDepartmentSpecialization.facilityDepartment.department' => ['name']],
+            ['status' => 'status']
         );
     }
 
@@ -58,8 +59,9 @@ class AppointmentRepository
             ])
                 ->where('doctor_id', $doctorId),
             $filters,
-            ['status', 'reason', 'scheduled_date'],
-            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name']]
+            ['reason', 'scheduled_date'],
+            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name']],
+            ['status' => 'status']
         );
     }
 
@@ -75,8 +77,9 @@ class AppointmentRepository
             ])
                 ->where('patient_id', $patientId),
             $filters,
-            ['status', 'reason', 'scheduled_date'],
-            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name']]
+            ['reason', 'scheduled_date'],
+            ['patient.profile' => ['full_name'], 'doctor.employee.profile' => ['full_name']],
+            ['status' => 'status']
         );
     }
 

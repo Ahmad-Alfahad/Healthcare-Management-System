@@ -9,7 +9,7 @@ class UserPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() || $user->isManager();
     }
 
 
@@ -46,6 +46,16 @@ class UserPolicy
 
     public function managePermissions(User $user, User $target): bool
     {
-        return $user->isAdmin();
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->isManager()
+            && $target->profile?->employee !== null
+            && in_array(
+                $target->profile->employee->facility_id,
+                $user->accessibleFacilityIds(),
+                true
+            );
     }
 }

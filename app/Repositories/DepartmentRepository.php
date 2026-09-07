@@ -37,6 +37,13 @@ class DepartmentRepository
         return $department->delete();
     }
 
+    public function hasFacilityAssignments(int $id): bool
+    {
+        return Department::findOrFail($id)
+            ->facilityDepartment()
+            ->exists();
+    }
+
     public function existsByName(string $name): bool
     {
         return Department::where(

@@ -58,6 +58,9 @@ class AppointmentPolicy
         if ($user->isAdmin()) {
             return true;
         }
+        if ($user->isManager() || $this->canManageAppointment($user, new Appointment(['doctor_id' => $doctor->id, 'patient_id' => $patient->id]))) {
+            return true;
+        }
 
         if ($user->isPatient()) {
             return $user->patient?->id === $patient->id;

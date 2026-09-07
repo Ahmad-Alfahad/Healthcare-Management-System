@@ -14,6 +14,8 @@ class Pharmacist extends Model
 
     use HasFactory;
 
+    protected $appends = ['is_active'];
+
     protected $fillable = [
         'employee_id',
         'degree',

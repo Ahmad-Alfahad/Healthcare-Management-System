@@ -14,6 +14,8 @@ class LabStaff extends Model
 
     use HasFactory;
 
+    protected $appends = ['is_active'];
+
     protected $table = 'lab_staff';
 
     protected $fillable = [

@@ -42,6 +42,14 @@ class DepartmentService
 
     public function deleteDepartment(int $id): bool
     {
+        if ($this->departmentRepository->hasFacilityAssignments($id)) {
+            throw ValidationException::withMessages([
+                'department' => [
+                    'Cannot delete a department assigned to one or more facilities.'
+                ]
+            ]);
+        }
+
         return $this->departmentRepository->delete($id);
     }
 
