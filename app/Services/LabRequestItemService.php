@@ -36,6 +36,12 @@ class LabRequestItemService
         $visit =
             $this->visitRepository->find($data['visit_id']);
 
+        if (!$visit->doctor?->employee?->is_active) {
+            throw ValidationException::withMessages([
+                'visit_id' => ['The doctor assigned to this visit is inactive.'],
+            ]);
+        }
+
         $this->validateVisitIsActive($visit);
 
         $this->validateDuplicateLabRequest(

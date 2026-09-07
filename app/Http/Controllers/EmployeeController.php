@@ -26,6 +26,7 @@ class EmployeeController extends Controller
             'page' => ['sometimes', 'integer', 'min:1'],
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
             'facility_id' => ['sometimes', 'integer', 'exists:facilities,id'],
+            'status' => ['sometimes', 'string', 'in:active,inactive,1,0,true,false'],
         ]);
 
         return response()->json([
@@ -87,11 +88,23 @@ class EmployeeController extends Controller
     {
         $employee = $this->employeeService->getEmployeeById($id);
         $this->authorize('delete', $employee);
-        $this->employeeService->deleteEmployee($id);
+        $this->employeeService->softDeleteEmployee($id);
 
         return response()->json([
             'success' => true,
             'message' => 'Employee record deleted successfully.',
+        ], Response::HTTP_OK);
+    }
+
+    public function softDelete(int $id): JsonResponse
+    {
+        $employee = $this->employeeService->getEmployeeByIdForDeletion($id);
+        $this->authorize('delete', $employee);
+        $this->employeeService->softDeleteEmployee($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Employee deactivated and soft deleted successfully.',
         ], Response::HTTP_OK);
     }
 }

@@ -36,6 +36,12 @@ class LabResultService
 
     public function createLabResult(array $data, User $user): LabResult
     {
+        if (!$user->is_active) {
+            throw ValidationException::withMessages([
+                'lab_staff' => ['Inactive employees cannot perform new operations.'],
+            ]);
+        }
+
         if (!$user->isLabStaff()) {
             throw ValidationException::withMessages([
                 'lab_staff' => [

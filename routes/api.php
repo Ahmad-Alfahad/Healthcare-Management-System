@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Facilities and medical staff
     Route::apiResource('facilities', FacilityController::class);
     Route::apiResource('employees', EmployeeController::class);
+    Route::delete('employees/{employee}/soft-delete', [EmployeeController::class, 'softDelete']);
     Route::get('facilities/{facility}/staff', [FacilityController::class, 'staff']);
     Route::get('facilities/{facility}/departments', [FacilityController::class, 'departments']);
     Route::post('facilities/{facility}/departments', [FacilityController::class, 'addDepartment']);

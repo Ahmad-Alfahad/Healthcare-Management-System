@@ -37,6 +37,7 @@ class DoctorController extends Controller
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
             'status' => ['sometimes', 'string'],
         ]);
+        $filters['status'] = $filters['status'] ?? 'active';
         $doctors = $this->doctorService->getAllDoctors($user, $filters);
         return response()->json(['success' => true, 'data' => $doctors], Response::HTTP_OK);
     }
@@ -105,6 +106,7 @@ class DoctorController extends Controller
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
             'status' => ['sometimes', 'string'],
         ]);
+        $filters['status'] = $filters['status'] ?? 'active';
 
         $doctors = $this->doctorService->getAllDoctors(
             $request->user(),

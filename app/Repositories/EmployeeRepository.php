@@ -12,8 +12,11 @@ class EmployeeRepository
 
     public function all(array $filters = []): LengthAwarePaginator
     {
+        $query = Employee::with(['profile.user.roles', 'facility']);
+        $this->applyStatusFilter($query, $filters);
+
         return $this->paginateList(
-            Employee::with(['profile.user.roles', 'facility']),
+            $query,
             $filters,
             ['languages'],
             [
@@ -26,9 +29,12 @@ class EmployeeRepository
 
     public function getByFacility(array $facilityIds, array $filters = []): LengthAwarePaginator
     {
+        $query = Employee::with(['profile.user.roles', 'facility'])
+            ->whereIn('facility_id', $facilityIds);
+        $this->applyStatusFilter($query, $filters);
+
         return $this->paginateList(
-            Employee::with(['profile.user.roles', 'facility'])
-                ->whereIn('facility_id', $facilityIds),
+            $query,
             $filters,
             ['languages'],
             [
@@ -42,6 +48,17 @@ class EmployeeRepository
     {
         return Employee::with([
             'profile',
+            'facility',
+            'doctor',
+            'pharmacist',
+            'labStaff',
+        ])->findOrFail($id);
+    }
+
+    public function findWithTrashed(int $id): Employee
+    {
+        return Employee::withTrashed()->with([
+            'profile.user',
             'facility',
             'doctor',
             'pharmacist',
@@ -66,5 +83,25 @@ class EmployeeRepository
         $employee = Employee::findOrFail($id);
 
         return $employee->delete();
+    }
+
+    private function applyStatusFilter($query, array $filters): void
+    {
+        if (isset($filters['status']) && $filters['status'] !== '') {
+            $isActive = in_array(
+                strtolower($filters['status']),
+                ['active', '1', 'true'],
+                true
+            );
+
+            if (!$isActive) {
+                $query->withTrashed();
+            }
+
+            $query->where(
+                'is_active',
+                $isActive
+            );
+        }
     }
 }

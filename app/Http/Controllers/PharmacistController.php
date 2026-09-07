@@ -23,7 +23,7 @@ class PharmacistController extends Controller
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Pharmacist::class);
-        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string', 'in:active,inactive,1,0,true,false']]);
         $pharmacists = $this->pharmacistService->getAllPharmacists(request()->user(), $filters);
         return response()->json(['success' => true, 'data' => $pharmacists], Response::HTTP_OK);
     }

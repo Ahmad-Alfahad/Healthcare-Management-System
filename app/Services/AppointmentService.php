@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use App\Models\DoctorSchedule;
+use App\Models\Doctor;
 use App\Repositories\DoctorScheduleRepository;
 
 
@@ -73,6 +74,13 @@ class AppointmentService
 
     public function createAppointment(array $data): Appointment
     {
+        $doctor = Doctor::with('employee')->findOrFail($data['doctor_id']);
+        if (!$doctor->employee?->is_active) {
+            throw ValidationException::withMessages([
+                'doctor_id' => ['The selected doctor is inactive.'],
+            ]);
+        }
+
         $this->validateNoPendingAppointmentForDoctor(
             $data['patient_id'],
             $data['doctor_id']
@@ -294,6 +302,11 @@ class AppointmentService
 
     public function getAvailableSlots(int $doctorId, string $date): array
     {
+        $doctor = Doctor::with('employee')->findOrFail($doctorId);
+        if (!$doctor->employee?->is_active) {
+            return [];
+        }
+
         $day = Carbon::parse($date)
             ->format('l');
 

@@ -24,7 +24,7 @@ class LabStaffController extends Controller
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', LabStaff::class);
-        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']]);
+        $filters = $request->validate(['search' => ['sometimes', 'string', 'max:255'], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'status' => ['sometimes', 'string', 'in:active,inactive,1,0,true,false']]);
         $staff = $this->labStaffService->getAllStaff(request()->user(), $filters);
         return response()->json([
             'success' => true,

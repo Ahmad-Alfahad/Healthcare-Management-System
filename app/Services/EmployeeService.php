@@ -53,6 +53,11 @@ class EmployeeService
         return $this->employeeRepository->find($id);
     }
 
+    public function getEmployeeByIdForDeletion(int $id): Employee
+    {
+        return $this->employeeRepository->findWithTrashed($id);
+    }
+
     public function createEmployee(array $data): Employee
     {
         return $this->db->transaction(function () use ($data): Employee {
@@ -131,18 +136,17 @@ class EmployeeService
 
     public function deleteEmployee(int $id): bool
     {
+        return $this->softDeleteEmployee($id);
+    }
+
+    public function softDeleteEmployee(int $id): bool
+    {
         return $this->db->transaction(function () use ($id): bool {
-            $employee = $this->employeeRepository->find($id);
-            $profile = $employee->profile;
-            $user = $profile?->user;
-            $deleted = $this->employeeRepository->delete($id);
+            $employee = $this->employeeRepository->findWithTrashed($id);
+            $employee->update(['is_active' => false]);
+            $employee->profile?->user?->update(['is_active' => false]);
 
-            if ($deleted && $profile && !$profile->patient()->exists()) {
-                $profile->delete();
-                $user?->delete();
-            }
-
-            return $deleted;
+            return $employee->delete();
         });
     }
 

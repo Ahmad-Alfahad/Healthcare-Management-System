@@ -42,8 +42,13 @@ class DispensingService
 public function createDispensing(array $data, User $user): Dispensing
     {
         return DB::transaction(function () use ($data, $user) {
-           
-            $data['pharmacist_id'] = $user->pharmacist?->id;
+        if (!$user->is_active) {
+            throw ValidationException::withMessages([
+                'pharmacist_id' => ['Inactive employees cannot perform new operations.'],
+            ]);
+        }
+
+        $data['pharmacist_id'] = $user->pharmacist?->id;
             $data['dispensed_at']  = $data['dispensed_at'] ?? now();
             if (!$data['pharmacist_id'] && !$user->isAdmin()) {
                 throw ValidationException::withMessages([

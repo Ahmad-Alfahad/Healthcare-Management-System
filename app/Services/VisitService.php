@@ -64,6 +64,12 @@ class VisitService
         $appointment = $this->appointmentRepository
             ->find($data['appointment_id']);
 
+        if (!$appointment->doctor?->employee?->is_active) {
+            throw ValidationException::withMessages([
+                'appointment_id' => ['The doctor assigned to this appointment is inactive.'],
+            ]);
+        }
+
         $this->validateVisitUniqueness(
             $appointment->id
         );
