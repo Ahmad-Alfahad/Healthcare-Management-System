@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\PatientMedicalCondition;
 use App\Repositories\PatientMedicalConditionRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
@@ -25,6 +26,11 @@ class PatientMedicalConditionService
     public function getById(int $id): ?PatientMedicalCondition
     {
         return $this->repository->find($id);
+    }
+
+    public function getByPatient(int $patientId): Collection
+    {
+        return $this->repository->getByPatient($patientId);
     }
 
     public function create(array $data): PatientMedicalCondition

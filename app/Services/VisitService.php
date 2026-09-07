@@ -78,9 +78,9 @@ class VisitService
             $appointment
         );
 
-        $this->validateAppointmentTimeReached(
-            $appointment
-        );
+        // $this->validateAppointmentTimeReached(
+        //     $appointment
+        // );
 
         $visitedAt = Carbon::parse(
             $appointment->scheduled_date . ' ' .

@@ -93,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('lab-results', LabResultController::class);
 
     // Patient medical history
+    Route::get('patient-medical-conditions/patient/{patientId?}', [PatientMedicalConditionController::class, 'forPatient']);
     Route::apiResource('patient-medical-conditions', PatientMedicalConditionController::class);
     Route::apiResource('profiles', ProfileController::class);
 

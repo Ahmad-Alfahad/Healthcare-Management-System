@@ -10,6 +10,7 @@ use App\Services\PatientMedicalConditionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
 class PatientMedicalConditionController extends Controller
@@ -29,6 +30,38 @@ class PatientMedicalConditionController extends Controller
             ->getAll($filters);
 
         return response()->json(['success' => true, 'data' => $patient_medical_conditions], Response::HTTP_OK);
+    }
+
+    public function forPatient(?int $patientId = null): JsonResponse
+    {
+        $user = request()->user();
+        $this->authorize('viewAny', PatientMedicalCondition::class);
+
+        if ($user->isPatient()) {
+            $patientId = $user->patient?->id;
+        }
+
+        if ($patientId === null) {
+            throw ValidationException::withMessages([
+                'patient_id' => ['Patient ID is required for non-patient users.'],
+            ]);
+        }
+
+        $patient = Patient::findOrFail($patientId);
+        $conditions = $this->patientMedicalConditionService->getByPatient($patient->id);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'patient_id' => $patient->id,
+                'chronic_diseases' => $conditions
+                    ->filter(fn (PatientMedicalCondition $condition) => $condition->medicalCondition?->type === 'chronic')
+                    ->values(),
+                'allergies' => $conditions
+                    ->filter(fn (PatientMedicalCondition $condition) => $condition->medicalCondition?->type === 'allergy')
+                    ->values(),
+            ],
+        ], Response::HTTP_OK);
     }
 
     public function store(StorePatientMedicalConditionRequest $request): JsonResponse

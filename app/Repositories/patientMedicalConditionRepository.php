@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\PatientMedicalCondition;
 use App\Support\ListQuery;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class PatientMedicalConditionRepository
@@ -24,6 +25,13 @@ class PatientMedicalConditionRepository
             'patient',
             'medicalCondition',
         ])->findOrFail($id);
+    }
+
+    public function getByPatient(int $patientId): Collection
+    {
+        return PatientMedicalCondition::with('medicalCondition')
+            ->where('patient_id', $patientId)
+            ->get();
     }
 
     public function create(array $data): PatientMedicalCondition
