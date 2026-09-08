@@ -11,51 +11,55 @@ class LabRequestItemRepository
 {
     use ListQuery;
 
-public function all(array $filters = [], ?User $user = null): LengthAwarePaginator
-{
-    $query = LabRequestItem::with([
-        'labTest:id,name',
-        'visit.patient.profile:id,user_id,full_name',
-        'visit.doctor.employee.profile:id,user_id,full_name'
-    ]);
+    public function all(array $filters = [], ?User $user = null): LengthAwarePaginator
+    {
+        $query = LabRequestItem::with([
+            'labTest:id,name',
+            'visit.patient.profile:id,user_id,full_name',
+            'visit.doctor.employee.profile:id,user_id,full_name',
+            'labResult.labStaff.employee.profile:id,user_id,full_name',
+            'labResult.labStaff.employee.facility:id,name',
+        ]);
 
-    if ($user !== null && !$user->isAdmin()) {
-        if ($user->isDoctor() && $user->doctor) {
-            $doctorId = $user->doctor->id;
-            $query->whereHas('visit', fn ($visitQuery) => $visitQuery->where('doctor_id', $doctorId));
-        } elseif ($user->isPatient() && $user->patient) {
-            $patientId = $user->patient->id;
-            $query->whereHas('visit', fn ($visitQuery) => $visitQuery->where('patient_id', $patientId));
-        } elseif ($user->isManager() || $user->isLabStaff()) {
-            $facilityIds = $user->accessibleFacilityIds();
-            
-            if (!empty($facilityIds)) {
-                $query->whereHas(
-                    'visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
-                    fn ($facilityQuery) => $facilityQuery->whereIn('facility_id', $facilityIds)
-                );
+        if ($user !== null && ! $user->isAdmin()) {
+            if ($user->isDoctor() && $user->doctor) {
+                $doctorId = $user->doctor->id;
+                $query->whereHas('visit', fn ($visitQuery) => $visitQuery->where('doctor_id', $doctorId));
+            } elseif ($user->isPatient() && $user->patient) {
+                $patientId = $user->patient->id;
+                $query->whereHas('visit', fn ($visitQuery) => $visitQuery->where('patient_id', $patientId));
+            } elseif ($user->isManager() || $user->isLabStaff()) {
+                $facilityIds = $user->accessibleFacilityIds();
+
+                if (! empty($facilityIds)) {
+                    $query->whereHas(
+                        'visit.appointment.doctor.facilityDepartmentSpecialization.facilityDepartment',
+                        fn ($facilityQuery) => $facilityQuery->whereIn('facility_id', $facilityIds)
+                    );
+                } else {
+                    $query->whereKey(-1);
+                }
             } else {
                 $query->whereKey(-1);
             }
-        } else {
-            $query->whereKey(-1);
         }
+
+        // $filters['status'] = $filters['status'] ?? 'pending';
+
+        return $this->paginateList(
+            $query,
+            $filters,
+            ['status'],
+            [
+                'labTest' => ['name'],
+                'visit.patient.profile' => ['full_name'],
+                'visit.doctor.employee.profile' => ['full_name'],
+                'labResult.labStaff.employee.profile' => ['full_name'],
+                'labResult.labStaff.employee.facility' => ['name'],
+            ],
+            ['status' => 'status']
+        );
     }
-
-    //$filters['status'] = $filters['status'] ?? 'pending';
-
-    return $this->paginateList(
-        $query, 
-        $filters, 
-        ['status'], 
-        [
-            'labTest' => ['name'], 
-            'visit.patient.profile' => ['full_name'], 
-            'visit.doctor.employee.profile' => ['full_name']
-        ],
-        ['status' => 'status']
-    );
-}
 
     public function find(int $id): LabRequestItem
     {
@@ -70,6 +74,7 @@ public function all(array $filters = [], ?User $user = null): LengthAwarePaginat
     public function update(int $id, array $data): bool
     {
         $labRequestItem = LabRequestItem::findOrFail($id);
+
         return $labRequestItem->update($data);
     }
 
@@ -81,6 +86,7 @@ public function all(array $filters = [], ?User $user = null): LengthAwarePaginat
     public function delete(int $id): bool
     {
         $labRequestItem = LabRequestItem::findOrFail($id);
+
         return $labRequestItem->delete();
     }
 

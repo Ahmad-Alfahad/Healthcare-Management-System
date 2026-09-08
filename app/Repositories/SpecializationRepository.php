@@ -4,8 +4,9 @@ namespace App\Repositories;
 
 use App\Models\Specialization;
 use App\Support\ListQuery;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 class SpecializationRepository
 {
     use ListQuery;
@@ -28,12 +29,14 @@ class SpecializationRepository
     public function update(int $id, array $data): bool
     {
         $specialization = Specialization::findOrFail($id);
+
         return $specialization->update($data);
     }
 
     public function delete(int $id): bool
     {
         $specialization = Specialization::findOrFail($id);
+
         return $specialization->delete();
     }
 
@@ -69,9 +72,14 @@ class SpecializationRepository
     public function getByFacility(int $facilityId): Collection
     {
         return Specialization::whereHas(
-            'facilityDepartmentSpecializations.facilityDepartment',
+            'facilityDepartmentSpecializations',
             function ($query) use ($facilityId) {
-                $query->where('facility_id', $facilityId);
+                $query->where('is_active', true)
+                    ->whereHas(
+                        'facilityDepartment',
+                        fn ($facilityDepartment) => $facilityDepartment
+                            ->where('facility_id', $facilityId)
+                    );
             }
         )->get();
     }
@@ -79,10 +87,15 @@ class SpecializationRepository
     public function getByFacilityDepartment(int $facilityId, int $departmentId): Collection
     {
         return Specialization::whereHas(
-            'facilityDepartmentSpecializations.facilityDepartment',
+            'facilityDepartmentSpecializations',
             function ($query) use ($facilityId, $departmentId) {
-                $query->where('facility_id', $facilityId)
-                    ->where('department_id', $departmentId);
+                $query->where('is_active', true)
+                    ->whereHas(
+                        'facilityDepartment',
+                        fn ($facilityDepartment) => $facilityDepartment
+                            ->where('facility_id', $facilityId)
+                            ->where('department_id', $departmentId)
+                    );
             }
         )->get();
     }

@@ -26,7 +26,7 @@ class DoctorRepository
     {
         $query = $this->applyLocationFilters($this->baseQuery(), $filters);
         if (isset($filters['status']) && $filters['status'] !== '') {
-            $query->whereHas('employee', fn($employee) => $employee->where('is_active', $this->activeStatus($filters['status'])));
+            $query->whereHas('employee', fn ($employee) => $employee->where('is_active', $this->activeStatus($filters['status'])));
         }
 
         return $this->paginateList(
@@ -81,7 +81,7 @@ class DoctorRepository
         );
         $query = $this->applyLocationFilters($query, $filters);
         if (isset($filters['status']) && $filters['status'] !== '') {
-            $query->whereHas('employee', fn($employee) => $employee->where('is_active', $this->activeStatus($filters['status'])));
+            $query->whereHas('employee', fn ($employee) => $employee->where('is_active', $this->activeStatus($filters['status'])));
         }
 
         return $this->paginateList(
@@ -102,33 +102,45 @@ class DoctorRepository
 
     private function applyLocationFilters(Builder $query, array $filters): Builder
     {
-        if (isset($filters['facility_id']) && $filters['facility_id'] !== '') {
-            $query->whereHas(
-                'facilityDepartmentSpecialization.facilityDepartment',
-                fn (Builder $facilityDepartment) => $facilityDepartment->where(
-                    'facility_id',
-                    $filters['facility_id']
-                )
-            );
-        }
+        $hasLocationFilter = collect([
+            $filters['facility_id'] ?? null,
+            $filters['department_id'] ?? null,
+            $filters['specialization_id'] ?? null,
+        ])->contains(fn ($value) => $value !== null && $value !== '');
 
-        if (isset($filters['department_id']) && $filters['department_id'] !== '') {
-            $query->whereHas(
-                'facilityDepartmentSpecialization.facilityDepartment',
-                fn (Builder $facilityDepartment) => $facilityDepartment->where(
-                    'department_id',
-                    $filters['department_id']
-                )
-            );
-        }
-
-        if (isset($filters['specialization_id']) && $filters['specialization_id'] !== '') {
+        if ($hasLocationFilter) {
             $query->whereHas(
                 'facilityDepartmentSpecialization',
-                fn (Builder $assignment) => $assignment->where(
-                    'specialization_id',
-                    $filters['specialization_id']
-                )
+                function (Builder $assignment) use ($filters): void {
+                    $assignment->where('is_active', true)
+                        ->when(
+                            $filters['specialization_id'] ?? null,
+                            fn (Builder $specialization) => $specialization->where(
+                                'specialization_id',
+                                $filters['specialization_id']
+                            )
+                        )
+                        ->whereHas(
+                            'facilityDepartment',
+                            function (Builder $facilityDepartment) use ($filters): void {
+                                $facilityDepartment
+                                    ->when(
+                                        $filters['facility_id'] ?? null,
+                                        fn (Builder $facility) => $facility->where(
+                                            'facility_id',
+                                            $filters['facility_id']
+                                        )
+                                    )
+                                    ->when(
+                                        $filters['department_id'] ?? null,
+                                        fn (Builder $department) => $department->where(
+                                            'department_id',
+                                            $filters['department_id']
+                                        )
+                                    );
+                            }
+                        );
+                }
             );
         }
 

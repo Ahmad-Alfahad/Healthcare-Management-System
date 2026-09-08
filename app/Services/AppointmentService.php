@@ -3,20 +3,19 @@
 namespace App\Services;
 
 use App\Models\Appointment;
+use App\Models\Doctor;
+use App\Models\DoctorSchedule;
 use App\Models\User;
 use App\Repositories\AppointmentRepository;
-use Illuminate\Database\Eloquent\Collection;
-use Carbon\Carbon;
-use Illuminate\Validation\ValidationException;
-use App\Models\DoctorSchedule;
-use App\Models\Doctor;
 use App\Repositories\DoctorScheduleRepository;
-
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
 
 class AppointmentService
 {
-
     protected AppointmentRepository $appointmentRepository;
+
     protected DoctorScheduleRepository $doctorScheduleRepository;
 
     public function __construct(AppointmentRepository $appointmentRepository, DoctorScheduleRepository $doctorScheduleRepository)
@@ -34,8 +33,8 @@ class AppointmentService
         if ($user->isManager()) {
             $facility = $user->facility();
 
-            if (!$facility) {
-                return new Collection();
+            if (! $facility) {
+                return new Collection;
             }
 
             return $this->appointmentRepository
@@ -45,8 +44,8 @@ class AppointmentService
         if ($user->isDoctor()) {
             $doctor = $user->doctor;
 
-            if (!$doctor) {
-                return new Collection();
+            if (! $doctor) {
+                return new Collection;
             }
 
             return $this->appointmentRepository
@@ -56,15 +55,15 @@ class AppointmentService
         if ($user->isPatient()) {
             $patient = $user->patient;
 
-            if (!$patient) {
-                return new Collection();
+            if (! $patient) {
+                return new Collection;
             }
 
             return $this->appointmentRepository
                 ->getByPatient($patient->id, $filters);
         }
 
-        return new Collection();
+        return new Collection;
     }
 
     public function getAppointment(int $id): Appointment
@@ -74,10 +73,25 @@ class AppointmentService
 
     public function createAppointment(array $data): Appointment
     {
-        $doctor = Doctor::with('employee')->findOrFail($data['doctor_id']);
-        if (!$doctor->employee?->is_active) {
+        $doctor = Doctor::with([
+            'employee',
+            'facilityDepartmentSpecialization.facilityDepartment.facility',
+        ])->findOrFail($data['doctor_id']);
+        if (! $doctor->employee?->is_active) {
             throw ValidationException::withMessages([
                 'doctor_id' => ['The selected doctor is inactive.'],
+            ]);
+        }
+
+        if (
+            ! $doctor->facilityDepartmentSpecialization?->is_active
+            || ! $doctor->facilityDepartmentSpecialization
+                ?->facilityDepartment
+                ?->facility
+                ?->is_active
+        ) {
+            throw ValidationException::withMessages([
+                'doctor_id' => ['The selected doctor assignment is inactive.'],
             ]);
         }
 
@@ -96,6 +110,7 @@ class AppointmentService
             $data['scheduled_date'],
             $data['start_time']
         );
+
         return $this->appointmentRepository->create($data);
     }
 
@@ -103,7 +118,7 @@ class AppointmentService
         int $patientId,
         int $doctorId
     ): void {
-        if (!$this->appointmentRepository->existsPendingForPatientAndDoctor($patientId, $doctorId)) {
+        if (! $this->appointmentRepository->existsPendingForPatientAndDoctor($patientId, $doctorId)) {
             return;
         }
 
@@ -143,7 +158,7 @@ class AppointmentService
             return $this->appointmentRepository->getConfirmed(null, null, $user->patient?->id);
         }
 
-        return new Collection();
+        return new Collection;
     }
 
     private function validateAppointmentDate(string $scheduleDate): void
@@ -166,26 +181,25 @@ class AppointmentService
                 $day
             );
 
-        if (!$schedule) {
+        if (! $schedule) {
 
             throw ValidationException::withMessages([
                 'doctor_id' => [
-                    'Doctor is not available on this day.'
-                ]
+                    'Doctor is not available on this day.',
+                ],
             ]);
         }
 
         return $schedule;
     }
 
-
     private function validateDoctorAvailability(DoctorSchedule $schedule): void
     {
         if ($schedule->is_off) {
             throw ValidationException::withMessages([
                 'doctor_id' => [
-                    'Doctor is unavailable on this day.'
-                ]
+                    'Doctor is unavailable on this day.',
+                ],
             ]);
         }
     }
@@ -199,8 +213,8 @@ class AppointmentService
         if ($appointmentTime < $startTime || $appointmentTime >= $endTime) {
             throw ValidationException::withMessages([
                 'scheduled_date' => [
-                    'Appointment time must be within doctor\'s working hours.'
-                ]
+                    'Appointment time must be within doctor\'s working hours.',
+                ],
             ]);
         }
     }
@@ -239,8 +253,8 @@ class AppointmentService
         ) {
             throw ValidationException::withMessages([
                 'start_time' => [
-                    'Appointment exceeds doctor working hours.'
-                ]
+                    'Appointment exceeds doctor working hours.',
+                ],
             ]);
         }
 
@@ -264,8 +278,8 @@ class AppointmentService
             ) {
                 throw ValidationException::withMessages([
                     'start_time' => [
-                        'This time slot is already booked.'
-                    ]
+                        'This time slot is already booked.',
+                    ],
                 ]);
             }
         }
@@ -294,8 +308,8 @@ class AppointmentService
         ) {
             throw ValidationException::withMessages([
                 'start_time' => [
-                    'Invalid appointment slot.'
-                ]
+                    'Invalid appointment slot.',
+                ],
             ]);
         }
     }
@@ -303,7 +317,7 @@ class AppointmentService
     public function getAvailableSlots(int $doctorId, string $date): array
     {
         $doctor = Doctor::with('employee')->findOrFail($doctorId);
-        if (!$doctor->employee?->is_active) {
+        if (! $doctor->employee?->is_active) {
             return [];
         }
 
@@ -316,7 +330,7 @@ class AppointmentService
                 $day
             );
 
-        if (!$schedule || $schedule->is_off) {
+        if (! $schedule || $schedule->is_off) {
             return [];
         }
 
@@ -358,6 +372,7 @@ class AppointmentService
         $bookedSlots = $appointments
             ->pluck('start_time')
             ->toArray();
+
         return array_values(
             array_diff(
                 $slots,
@@ -377,7 +392,7 @@ class AppointmentService
         );
 
         $appointment->update([
-            'status' => $newStatus
+            'status' => $newStatus,
         ]);
 
         return $appointment->fresh();
@@ -389,12 +404,12 @@ class AppointmentService
 
             'pending' => [
                 'confirmed',
-                'cancelled'
+                'cancelled',
             ],
 
             'confirmed' => [
                 'completed',
-                'cancelled'
+                'cancelled',
             ],
 
             'completed' => [],
@@ -403,7 +418,7 @@ class AppointmentService
         ];
 
         if (
-            !in_array(
+            ! in_array(
                 $newStatus,
                 $allowedTransitions[$currentStatus]
             )
@@ -411,8 +426,8 @@ class AppointmentService
 
             throw ValidationException::withMessages([
                 'status' => [
-                    'Invalid status transition.'
-                ]
+                    'Invalid status transition.',
+                ],
             ]);
         }
     }

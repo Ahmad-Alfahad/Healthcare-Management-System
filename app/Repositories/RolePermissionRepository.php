@@ -33,7 +33,9 @@ class RolePermissionRepository
 
  public function getRoles()
     {
-        return Role::select('id', 'name')->get();
+        return Role::select('id', 'name')
+        ->where('name' , '!=' , 'admin')
+        ->get();
     }
 
     public function syncRoles(array $roles, User $user)
