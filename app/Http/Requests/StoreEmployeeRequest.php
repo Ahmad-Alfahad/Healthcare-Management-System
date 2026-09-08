@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\FacilityDepartmentSpecialization;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StoreEmployeeRequest extends FormRequest
 {
@@ -85,5 +87,26 @@ class StoreEmployeeRequest extends FormRequest
             'years_of_experience.max' => 'The years of experience must not exceed 60.',
             'license_number.unique' => 'This license number is already registered.',
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            if ($this->input('role') !== 'doctor'
+                || ! $this->filled('facility_department_specialization_id')
+                || ! $this->filled('facility_id')) {
+                return;
+            }
+
+            $assignment = FacilityDepartmentSpecialization::with('facilityDepartment')
+                ->find($this->input('facility_department_specialization_id'));
+            if (! $assignment || ! $assignment->is_active
+                || $assignment->facilityDepartment?->facility_id != $this->input('facility_id')) {
+                $validator->errors()->add(
+                    'facility_department_specialization_id',
+                    'The selected doctor assignment must belong to the employee facility and be active.'
+                );
+            }
+        });
     }
 }

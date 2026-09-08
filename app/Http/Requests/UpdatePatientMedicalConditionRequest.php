@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\PatientMedicalCondition;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdatePatientMedicalConditionRequest extends FormRequest
 {
@@ -13,7 +13,12 @@ class UpdatePatientMedicalConditionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $condition = $this->route('patient_medical_condition');
+        $condition = $condition instanceof PatientMedicalCondition
+            ? $condition
+            : PatientMedicalCondition::find($condition);
+
+        return $condition !== null && $this->user()?->can('update', $condition);
     }
 
     /**
@@ -25,7 +30,7 @@ class UpdatePatientMedicalConditionRequest extends FormRequest
     {
         return [
             'notes' => ['nullable', 'string'],
-            'diagnosed_at' => ['sometimes', 'date']
+            'diagnosed_at' => ['sometimes', 'date'],
         ];
     }
 
@@ -34,7 +39,7 @@ class UpdatePatientMedicalConditionRequest extends FormRequest
         return [
             'notes.string' => 'Notes must be a valid text string.',
 
-            'diagnosed_at.date' => 'Diagnosed at must be a valid date.'
+            'diagnosed_at.date' => 'Diagnosed at must be a valid date.',
         ];
     }
 }

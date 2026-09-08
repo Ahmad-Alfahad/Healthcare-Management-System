@@ -14,6 +14,7 @@ use Laravel\Sanctum\PersonalAccessToken;
 class UserService
 {
     protected UserRepository $userRepository;
+
     protected DatabaseManager $db;
 
     public function __construct(UserRepository $userRepository, DatabaseManager $db)
@@ -74,15 +75,19 @@ class UserService
     {
         $user = $this->userRepository->findByEmail($credentials['email']);
 
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Invalid credentials.'],
+                'email' => [
+                    'The email address or password is incorrect.',
+                ],
             ]);
         }
 
         if (! $user->is_active) {
             throw ValidationException::withMessages([
-                'email' => ['User account is inactive.'],
+                'email' => [
+                    'This account is inactive. Please contact an administrator.',
+                ],
             ]);
         }
 
@@ -107,13 +112,13 @@ class UserService
         $user = $this->userRepository->getAuthenticatedUser($user->id);
 
         $data = [
-            'id'        => $user->id,
-            'name'      => $user->name,
-            'email'     => $user->email,
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
             'is_active' => $user->is_active,
-            'roles'     => $user->getRoleNames(),
-            'profile'   => $user->profile,
-            'employee'  => $user->employee,
+            'roles' => $user->getRoleNames(),
+            'profile' => $user->profile,
+            'employee' => $user->employee,
         ];
 
         if ($user->isPatient()) {
@@ -131,6 +136,7 @@ class UserService
         if ($user->isLabStaff()) {
             $data['labStaff'] = $user->labStaff;
         }
+
         return $data;
     }
 

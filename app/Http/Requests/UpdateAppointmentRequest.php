@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Appointment;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,10 @@ class UpdateAppointmentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $appointment = $this->route('appointment');
+        $appointment = $appointment instanceof Appointment ? $appointment : Appointment::find($appointment);
+
+        return $appointment !== null && $this->user()?->can('update', $appointment);
     }
 
     /**
@@ -22,42 +26,41 @@ class UpdateAppointmentRequest extends FormRequest
      */
     public function rules(): array
     {
-      
+
         return [
-            'patient_id' =>
-                [
-                   'nullable',
-                    'integer',
-                    'exists:patients,id'
-                ],
+            'patient_id' => [
+                'sometimes',
+                'integer',
+                'exists:patients,id',
+            ],
 
             'doctor_id' => [
-               'nullable',
+                'sometimes',
                 'integer',
-                'exists:doctors,id'
+                'exists:doctors,id',
             ],
 
             'status' => [
-                'nullable',
+                'sometimes',
                 'in:pending,confirmed,cancelled,completed',
             ],
 
             'reason' => [
-                'nullable',
+                'sometimes',
                 'string',
                 'max:500',
             ],
 
             'scheduled_date' => [
-               'nullable',
-                'date'
+                'sometimes',
+                'date',
             ],
 
             'start_time' => [
-                'nullable',
-                'date_format:H:i'
+                'sometimes',
+                'date_format:H:i',
             ],
-            
+
         ];
     }
 
@@ -72,7 +75,7 @@ class UpdateAppointmentRequest extends FormRequest
             'reason.max' => 'The reason  may not be greater than 500 characters.',
 
             'scheduled_date.date' => 'scheduled_date must be a valid date.',
-            
+
             'start_time.date_format' => 'start_time must be a valid time.',
 
             'status.in' => 'Invalid appointment status.',

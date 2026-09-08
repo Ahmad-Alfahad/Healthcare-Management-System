@@ -2,20 +2,19 @@
 
 namespace App\Services;
 
-use App\Models\LabResult;
 use App\Models\LabRequestItem;
-use App\Repositories\LabResultRepository;
-use App\Repositories\LabRequestItemRepository;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Validation\ValidationException;
+use App\Models\LabResult;
 use App\Models\User;
-
-
+use App\Repositories\LabRequestItemRepository;
+use App\Repositories\LabResultRepository;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class LabResultService
 {
     protected LabResultRepository $labResultRepository;
+
     protected LabRequestItemRepository $labRequestItemRepository;
 
     public function __construct(LabResultRepository $labResultRepository, LabRequestItemRepository $labRequestItemRepository)
@@ -36,33 +35,33 @@ class LabResultService
 
     public function createLabResult(array $data, User $user): LabResult
     {
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             throw ValidationException::withMessages([
                 'lab_staff' => ['Inactive employees cannot perform new operations.'],
             ]);
         }
 
-        if (!$user->isLabStaff()) {
+        if (! $user->isLabStaff()) {
             throw ValidationException::withMessages([
                 'lab_staff' => [
-                    'Authenticated user is not laboratory staff.'
-                ]
+                    'Authenticated user is not laboratory staff.',
+                ],
             ]);
         }
 
         $labStaff = $user->labStaff;
-        if (!$labStaff) {
+        if (! $labStaff) {
             throw ValidationException::withMessages([
                 'lab_staff' => [
-                    'Authenticated user is not assigned to a laboratory staff record.'
-                ]
+                    'Authenticated user is not assigned to a laboratory staff record.',
+                ],
             ]);
         }
         $labRequest =
             $this->labRequestItemRepository
-            ->find(
-                $data['lab_request_item_id']
-            );
+                ->find(
+                    $data['lab_request_item_id']
+                );
 
         $this->validateResultUniqueness(
             $data['lab_request_item_id']
@@ -74,10 +73,11 @@ class LabResultService
 
         $data['unit'] = $labRequest->labTest->unit;
 
-        $data['reference_range'] = $labRequest->labTest->range_low . ' - ' . $labRequest->labTest->range_high;
+        $data['reference_range'] = $labRequest->labTest->range_low.' - '.$labRequest->labTest->range_high;
 
         $data['completed_at'] = now();
         $data['lab_staff_id'] = $labStaff->id;
+
         return DB::transaction(function () use ($data, $labRequest): LabResult {
             $result = $this->labResultRepository->create($data);
             $this->labRequestItemRepository->updateStatus($labRequest->id, 'completed');
@@ -90,9 +90,7 @@ class LabResultService
     {
         $labResult = $this->labResultRepository->find($id);
 
-        // $this->validateResultIsEditable(
-        //     $labResult
-        // );
+        $this->validateResultIsEditable($labResult);
 
         return $this->labResultRepository->update($id, $data);
     }
@@ -104,6 +102,7 @@ class LabResultService
         $this->validateResultDeletion(
             $labResult
         );
+
         return $this->labResultRepository->delete($id);
     }
 
@@ -111,14 +110,14 @@ class LabResultService
     {
         if (
             $this->labResultRepository
-            ->existsForRequest(
-                $labRequestItemId
-            )
+                ->existsForRequest(
+                    $labRequestItemId
+                )
         ) {
             throw ValidationException::withMessages([
                 'lab_request_item_id' => [
-                    'A result already exists for this lab request.'
-                ]
+                    'A result already exists for this lab request.',
+                ],
             ]);
         }
     }
@@ -129,35 +128,28 @@ class LabResultService
 
             throw ValidationException::withMessages([
                 'lab_request_item_id' => [
-                    'Cannot add result to a cancelled visit.'
-                ]
+                    'Cannot add result to a cancelled visit.',
+                ],
             ]);
         }
 
         if ($request->status !== 'processing') {
             throw ValidationException::withMessages([
                 'lab_request_item_id' => [
-                    'A lab result can only be recorded for a request that is processing.'
-                ]
+                    'A lab result can only be recorded for a request that is processing.',
+                ],
             ]);
         }
     }
 
-    // private function validateResultIsEditable(LabResult $labResult): void
-    // {
-    //     if (
-    //         in_array(
-    //             $labResult->labRequestItem->status,
-    //             ['completed', 'cancelled']
-    //         )
-    //     ) {
-    //         throw ValidationException::withMessages([
-    //             'status' => [
-    //                 'Completed or cancelled results cannot be modified.'
-    //             ]
-    //         ]);
-    //     }
-    //}
+    private function validateResultIsEditable(LabResult $labResult): void
+    {
+        if (in_array($labResult->labRequestItem?->status, ['completed', 'cancelled'], true)) {
+            throw ValidationException::withMessages([
+                'lab_result_id' => ['Completed or cancelled results cannot be modified.'],
+            ]);
+        }
+    }
 
     private function validateResultDeletion(LabResult $labResult): void
     {
@@ -169,8 +161,8 @@ class LabResultService
         ) {
             throw ValidationException::withMessages([
                 'lab_result_id' => [
-                    'Completed or cancelled results cannot be deleted.'
-                ]
+                    'Completed or cancelled results cannot be deleted.',
+                ],
             ]);
         }
     }

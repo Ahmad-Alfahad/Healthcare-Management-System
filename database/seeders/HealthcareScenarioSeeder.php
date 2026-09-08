@@ -15,16 +15,15 @@ use App\Models\MedicalCondition;
 use App\Models\Patient;
 use App\Models\PatientMedicalCondition;
 use App\Models\Pharmacist;
+use App\Models\Prescription;
 use App\Models\Profile;
 use App\Models\User;
 use App\Services\AppointmentService;
-use App\Services\DoctorService;
 use App\Services\LabRequestItemService;
 use App\Services\PrescriptionItemService;
 use App\Services\PrescriptionService;
 use App\Services\VisitService;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -37,8 +36,7 @@ class HealthcareScenarioSeeder extends Seeder
         protected PrescriptionService $prescriptionService,
         protected PrescriptionItemService $prescriptionItemService,
         protected LabRequestItemService $labRequestService,
-    ) {
-    }
+    ) {}
 
     public function run(): void
     {
@@ -196,18 +194,13 @@ class HealthcareScenarioSeeder extends Seeder
             Doctor::query()->updateOrCreate(
                 ['employee_id' => $employee->id],
                 [
-                    'facility_department_specialization_id' =>
-                        $assignment->id,
-                    'qualification' =>
-                        $this->doctorQualification($index),
-                    'years_of_experience' =>
-                        3 + (($index * 2) % 18),
-                    'biography' =>
-                        "طبيب متخصص في {$specialization->name} "
-                        . "يعمل ضمن قسم {$department->name} "
-                        . "في {$facility->name}.",
-                    'achievements' =>
-                        $this->doctorAchievement($index),
+                    'facility_department_specialization_id' => $assignment->id,
+                    'qualification' => $this->doctorQualification($index),
+                    'years_of_experience' => 3 + (($index * 2) % 18),
+                    'biography' => "طبيب متخصص في {$specialization->name} "
+                        ."يعمل ضمن قسم {$department->name} "
+                        ."في {$facility->name}.",
+                    'achievements' => $this->doctorAchievement($index),
                 ]
             );
         }
@@ -248,14 +241,11 @@ class HealthcareScenarioSeeder extends Seeder
             Pharmacist::query()->updateOrCreate(
                 ['employee_id' => $employee->id],
                 [
-                    'degree' =>
-                        $index % 2 === 0
+                    'degree' => $index % 2 === 0
                             ? 'دكتور صيدلة'
                             : 'بكالوريوس صيدلة',
-                    'years_of_experience' =>
-                        2 + (($index * 2) % 15),
-                    'license_number' =>
-                        sprintf('SY-PH-%05d', $index),
+                    'years_of_experience' => 2 + (($index * 2) % 15),
+                    'license_number' => sprintf('SY-PH-%05d', $index),
                 ]
             );
         }
@@ -303,15 +293,12 @@ class HealthcareScenarioSeeder extends Seeder
             LabStaff::query()->updateOrCreate(
                 ['employee_id' => $employee->id],
                 [
-                    'specialization' =>
-                        $labSpecializations[
+                    'specialization' => $labSpecializations[
                             ($index - 1) % count($labSpecializations)
                         ],
                     'degree' => 'بكالوريوس علوم مخبرية طبية',
-                    'years_of_experience' =>
-                        2 + (($index * 2) % 14),
-                    'license_number' =>
-                        sprintf('SY-LAB-%05d', $index),
+                    'years_of_experience' => 2 + (($index * 2) % 14),
+                    'license_number' => sprintf('SY-LAB-%05d', $index),
                 ]
             );
         }
@@ -357,10 +344,8 @@ class HealthcareScenarioSeeder extends Seeder
                 ['profile_id' => $profile->id],
                 [
                     'blood_type' => $this->bloodType($index),
-                    'emergency_contact_name' =>
-                        $this->emergencyContactName($index),
-                    'emergency_contact_phone' =>
-                        $this->emergencyContactPhone($index),
+                    'emergency_contact_name' => $this->emergencyContactName($index),
+                    'emergency_contact_phone' => $this->emergencyContactPhone($index),
                 ]
             );
         }
@@ -380,12 +365,11 @@ class HealthcareScenarioSeeder extends Seeder
             ->with('profile')
             ->whereHas(
                 'profile.user',
-                fn ($query) =>
-                    $query->where(
-                        'email',
-                        'like',
-                        'patient.%@seed.local'
-                    )
+                fn ($query) => $query->where(
+                    'email',
+                    'like',
+                    'patient.%@seed.local'
+                )
             )
             ->orderBy('id')
             ->get();
@@ -411,9 +395,8 @@ class HealthcareScenarioSeeder extends Seeder
                     'diagnosed_at' => now()->subMonths(
                         3 + ($sequence % 30)
                     ),
-                    'notes' =>
-                        'حالة مسجلة ضمن السجل الطبي للمريض '
-                        . 'وتحتاج إلى المتابعة حسب تقييم الطبيب.',
+                    'notes' => 'حالة مسجلة ضمن السجل الطبي للمريض '
+                        .'وتحتاج إلى المتابعة حسب تقييم الطبيب.',
                 ]
             );
 
@@ -427,15 +410,13 @@ class HealthcareScenarioSeeder extends Seeder
                     PatientMedicalCondition::query()->updateOrCreate(
                         [
                             'patient_id' => $patient->id,
-                            'medical_condition_id' =>
-                                $secondCondition->id,
+                            'medical_condition_id' => $secondCondition->id,
                         ],
                         [
                             'diagnosed_at' => now()->subMonths(
                                 6 + ($sequence % 24)
                             ),
-                            'notes' =>
-                                'حالة إضافية مسجلة في الملف الطبي.',
+                            'notes' => 'حالة إضافية مسجلة في الملف الطبي.',
                         ]
                     );
                 }
@@ -446,8 +427,7 @@ class HealthcareScenarioSeeder extends Seeder
     private function seedSchedules(): void
     {
         $doctors = Doctor::query()
-            ->whereHas('employee', fn ($query) =>
-                $query->where('is_active', true)
+            ->whereHas('employee', fn ($query) => $query->where('is_active', true)
             )
             ->get();
 
@@ -483,8 +463,7 @@ class HealthcareScenarioSeeder extends Seeder
     {
         $doctors = Doctor::query()
             ->with('employee')
-            ->whereHas('employee', fn ($query) =>
-                $query->where('is_active', true)
+            ->whereHas('employee', fn ($query) => $query->where('is_active', true)
             )
             ->get();
 
@@ -494,15 +473,13 @@ class HealthcareScenarioSeeder extends Seeder
 
         $pharmacist = Pharmacist::query()
             ->with('employee')
-            ->whereHas('employee', fn ($query) =>
-                $query->where('is_active', true)
+            ->whereHas('employee', fn ($query) => $query->where('is_active', true)
             )
             ->firstOrFail();
 
         $labStaff = LabStaff::query()
             ->with('employee')
-            ->whereHas('employee', fn ($query) =>
-                $query->where('is_active', true)
+            ->whereHas('employee', fn ($query) => $query->where('is_active', true)
             )
             ->firstOrFail();
 
@@ -518,14 +495,13 @@ class HealthcareScenarioSeeder extends Seeder
             ->with('profile')
             ->whereHas(
                 'profile.user',
-                fn ($query) =>
-                    $query
-                        ->where(
-                            'email',
-                            'like',
-                            'patient.%@seed.local'
-                        )
-                        ->where('is_active', true)
+                fn ($query) => $query
+                    ->where(
+                        'email',
+                        'like',
+                        'patient.%@seed.local'
+                    )
+                    ->where('is_active', true)
             )
             ->orderBy('id')
             ->limit($transactionPatientCount)
@@ -546,8 +522,8 @@ class HealthcareScenarioSeeder extends Seeder
                     $scenario
                 );
 
-                $visit = $this->visitService
-                    ->startVisit($appointment->id);
+                $visit = $appointment->visit
+                    ?? $this->visitService->startVisit($appointment->id);
 
                 $this->seedActiveVisitRecords(
                     $visit->id,
@@ -558,13 +534,15 @@ class HealthcareScenarioSeeder extends Seeder
                     $scenario
                 );
 
-                if ($scenario === 0) {
+                if (
+                    $scenario === 0
+                    && $visit->status === 'in_progress'
+                ) {
                     $this->visitService->completeVisit(
                         $visit->id,
                         [
-                            'notes' =>
-                                'تمت المعاينة الطبية وإغلاق الزيارة '
-                                . 'بعد استكمال الإجراءات المطلوبة.',
+                            'notes' => 'تمت المعاينة الطبية وإغلاق الزيارة '
+                                .'بعد استكمال الإجراءات المطلوبة.',
                         ]
                     );
                 }
@@ -587,13 +565,9 @@ class HealthcareScenarioSeeder extends Seeder
         int $index,
         int $scenario
     ): Appointment {
-        $date = now()
-            ->subDays(7 + $index)
+        $date = Carbon::create(2025, 1, 6)
+            ->addDays($index)
             ->startOfDay();
-
-        $date = $date->isSunday()
-            ? $date->subDay()
-            : $date;
 
         $time = sprintf(
             '%02d:%02d:00',
@@ -601,7 +575,7 @@ class HealthcareScenarioSeeder extends Seeder
             ($index % 2) * 30
         );
 
-        return Appointment::query()->updateOrCreate(
+        $appointment = Appointment::query()->updateOrCreate(
             [
                 'patient_id' => $patient->id,
                 'doctor_id' => $doctor->id,
@@ -610,12 +584,17 @@ class HealthcareScenarioSeeder extends Seeder
             ],
             [
                 'status' => 'confirmed',
-                'reason' =>
-                    $scenario === 0
+                'reason' => $scenario === 0
                         ? 'متابعة دورية للحالة الصحية.'
                         : 'مراجعة طبية واستكمال الخطة العلاجية.',
             ]
         );
+
+        if ($appointment->visit()->exists()) {
+            $appointment->update(['status' => 'completed']);
+        }
+
+        return $appointment->fresh();
     }
 
     private function seedFutureAppointment(
@@ -624,13 +603,9 @@ class HealthcareScenarioSeeder extends Seeder
         int $index,
         bool $cancelled
     ): Appointment {
-        $date = now()
-            ->addDays(3 + $index)
+        $date = Carbon::create(2030, 1, 7)
+            ->addDays($index)
             ->startOfDay();
-
-        while ($date->isSunday()) {
-            $date->addDay();
-        }
 
         $time = sprintf(
             '%02d:%02d:00',
@@ -649,8 +624,7 @@ class HealthcareScenarioSeeder extends Seeder
                 'status' => $cancelled
                     ? 'cancelled'
                     : 'pending',
-                'reason' =>
-                    $cancelled
+                'reason' => $cancelled
                         ? 'تم إلغاء الموعد من قبل المريض.'
                         : 'موعد لمراجعة الحالة الطبية.',
             ]
@@ -673,8 +647,7 @@ class HealthcareScenarioSeeder extends Seeder
 
             [
                 'code' => 'E11',
-                'description' =>
-                    'داء السكري من النوع الثاني.',
+                'description' => 'داء السكري من النوع الثاني.',
             ],
 
             [
@@ -684,8 +657,7 @@ class HealthcareScenarioSeeder extends Seeder
 
             [
                 'code' => 'L20',
-                'description' =>
-                    'التهاب الجلد التأتبي.',
+                'description' => 'التهاب الجلد التأتبي.',
             ],
         ];
 
@@ -709,21 +681,19 @@ class HealthcareScenarioSeeder extends Seeder
             );
         }
 
-        $prescription = $this->prescriptionService
-            ->createPrescription(
+        $prescription = Prescription::query()
+            ->firstOrCreate(
+                ['visit_id' => $visitId],
                 [
-                    'visit_id' => $visitId,
                     'status' => 'pending',
-                    'notes' =>
-                        'وصفة دوائية حسب الخطة العلاجية للطبيب.',
+                    'notes' => 'وصفة دوائية حسب الخطة العلاجية للطبيب.',
                 ]
             );
 
-        $item1 = $this->prescriptionItemService
-            ->createPrescriptionItem(
+        $item1 = $prescription->items()
+            ->firstOrCreate(
+                ['medication_name' => 'باراسيتامول'],
                 [
-                    'prescription_id' => $prescription->id,
-                    'medication_name' => 'باراسيتامول',
                     'dosage' => '500 mg',
                     'quantity_prescribed' => 20,
                     'frequency' => 'مرتين يومياً',
@@ -731,11 +701,10 @@ class HealthcareScenarioSeeder extends Seeder
                 ]
             );
 
-        $item2 = $this->prescriptionItemService
-            ->createPrescriptionItem(
+        $item2 = $prescription->items()
+            ->firstOrCreate(
+                ['medication_name' => 'أوميبرازول'],
                 [
-                    'prescription_id' => $prescription->id,
-                    'medication_name' => 'أوميبرازول',
                     'dosage' => '20 mg',
                     'quantity_prescribed' => 14,
                     'frequency' => 'مرة يومياً',
@@ -750,19 +719,31 @@ class HealthcareScenarioSeeder extends Seeder
             $scenario
         );
 
+        DB::table('prescriptions')
+            ->where('id', $prescription->id)
+            ->update([
+                'status' => $scenario === 0
+                    ? 'dispensed'
+                    : ($scenario === 1 ? 'partial' : 'pending'),
+                'updated_at' => now(),
+            ]);
+
         $labTests = LabTest::query()
             ->orderBy('id')
             ->limit(2)
             ->get();
 
         foreach ($labTests as $testIndex => $labTest) {
-            $requestItem = $this->labRequestService
-                ->createLabRequestItem(
+            $requestItem = LabRequestItem::query()
+                ->firstOrCreate(
                     [
                         'visit_id' => $visitId,
                         'lab_test_id' => $labTest->id,
-                        'notes' =>
-                            'طلب فحص مخبري ضمن الخطة التشخيصية.',
+                    ],
+                    [
+                        'notes' => 'طلب فحص مخبري ضمن الخطة التشخيصية.',
+                        'requested_at' => now()->subDays(2),
+                        'status' => 'pending',
                     ]
                 );
 
@@ -795,6 +776,8 @@ class HealthcareScenarioSeeder extends Seeder
                 [
                     'quantity_dispensed' => 10,
                     'dispensed_at' => now()->subDays(2),
+                    'updated_at' => now(),
+                    'created_at' => now(),
                 ]
             );
 
@@ -809,6 +792,8 @@ class HealthcareScenarioSeeder extends Seeder
             [
                 'quantity_dispensed' => 20,
                 'dispensed_at' => now()->subDays(2),
+                'updated_at' => now(),
+                'created_at' => now(),
             ]
         );
 
@@ -820,6 +805,8 @@ class HealthcareScenarioSeeder extends Seeder
             [
                 'quantity_dispensed' => 14,
                 'dispensed_at' => now()->subDays(2),
+                'updated_at' => now(),
+                'created_at' => now(),
             ]
         );
     }
@@ -837,24 +824,9 @@ class HealthcareScenarioSeeder extends Seeder
 
         if ($scenario === 1) {
             $this->setLabRequestStatus($requestItem->id, 'processing');
-
-            DB::table('lab_results')->updateOrInsert(
-                [
-                    'lab_request_item_id' => $requestItem->id,
-                ],
-                [
-                    'lab_staff_id' => $labStaff->id,
-                    'value' => 0,
-                    'unit' => $labTest->unit,
-                    'reference_range' =>
-                        "{$labTest->range_low}-"
-                        . "{$labTest->range_high}",
-                    'notes' =>
-                        'الفحص قيد المعالجة في المختبر.',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
+            DB::table('lab_results')
+                ->where('lab_request_item_id', $requestItem->id)
+                ->delete();
 
             return;
         }
@@ -874,11 +846,9 @@ class HealthcareScenarioSeeder extends Seeder
                 'lab_staff_id' => $labStaff->id,
                 'value' => $value,
                 'unit' => $labTest->unit,
-                'reference_range' =>
-                    "{$labTest->range_low}-"
-                    . "{$labTest->range_high}",
-                'notes' =>
-                    $testIndex === 0
+                'reference_range' => "{$labTest->range_low}-"
+                    ."{$labTest->range_high}",
+                'notes' => $testIndex === 0
                         ? 'النتيجة ضمن المجال المرجعي.'
                         : 'تم إصدار النتيجة بعد استكمال الفحص.',
                 'completed_at' => now()->subDay(),
@@ -909,9 +879,9 @@ class HealthcareScenarioSeeder extends Seeder
             [
                 'description' => $description,
                 'diagnosis_type' => $type,
-                'notes' =>
-                    'تم تسجيل التشخيص بعد المعاينة الطبية.',
+                'notes' => 'تم تسجيل التشخيص بعد المعاينة الطبية.',
                 'created_at' => now(),
+                'updated_at' => now(),
             ]
         );
     }
@@ -941,8 +911,7 @@ class HealthcareScenarioSeeder extends Seeder
             ['user_id' => $user->id],
             [
                 'full_name' => $fullName,
-                'national_number' =>
-                    sprintf('SEED%016d', $sequence),
+                'national_number' => sprintf('SEED%016d', $sequence),
                 'phone' => $this->phoneFor($sequence),
                 'gender' => $gender,
                 'address' => $this->addressFor($sequence),
@@ -1163,7 +1132,7 @@ class HealthcareScenarioSeeder extends Seeder
             ->where('email', $email)
             ->first();
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
@@ -1178,4 +1147,3 @@ class HealthcareScenarioSeeder extends Seeder
         ]);
     }
 }
-

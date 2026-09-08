@@ -2,14 +2,20 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Employee;
+use App\Models\FacilityDepartmentSpecialization;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class UpdateEmployeeRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $employee = $this->route('employee');
+        $employee = $employee instanceof Employee ? $employee : Employee::find($employee);
+
+        return $employee !== null && $this->user()?->can('update', $employee);
     }
 
     public function rules(): array
@@ -43,5 +49,30 @@ class UpdateEmployeeRequest extends FormRequest
             'languages.*.max' => 'Each language must not exceed 100 characters.',
             'is_active.boolean' => 'The active status must be true or false.',
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            if (! $this->filled('facility_id')) {
+                return;
+            }
+
+            $employee = $this->route('employee');
+            $employee = $employee instanceof Employee ? $employee : Employee::find($employee);
+            $assignmentId = $employee?->doctor?->facility_department_specialization_id;
+            if (! $assignmentId) {
+                return;
+            }
+
+            $assignment = FacilityDepartmentSpecialization::with('facilityDepartment')->find($assignmentId);
+            if (! $assignment || ! $assignment->is_active
+                || $assignment->facilityDepartment?->facility_id != $this->input('facility_id')) {
+                $validator->errors()->add(
+                    'facility_id',
+                    'The employee facility must match the doctor assignment facility.'
+                );
+            }
+        });
     }
 }

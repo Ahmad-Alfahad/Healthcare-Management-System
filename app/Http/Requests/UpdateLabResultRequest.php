@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\LabResult;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,10 @@ class UpdateLabResultRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $result = $this->route('lab_result');
+        $result = $result instanceof LabResult ? $result : LabResult::find($result);
+
+        return $result !== null && $this->user()?->can('update', $result);
     }
 
     /**
@@ -23,23 +27,23 @@ class UpdateLabResultRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "value" => ["sometimes", "numeric", "between:0,9999.99"],
-            "access_token" => ["nullable", "string", "max:255"],
-            "notes" => ["nullable", "string"]
+            'value' => ['sometimes', 'numeric', 'between:0,9999.99'],
+            'access_token' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            "value.required" => "Value is required.",
-            "value.numeric" => "Value must be a numeric value.",
-            "value.between" => "Value must be between 0 and 9999.99.",
+            'value.required' => 'Value is required.',
+            'value.numeric' => 'Value must be a numeric value.',
+            'value.between' => 'Value must be between 0 and 9999.99.',
 
-            "access_token.string" => "Access token must be a string.",
-            "access_token.max" => "Access token may not be greater than 255 characters.",
+            'access_token.string' => 'Access token must be a string.',
+            'access_token.max' => 'Access token may not be greater than 255 characters.',
 
-            "notes.string" => "Notes must be a string."
+            'notes.string' => 'Notes must be a string.',
         ];
     }
 }

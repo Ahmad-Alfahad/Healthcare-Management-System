@@ -4,10 +4,10 @@ namespace App\Services;
 
 use App\Models\PatientMedicalCondition;
 use App\Repositories\PatientMedicalConditionRepository;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
-use Carbon\Carbon;
 
 class PatientMedicalConditionService
 {
@@ -43,6 +43,7 @@ class PatientMedicalConditionService
         $this->validateDiagnosisDate(
             $data['diagnosed_at'] ?? null
         );
+
         return $this->repository->create($data);
     }
 
@@ -50,6 +51,14 @@ class PatientMedicalConditionService
     {
         $patientMedicalCondition =
             $this->repository->find($id);
+
+        $patientId = (int) ($data['patient_id'] ?? $patientMedicalCondition->patient_id);
+        $conditionId = (int) ($data['medical_condition_id'] ?? $patientMedicalCondition->medical_condition_id);
+        if ($this->repository->existsForPatientExcept($patientId, $conditionId, $id)) {
+            throw ValidationException::withMessages([
+                'medical_condition_id' => ['This condition is already assigned to the patient.'],
+            ]);
+        }
 
         $this->validateDiagnosisDate(
             $data['diagnosed_at'] ?? null
@@ -76,15 +85,15 @@ class PatientMedicalConditionService
     {
         if (
             $this->repository
-            ->existsForPatient(
-                $patientId,
-                $medicalConditionId
-            )
+                ->existsForPatient(
+                    $patientId,
+                    $medicalConditionId
+                )
         ) {
             throw ValidationException::withMessages([
                 'medical_condition_id' => [
-                    'This condition is already assigned to the patient.'
-                ]
+                    'This condition is already assigned to the patient.',
+                ],
             ]);
         }
     }
@@ -97,8 +106,8 @@ class PatientMedicalConditionService
         ) {
             throw ValidationException::withMessages([
                 'diagnosed_at' => [
-                    'Diagnosis date cannot be in the future.'
-                ]
+                    'Diagnosis date cannot be in the future.',
+                ],
             ]);
         }
     }

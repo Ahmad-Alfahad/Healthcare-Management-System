@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Profile;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProfileRequest;
 use App\Http\Requests\UpdateProfileRequest;
+use App\Models\Profile;
 use App\Services\ProfileService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,8 +20,8 @@ class ProfileController extends Controller
 
     public function index(): JsonResponse
     {
-        $profiles = $this->profileService->getAll(request()->user());
         $this->authorize('viewAny', Profile::class);
+        $profiles = $this->profileService->getAll(request()->user());
 
         return response()->json([
             'success' => true,
@@ -58,8 +57,9 @@ class ProfileController extends Controller
 
     public function update(UpdateProfileRequest $request, int $id): JsonResponse
     {
-        $profile = $this->profileService->update($id, $request->validated());
+        $profile = $this->profileService->getProfileById($id);
         $this->authorize('update', $profile);
+        $profile = $this->profileService->update($id, $request->validated());
         $profile->load(['user.roles']);
 
         return response()->json([

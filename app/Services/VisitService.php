@@ -2,19 +2,21 @@
 
 namespace App\Services;
 
-use App\Models\Visit;
-use App\Repositories\VisitRepository;
-use App\Repositories\AppointmentRepository;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Validation\ValidationException;
 use App\Models\Appointment;
 use App\Models\User;
+use App\Models\Visit;
+use App\Repositories\AppointmentRepository;
+use App\Repositories\VisitRepository;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
 
 class VisitService
 {
     protected VisitRepository $visitRepository;
+
     protected AppointmentRepository $appointmentRepository;
+
     public function __construct(VisitRepository $visitRepository, AppointmentRepository $appointmentRepository)
     {
         $this->visitRepository = $visitRepository;
@@ -32,7 +34,7 @@ class VisitService
 
             return $facility
                 ? $this->visitRepository->getByFacility($user->accessibleFacilityIds(), $filters)
-                : new Collection();
+                : new Collection;
         }
 
         if ($user->isDoctor()) {
@@ -40,7 +42,7 @@ class VisitService
 
             return $doctor
                 ? $this->visitRepository->getByDoctor($doctor->id, $filters)
-                : new Collection();
+                : new Collection;
         }
 
         if ($user->isPatient()) {
@@ -48,10 +50,10 @@ class VisitService
 
             return $patient
                 ? $this->visitRepository->getByPatient($patient->id, $filters)
-                : new Collection();
+                : new Collection;
         }
 
-        return new Collection();
+        return new Collection;
     }
 
     public function getVisitById(int $id): Visit
@@ -64,7 +66,7 @@ class VisitService
         $appointment = $this->appointmentRepository
             ->find($data['appointment_id']);
 
-        if (!$appointment->doctor?->employee?->is_active) {
+        if (! $appointment->doctor?->employee?->is_active) {
             throw ValidationException::withMessages([
                 'appointment_id' => ['The doctor assigned to this appointment is inactive.'],
             ]);
@@ -83,7 +85,7 @@ class VisitService
         // );
 
         $visitedAt = Carbon::parse(
-            $appointment->scheduled_date . ' ' .
+            $appointment->scheduled_date.' '.
                 $appointment->start_time
         );
 
@@ -95,6 +97,7 @@ class VisitService
 
         $data['visited_at'] = $visitedAt;
         $appointment->update(['status' => 'completed']);
+
         return $this->visitRepository->create($data);
     }
 
@@ -107,6 +110,15 @@ class VisitService
     {
         $visit = $this->visitRepository->find($id);
         $this->validateVisitIsEditable($visit);
+
+        $appointmentId = $data['appointment_id'] ?? $visit->appointment_id;
+        $appointment = $this->appointmentRepository->find((int) $appointmentId);
+        if ($appointment->doctor_id !== $visit->doctor_id || $appointment->patient_id !== $visit->patient_id) {
+            throw ValidationException::withMessages([
+                'appointment_id' => ['The appointment doctor and patient must match the visit.'],
+            ]);
+        }
+
         return $this->visitRepository->update($id, $data);
     }
 
@@ -114,20 +126,20 @@ class VisitService
     {
         $visit = $this->visitRepository->find($id);
         $this->validateVisitIsEditable($visit);
+
         return $this->visitRepository->delete($id);
     }
-
 
     private function validateVisitUniqueness(int $appointmentId): void
     {
         if (
             $this->visitRepository
-            ->existsByAppointmentId($appointmentId)
+                ->existsByAppointmentId($appointmentId)
         ) {
             throw ValidationException::withMessages([
                 'appointment_id' => [
-                    'This appointment already has a visit.'
-                ]
+                    'This appointment already has a visit.',
+                ],
             ]);
         }
     }
@@ -139,8 +151,8 @@ class VisitService
         ) {
             throw ValidationException::withMessages([
                 'appointment_id' => [
-                    'Appointment must be confirmed.'
-                ]
+                    'Appointment must be confirmed.',
+                ],
             ]);
         }
     }
@@ -148,15 +160,15 @@ class VisitService
     private function validateAppointmentTimeReached(Appointment $appointment): void
     {
         $appointmentDateTime = Carbon::parse(
-            $appointment->scheduled_date . ' ' .
+            $appointment->scheduled_date.' '.
                 $appointment->start_time
         );
 
         if (now()->lt($appointmentDateTime)) {
             throw ValidationException::withMessages([
                 'appointment_id' => [
-                    'Appointment time has not been reached yet.'
-                ]
+                    'Appointment time has not been reached yet.',
+                ],
             ]);
         }
     }
@@ -168,8 +180,8 @@ class VisitService
         ) {
             throw ValidationException::withMessages([
                 'status' => [
-                    'Visit status cannot be changed.'
-                ]
+                    'Visit status cannot be changed.',
+                ],
             ]);
         }
 
@@ -181,8 +193,8 @@ class VisitService
         ) {
             throw ValidationException::withMessages([
                 'status' => [
-                    'Invalid visit status.'
-                ]
+                    'Invalid visit status.',
+                ],
             ]);
         }
     }
@@ -201,7 +213,7 @@ class VisitService
             ->update(
                 $visitId,
                 [
-                    'status' => $newStatus
+                    'status' => $newStatus,
                 ]
             );
     }
@@ -223,8 +235,8 @@ class VisitService
 
             throw ValidationException::withMessages([
                 'visit' => [
-                    'Only in progress visits can be modified.'
-                ]
+                    'Only in progress visits can be modified.',
+                ],
             ]);
         }
     }

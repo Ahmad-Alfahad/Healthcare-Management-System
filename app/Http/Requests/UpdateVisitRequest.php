@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Visit;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,10 @@ class UpdateVisitRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $visit = $this->route('visit');
+        $visit = $visit instanceof Visit ? $visit : Visit::find($visit);
+
+        return $visit !== null && $this->user()?->can('update', $visit);
     }
 
     /**
@@ -23,24 +27,23 @@ class UpdateVisitRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "appointment_id" => [
-                "sometimes",
-                "nullable",
-                "exists:appointments,id"
+            'appointment_id' => [
+                'sometimes',
+                'integer',
+                'exists:appointments,id',
             ],
 
-            "notes" => ["string"],
+            'notes' => ['sometimes', 'string'],
 
         ];
     }
 
-
     public function messages(): array
     {
         return [
-            "appointment_id.exists" => "The specified appointment does not exist.",
+            'appointment_id.exists' => 'The specified appointment does not exist.',
 
-            "notes.string" => "Notes must be a string.",
+            'notes.string' => 'Notes must be a string.',
         ];
     }
 }

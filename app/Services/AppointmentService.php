@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\DoctorSchedule;
+use App\Models\Patient;
 use App\Models\User;
 use App\Repositories\AppointmentRepository;
 use App\Repositories\DoctorScheduleRepository;
@@ -131,6 +132,45 @@ class AppointmentService
 
     public function updateAppointment(int $id, array $data): bool
     {
+        $appointment = $this->appointmentRepository->find($id);
+        $values = array_merge($appointment->only([
+            'patient_id', 'doctor_id', 'scheduled_date', 'start_time', 'status',
+        ]), $data);
+        Patient::findOrFail((int) $values['patient_id']);
+
+        $doctor = Doctor::with([
+            'employee',
+            'facilityDepartmentSpecialization.facilityDepartment.facility',
+        ])->findOrFail((int) $values['doctor_id']);
+
+        if (! $doctor->employee?->is_active) {
+            throw ValidationException::withMessages(['doctor_id' => ['The selected doctor is inactive.']]);
+        }
+        if (! $doctor->facilityDepartmentSpecialization?->is_active
+            || ! $doctor->facilityDepartmentSpecialization?->facilityDepartment?->facility?->is_active) {
+            throw ValidationException::withMessages(['doctor_id' => ['The selected doctor assignment is inactive.']]);
+        }
+
+        $this->validateAppointmentDate($values['scheduled_date']);
+        $schedule = $this->validateDoctorSchedule((int) $values['doctor_id'], $values['scheduled_date']);
+        $this->validateDoctorAvailability($schedule);
+        $this->validateWorkingHours($schedule, $values['start_time']);
+        $this->validateTimeSlot($schedule, $values['start_time']);
+        $this->validateTimeConflict($schedule, (int) $values['doctor_id'], $values['scheduled_date'], $values['start_time'], $id);
+
+        if ($values['status'] === 'pending') {
+            $pending = $this->appointmentRepository->existsPendingForPatientAndDoctor(
+                (int) $values['patient_id'], (int) $values['doctor_id']
+            );
+            if ($pending && ! ($appointment->status === 'pending'
+                && $appointment->patient_id == $values['patient_id']
+                && $appointment->doctor_id == $values['doctor_id'])) {
+                throw ValidationException::withMessages(['doctor_id' => ['You already have a pending appointment with this doctor.']]);
+            }
+        }
+        if (isset($data['status']) && $data['status'] !== $appointment->status) {
+            $this->validateStatusTransition($appointment->status, $data['status']);
+        }
 
         return $this->appointmentRepository->update($id, $data);
     }
@@ -223,7 +263,8 @@ class AppointmentService
         DoctorSchedule $schedule,
         int $doctorId,
         string $date,
-        string $requestedTime
+        string $requestedTime,
+        ?int $ignoreAppointmentId = null
     ): void {
 
         $appointments = $this->appointmentRepository
@@ -259,6 +300,9 @@ class AppointmentService
         }
 
         foreach ($appointments as $appointment) {
+            if ($ignoreAppointmentId !== null && $appointment->id === $ignoreAppointmentId) {
+                continue;
+            }
 
             $existingStart = Carbon::createFromFormat(
                 'H:i:s',

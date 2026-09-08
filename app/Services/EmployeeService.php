@@ -2,18 +2,18 @@
 
 namespace App\Services;
 
+use App\Models\Doctor;
 use App\Models\Employee;
 use App\Models\Facility;
-use App\Models\Profile;
-use App\Models\Doctor;
-use App\Models\Pharmacist;
-use App\Models\LabStaff;
 use App\Models\FacilityDepartmentSpecialization;
+use App\Models\LabStaff;
+use App\Models\Pharmacist;
+use App\Models\Profile;
 use App\Models\User;
 use App\Repositories\EmployeeRepository;
 use Illuminate\Database\DatabaseManager;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class EmployeeService
@@ -21,8 +21,7 @@ class EmployeeService
     public function __construct(
         protected EmployeeRepository $employeeRepository,
         protected DatabaseManager $db
-    ) {
-    }
+    ) {}
 
     public function getAllEmployees(
         User $user,
@@ -35,8 +34,8 @@ class EmployeeService
         if ($user->isManager()) {
             $facility = $user->facility();
 
-            if (!$facility) {
-                return new Collection();
+            if (! $facility) {
+                return new Collection;
             }
 
             return $this->employeeRepository->getByFacility(
@@ -116,6 +115,13 @@ class EmployeeService
         if (isset($data['facility_id'])) {
             $facility = Facility::findOrFail($data['facility_id']);
             $this->validateFacility($facility);
+            $employee->loadMissing('doctor.facilityDepartmentSpecialization.facilityDepartment');
+            if ($employee->doctor) {
+                $this->validateDoctorAssignment(
+                    (int) $employee->doctor->facility_department_specialization_id,
+                    $facility
+                );
+            }
         }
 
         $updated = $this->db->transaction(function () use ($id, $data, $employee): bool {
@@ -199,7 +205,7 @@ class EmployeeService
 
     private function validateFacility(Facility $facility): void
     {
-        if (!$facility->is_active) {
+        if (! $facility->is_active) {
             throw ValidationException::withMessages([
                 'facility_id' => [
                     'The selected facility is inactive.',
@@ -217,8 +223,8 @@ class EmployeeService
         )->find($assignmentId);
 
         if (
-            !$assignment
-            || !$assignment->is_active
+            ! $assignment
+            || ! $assignment->is_active
             || $assignment->facilityDepartment->facility_id !== $facility->id
         ) {
             throw ValidationException::withMessages([
